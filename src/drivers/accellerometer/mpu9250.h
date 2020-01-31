@@ -57,10 +57,11 @@ void SDOS_MPU9250::setup()
     // an accelerometer data rate of 15.63 Hz. 
     // Only accelerometer is enabled in LP mode
     // The interrupt is 50us pulse.
-    if (mpu_lp_motion_interrupt(40,0,2) != INV_SUCCESS) {    
+    // @todo work out why this doesn't work
+    //if (mpu_lp_motion_interrupt(1,0,2) != INV_SUCCESS) {    
         // Failed to initialize MPU-9250, report somehow
-        Serial.println(F("IMU set up failed. Please check installed IMU IC."));    
-    }
+        //Serial.println(F("IMU set up failed. Please check installed IMU IC."));    
+    //}
 
     //_imu.configureFifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
 
