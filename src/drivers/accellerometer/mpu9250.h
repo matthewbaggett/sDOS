@@ -165,7 +165,7 @@ void SDOS_MPU9250::handleTap()
     // If a new tap happened, get the direction and count
     // by reading getTapDir and getTapCount
     unsigned char tapDir = _imu.getTapDir();
-    unsigned char tapCnt = _imu.getTapCount();
+    //unsigned char tapCnt = _imu.getTapCount();
     switch (tapDir)
     {
     case TAP_X_UP:
