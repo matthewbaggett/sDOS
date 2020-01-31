@@ -24,8 +24,8 @@ SDOS_TTP223::SDOS_TTP223(EventsManager &eventsManager) : _events(eventsManager)
 {}
 
 void SDOS_TTP223::setup(){
-// If we have a power pin to drive this sensor, enable it
 #ifdef PIN_POWER_TTP223
+// If we have a power pin to drive this sensor, enable it
 #pragma message("TTP223's PIN_POWER_TTP223 is defined, so we must provide power to drive the TTP223 chip")
     pinMode(PIN_POWER_TTP223, OUTPUT);
     enable();
@@ -54,7 +54,7 @@ void SDOS_TTP223::loop()
 {
     if (SDOS_TTP223::hasInterruptOccured())
     {
-        _events.trigger("TTP223");
+        _events.trigger("TTP223_interrupt");
     }
 };
 

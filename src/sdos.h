@@ -16,6 +16,9 @@
 #ifdef ENABLE_PCF8563
 #include "drivers/rtc/pcf8563.h"
 #endif
+#ifdef ENABLE_MPU9250
+#include "drivers/accellerometer/mpu9250.h"
+#endif
 
 class sDOS
 {
@@ -42,6 +45,9 @@ private:
 #ifdef ENABLE_PCF8563
     SDOS_PCF8563 _pcf8563 = SDOS_PCF8563(_events, _i2c);
 #endif
+#ifdef ENABLE_MPU9250
+    SDOS_MPU9250 _mpu9250 = SDOS_MPU9250(_events);
+#endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
     uint64_t _loopCount = 0;
@@ -60,7 +66,6 @@ void sDOS::Setup(){
     _cpuFrequencyUpdate();
 #ifdef ENABLE_I2C
     _i2c.setup();
-
     _i2c.connect();
     _i2c.scan();
 #endif
@@ -69,6 +74,9 @@ void sDOS::Setup(){
 #endif
 #ifdef ENABLE_PCF8563
     _pcf8563.setup();
+#endif
+#ifdef ENABLE_MPU9250
+    _mpu9250.setup();
 #endif
 };
 
@@ -134,6 +142,9 @@ void sDOS::Loop()
 #endif
 #ifdef ENABLE_PCF8563
     _pcf8563.loop();
+#endif
+#ifdef ENABLE_MPU9250
+    _mpu9250.loop();
 #endif
 
     delay(30);

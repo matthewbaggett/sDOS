@@ -1,0 +1,9 @@
+[submodule "lib/MPU9250"]
+	path = lib/MPU9250
+	url = git@github.com:Grippy98/SparkFun_MPU-9250-DMP_Arduino_Library.git
+[submodule "lib/RTCLib"]
+	path = lib/RTCLib
+	url = git@github.com:NeiroNx/RTCLib.git
+[submodule "lib/ArduinoJson"]
+	path = lib/ArduinoJson
+	url = git@github.com:bblanchon/ArduinoJson.git

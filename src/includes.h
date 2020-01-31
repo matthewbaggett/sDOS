@@ -33,9 +33,10 @@ ESP8266WiFiMulti wifiMulti;
 
 #include "esp32-hal-gpio.h"
 
-#ifdef ENABLE_TTP223
-#include <drivers/touch/ttp223.h>
-#endif
+
+
+
+#include <SparkFunMPU9250-DMP.h>
 
 #include "hardware/all.h"
 

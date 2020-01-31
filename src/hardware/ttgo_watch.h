@@ -13,4 +13,9 @@
     // Enable PCF8563 RTC
     #define ENABLE_PCF8563
     #define PIN_INTERRUPT_PCF8563 34
+
+    // Enable MPU9250 Accellerometer
+    #define ENABLE_MPU9250
+    #define PIN_INTERRUPT_MPU9250 38
+
 #endif

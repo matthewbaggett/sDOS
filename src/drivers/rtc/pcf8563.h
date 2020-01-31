@@ -68,7 +68,7 @@ void SDOS_PCF8563::loop()
 {
     if (SDOS_PCF8563::hasInterruptOccured())
     {
-        _events.trigger("PCF8563_Interrupt");
+        _events.trigger("PCF8563_interrupt");
     }
 };
 
