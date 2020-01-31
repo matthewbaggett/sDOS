@@ -20,9 +20,6 @@ private:
 
 void Debugger::Debug(String component, String format, ...)
 {
-    Serial.print("Debugging debug: ");
-    Serial.println(format.c_str());
-
     char buff[128];
     va_list args;
     va_start(args, format.c_str());

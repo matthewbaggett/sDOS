@@ -63,6 +63,7 @@ uint32_t sDOS::_cpuFrequencyUpdate()
     }
     return currentFreq;
 }
+
 void sDOS::_configure()
 {
     _debugger.Debug(_component, String("Started Kernel"));
