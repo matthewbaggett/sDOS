@@ -7,6 +7,9 @@
 #include "filesystem.h"
 #include "wifi.h"
 
+#ifdef ENABLE_POWER
+#include "drivers/power.h"
+#endif
 #ifdef ENABLE_I2C
 #include "drivers/i2c.h"
 #endif
@@ -36,6 +39,9 @@ private:
     FileSystem _fileSystem = FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
     WiFiManager _wifi = WiFiManager(_debugger, _fileSystem, _events);
+#ifdef ENABLE_POWER
+    SDOS_POWER _power = SDOS_POWER(_debugger, _events);
+#endif
 #ifdef ENABLE_I2C
     SDOS_I2C _i2c = SDOS_I2C(_debugger, _events);
 #endif
@@ -64,6 +70,9 @@ void sDOS::Setup(){
     _debugger.Debug(_component, String("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, "Built with love on %s at %s.", __DATE__, __TIME__);
     _cpuFrequencyUpdate();
+#ifdef ENABLE_POWER
+    _power.setup();
+#endif
 #ifdef ENABLE_I2C
     _i2c.setup();
     _i2c.connect();
@@ -118,7 +127,7 @@ void sDOS::Loop()
     // Check CPU frequency is correct.
     uint32_t cpuFreq = _cpuFrequencyUpdate();
     yield();
-    if (_loopCount % 1000 == 0)
+    if (_loopCount % 25000 == 0)
     {
         _debugger.Debug(_component, String("Loops are executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
     }
@@ -134,6 +143,9 @@ void sDOS::Loop()
     _events.loop();
     yield();
 
+#ifdef ENABLE_POWER
+    _power.loop();
+#endif
 #ifdef ENABLE_I2C
     _i2c.loop();
 #endif
@@ -147,7 +159,6 @@ void sDOS::Loop()
     _mpu9250.loop();
 #endif
 
-    delay(30);
 }
 
 #endif

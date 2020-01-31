@@ -37,7 +37,7 @@ bool SDOS_I2C::isConnected(){
 
 void SDOS_I2C::connect(){
     if(Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)){
-        _debugger.Debug("i2c", "I2C configured at %d khz", (I2C_CLOCK/1000));
+        _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
         _events.trigger("i2c_ready");
         SDOS_I2C::_isConnected = true;
     }else{

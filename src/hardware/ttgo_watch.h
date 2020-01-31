@@ -18,4 +18,15 @@
     #define ENABLE_MPU9250
     #define PIN_INTERRUPT_MPU9250 39
 
+    // Enable voltage monitoring
+    #define ENABLE_POWER
+    #define POWER_MONITOR_CHARGE_STATE 32
+    #define POWER_MONITOR_VBATT 35
+    #define POWER_MONITOR_VBUS 36
+    #define POWER_MONITOR_DIVISOR 2
+
+    // Enable activity light
+    #define ENABLE_ACTIVITY_LIGHT 
+    #define ACTIVITY_LIGHT_ONECOLOUR 4
+
 #endif
