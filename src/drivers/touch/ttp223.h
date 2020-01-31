@@ -11,11 +11,11 @@ public:
     void loop();
     void enable();
     void disable();
-    static void interrupt();
-    static bool interruptTriggered;
-    static bool hasInterruptOccured();
 
 private:
+    static void interrupt();
+    static bool hasInterruptOccured();
+    static bool interruptTriggered;
     EventsManager _events;
 };
 
