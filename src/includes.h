@@ -26,4 +26,14 @@ ESP8266WiFiMulti wifiMulti;
 
 #include <WiFiUdp.h>
 
+
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
+
+#ifdef ENABLE_TTP223
+#include <drivers/touch/ttp223.h>
+#endif
+
+#include "hardware/all.h"
+
 #endif

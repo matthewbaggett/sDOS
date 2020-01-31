@@ -7,9 +7,7 @@
 #include "filesystem.h"
 #include "wifi.h"
 
-
-#include "soc/timer_group_struct.h"
-#include "soc/timer_group_reg.h"
+#include "drivers/touch/ttp223.h"
 
 class sDOS {
     public:
@@ -26,6 +24,9 @@ class sDOS {
         FileSystem _fileSystem = FileSystem(_debugger);
         EventsManager _events = EventsManager(_debugger);
         WiFiManager _wifi = WiFiManager(_debugger, _fileSystem, _events);
+        #ifdef ENABLE_TTP223
+        TTP223 _ttp223 = TTP223(_events);
+        #endif
         long _lastCycleTimeMS = 0;
         long _lastTimeStampUS = 0;
         uint64_t _loopCount = 0;
@@ -72,7 +73,7 @@ void sDOS::Loop(){
     uint32_t cpuFreq = _cpuFrequencyUpdate();
     yield();
     if(_loopCount % 1000 == 0){
-        _debugger.Debug(_component, String("Loop executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
+        _debugger.Debug(_component, String("Loops are executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
     }
 
     // if the wifi manager is active, check the wifi loop
@@ -84,6 +85,10 @@ void sDOS::Loop(){
     // Check the Events loop
     _events.loop();
     yield();
+
+    #ifdef ENABLE_TTP223
+    _ttp223.loop();
+    #endif
     
     delay(30);
 }
