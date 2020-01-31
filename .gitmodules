@@ -7,3 +7,6 @@
 [submodule "lib/ArduinoJson"]
 	path = lib/ArduinoJson
 	url = git@github.com:bblanchon/ArduinoJson.git
+[submodule "lib/MPU9250-ESP32-compatable"]
+	path = lib/MPU9250-ESP32-compatable
+	url = git@github.com:UT2UH/SparkFun_MPU-9250-DMP_Arduino_Library.git
