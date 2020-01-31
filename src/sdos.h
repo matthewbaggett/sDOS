@@ -7,13 +7,21 @@
 #include "filesystem.h"
 #include "wifi.h"
 
+#ifdef ENABLE_I2C
+#include "drivers/i2c.h"
+#endif
+#ifdef ENABLE_TTP223
 #include "drivers/touch/ttp223.h"
+#endif
+#ifdef ENABLE_PCF8563
+#include "drivers/rtc/pcf8563.h"
+#endif
 
 class sDOS
 {
 public:
-    sDOS(){};
-    void Run();
+    sDOS();
+    void Setup();
     void Loop();
 
 private:
@@ -25,18 +33,44 @@ private:
     FileSystem _fileSystem = FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
     WiFiManager _wifi = WiFiManager(_debugger, _fileSystem, _events);
+#ifdef ENABLE_I2C
+    SDOS_I2C _i2c = SDOS_I2C(_debugger, _events);
+#endif
 #ifdef ENABLE_TTP223
-    TTP223 _ttp223 = TTP223(_events);
+    SDOS_TTP223 _ttp223 = SDOS_TTP223(_events);
+#endif
+#ifdef ENABLE_PCF8563
+    SDOS_PCF8563 _pcf8563 = SDOS_PCF8563(_events, _i2c);
 #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
     uint64_t _loopCount = 0;
 };
 
-void sDOS::Run()
-{
-    _configure();
-}
+sDOS::sDOS(){
+   
+};
+
+void sDOS::Setup(){
+    Serial.begin(SERIAL_BAUD);
+    Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
+    delay(300);
+    _debugger.Debug(_component, String("Started Smol Device Operating System Kernel"));
+    _debugger.Debug(_component, "Built with love on %s at %s.", __DATE__, __TIME__);
+    _cpuFrequencyUpdate();
+#ifdef ENABLE_I2C
+    _i2c.setup();
+
+    _i2c.connect();
+    _i2c.scan();
+#endif
+#ifdef ENABLE_TTP223
+    _ttp223.setup();
+#endif
+#ifdef ENABLE_PCF8563
+    _pcf8563.setup();
+#endif
+};
 
 uint32_t sDOS::_cpuFrequencyUpdate()
 {
@@ -46,15 +80,16 @@ uint32_t sDOS::_cpuFrequencyUpdate()
     {
         targetFreq = CPU_FREQ_MHZ;
     }
-
-    if (getCpuFrequencyMhz() != targetFreq)
+    uint32_t currentFreq = getCpuFrequencyMhz();
+    if (currentFreq != targetFreq)
     {
         setCpuFrequencyMhz(targetFreq);
+        _debugger.Debug("core", "CPU frequency changed from %dMhz to %dMhz", currentFreq, getCpuFrequencyMhz());
         _events.trigger("cpu_freq_mhz", getCpuFrequencyMhz());
     }
 
 #endif
-    uint32_t currentFreq = getCpuFrequencyMhz();
+    currentFreq = getCpuFrequencyMhz();
     if (currentFreq <= 20)
     {
         TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
@@ -63,11 +98,6 @@ uint32_t sDOS::_cpuFrequencyUpdate()
     }
     return currentFreq;
 }
-
-void sDOS::_configure()
-{
-    _debugger.Debug(_component, String("Started Kernel"));
-};
 
 void sDOS::Loop()
 {
@@ -96,8 +126,14 @@ void sDOS::Loop()
     _events.loop();
     yield();
 
+#ifdef ENABLE_I2C
+    _i2c.loop();
+#endif
 #ifdef ENABLE_TTP223
     _ttp223.loop();
+#endif
+#ifdef ENABLE_PCF8563
+    _pcf8563.loop();
 #endif
 
     delay(30);

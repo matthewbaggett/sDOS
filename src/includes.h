@@ -6,6 +6,7 @@
 #include "defaults.h"
 #include "FS.h"
 #include "Preferences.h"
+#include "RTClib.h"
 #include "SPIFFS.h"
 #include "Wire.h"
 

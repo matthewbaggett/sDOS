@@ -4,10 +4,12 @@ class EventsManager
 {
 public:
     EventsManager(Debugger &debugger);
+    void trigger(String event, DateTime & payload);
     void trigger(String event, String payload);
-    void trigger(String event, char *payload);
+    void trigger(String event, char * payload);
     void trigger(String event, long payload);
     void trigger(String event, uint32_t payload);
+    void trigger(String event, byte payload);
     void trigger(String event, boolean payload);
     void trigger(String event);
     void loop();
@@ -25,6 +27,14 @@ EventsManager::EventsManager(Debugger &debugger)
 void EventsManager::loop()
 {
 }
+
+void EventsManager::trigger(String event, DateTime & payload)
+{
+    char buf[100];
+    strncpy(buf, "DD.MM.YYYY hh:mm:ss", 100);
+    char * printableTime = payload.format(buf);
+    _debugger.Debug(_component, "%s : %s", event.c_str(), printableTime);
+};
 
 void EventsManager::trigger(String event, String payload)
 {
@@ -49,6 +59,11 @@ void EventsManager::trigger(String event, uint32_t payload)
 void EventsManager::trigger(String event, boolean payload)
 {
     _debugger.Debug(_component, "%s : %d", event.c_str(), payload ? "true" : "false");
+};
+
+void EventsManager::trigger(String event, byte payload)
+{
+    _debugger.Debug(_component, "%s : %#04x", event.c_str(), payload);
 };
 
 void EventsManager::trigger(String event)
