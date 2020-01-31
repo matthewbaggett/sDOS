@@ -17,13 +17,15 @@ enum AccessPointState {
 
 class WiFiManager{
     public:
-        WiFiManager(Debugger& debugger, FileSystem& fileSystem);
+        WiFiManager(Debugger& debugger, FileSystem& fileSystem, EventsManager& events);
         void connect();
         void disconnect();
         void loop();
+        boolean isActive();
     private:
         Debugger _debugger;
         FileSystem _fileSystem;
+        EventsManager _events;
         String _component = "WiFi";
         String _fileWifiCredentials = "/wifi.json";
         void loadWifiConfigs();
@@ -34,13 +36,20 @@ class WiFiManager{
         enum AccessPointState _wifiAccessPointState = AP_DISABLED;
         void checkForStateChanges();
         long getSignalStrength();
+        boolean _isActive = false;
+        void powerOn();
+        void powerOff();
 };
 
-
-WiFiManager::WiFiManager(Debugger& debugger, FileSystem& fileSystem) 
-            : _debugger(debugger), _fileSystem(fileSystem)
+boolean WiFiManager::isActive()
 {
-    
+    return _isActive;
+}
+
+WiFiManager::WiFiManager(Debugger& debugger, FileSystem& fileSystem, EventsManager& events) 
+            : _debugger(debugger), _fileSystem(fileSystem), _events(events)
+{
+    powerOff();
 }
 
 void WiFiManager::loop(){
@@ -53,6 +62,7 @@ void WiFiManager::loop(){
   }
   _wifiSignalStrength = getSignalStrength();
 
+  yield();
   checkForStateChanges();
 }
 
@@ -72,15 +82,23 @@ void WiFiManager::checkForStateChanges(){
     if(_wifiClientStatePrevious != _wifiClientState){
         if(_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED){
             _debugger.Debug(_component, "Connected to %s as %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+            _events.trigger("wifi_connect", WiFi.SSID());
+            _events.trigger("wifi_ip_set", WiFi.localIP().toString());
         }else if(_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED){
             _debugger.Debug(_component, "Disconnected from Wifi.");
+            _events.trigger("wifi_disconnect", WiFi.SSID());
+            _events.trigger("wifi_ip_unset");
+            disconnect();
         }
         _wifiClientStatePrevious = _wifiClientState;
     }
+    yield();
 
   if(_wifiSignalStrength != _wifiSignalStrengthPrevious){
     _wifiSignalStrengthPrevious = _wifiSignalStrength;
+    
     //_debugger.Debug(_component, "Signal Strength changed to %d%%", _wifiSignalStrength);
+    //_events.trigger("wifi_signal", _wifiSignalStrength);
   }
 }
 
@@ -96,22 +114,36 @@ long WiFiManager::getSignalStrength() {
   return quality;
 }
 void WiFiManager::connect() {
+    _isActive = true;
     _debugger.Debug(_component, "Connect begin");
     WiFi.persistent(false);
     WiFi.disconnect();
     WiFi.setAutoConnect(false);
     WiFi.setAutoReconnect(true);
+    loadWifiConfigs();
+    powerOn();
+};
+
+void WiFiManager::powerOn() {
     WiFi.mode(WIFI_AP_STA);
     #ifdef WIFI_POWER_SAVING
         if(esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK){
             _debugger.Debug(_component, "Enabled wifi power saving successfully");
+            _events.trigger("wifi_powersave", "okay");
         }else{
             _debugger.Debug(_component, "Failed to enable wifi power saving");
+            _events.trigger("wifi_powersave", "fail");
         }
-    #endif;
-    loadWifiConfigs();
-};
+    #endif;   
+}
+void WiFiManager::powerOff() {
+    WiFi.disconnect();
+    WiFi.mode(WIFI_MODE_NULL);
+    btStop();
+    _events.trigger("wifi_off");
+}
 
 void WiFiManager::disconnect() {
+    _isActive = false;
     _debugger.Debug(_component, "disconnect");
 };
