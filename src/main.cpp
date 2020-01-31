@@ -2,11 +2,13 @@
 
 sDOS instance;
 
-void setup(){
+void setup()
+{
     instance.Run();
 }
 
-void loop(){
+void loop()
+{
     Serial.println("Arsche");
 
     instance.Loop();

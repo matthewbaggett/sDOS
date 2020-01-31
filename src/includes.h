@@ -26,7 +26,6 @@ ESP8266WiFiMulti wifiMulti;
 
 #include <WiFiUdp.h>
 
-
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
 
