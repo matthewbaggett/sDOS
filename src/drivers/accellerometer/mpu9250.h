@@ -21,6 +21,10 @@ private:
     void checkFIFO();
     void checkInterrupt();
     void handleTap();
+    void handleSteps();
+    unsigned long _stepCount = 0;
+    unsigned long _stepTime = 0;
+    unsigned long _lastStepCount = 0;
 };
 
 bool SDOS_MPU9250::interruptTriggered = false;
@@ -41,10 +45,22 @@ void SDOS_MPU9250::setup()
         return;
     }
 
+    _imu.setSensors(INV_XYZ_ACCEL | INV_XYZ_GYRO );
     // Setup DMP features.
-    _imu.dmpBegin(DMP_FEATURE_TAP, 10);
+    _imu.dmpBegin(DMP_FEATURE_TAP | DMP_FEATURE_PEDOMETER, 5);
 
-    //_imu.setSampleRate(100);
+    // disable the auxilliary i2c master
+    mpu_set_bypass(0);
+
+
+    // Enabe Wake On Motion low power mode with a threshold of 40 mg and
+    // an accelerometer data rate of 15.63 Hz. 
+    // Only accelerometer is enabled in LP mode
+    // The interrupt is 50us pulse.
+    if (mpu_lp_motion_interrupt(40,0,2) != INV_SUCCESS) {    
+        // Failed to initialize MPU-9250, report somehow
+        Serial.println(F("IMU set up failed. Please check installed IMU IC."));    
+    }
 
     //_imu.configureFifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
 
@@ -55,14 +71,17 @@ void SDOS_MPU9250::setup()
     unsigned short tapTime = 100;   // Set tap time to 100ms
     unsigned short tapMulti = 1000; // Set multi-tap time to 1s
     _imu.dmpSetTap(xThresh, yThresh, zThresh, taps, tapTime, tapMulti);
+    _imu.dmpSetPedometerSteps(_stepCount);
+    _imu.dmpSetPedometerTime(_stepTime);
 
     // Setup DMP interrupt
+    pinMode(PIN_INTERRUPT_MPU9250, INPUT);
+    attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MPU9250), SDOS_MPU9250::interrupt, FALLING);
     _imu.enableInterrupt();
     _imu.setIntLevel(INT_ACTIVE_LOW);
+    interruptTriggered = false;
     //_imu.setIntLatched(false);
-    pinMode(PIN_INTERRUPT_MPU9250, INPUT);
-    attachInterrupt(PIN_INTERRUPT_MPU9250, SDOS_MPU9250::interrupt, FALLING);
-
+    
     // All done
     _events.trigger("MPU9250_ready");
 };
@@ -84,22 +103,22 @@ bool SDOS_MPU9250::hasInterruptOccured()
 
 void SDOS_MPU9250::loop()
 {
-    //checkInterrupt();
-    checkFIFO();
+    checkInterrupt();
+    //checkFIFO();
 };
 
 void SDOS_MPU9250::checkInterrupt()
 {
     if (SDOS_MPU9250::hasInterruptOccured())
     {
-        _events.trigger("MPU9250_interrupt");
-        _imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
-        printIMUData();
+        //_events.trigger("MPU9250_interrupt");
+        checkFIFO();
     }
 }
 
 void SDOS_MPU9250::checkFIFO()
 {
+    handleSteps();
     //Serial.printf("Fifo length: %d\n", _imu.fifoAvailable());
     if (_imu.fifoAvailable() >= 0)
     {
@@ -123,9 +142,25 @@ void SDOS_MPU9250::checkFIFO()
     }
 }
 
+void SDOS_MPU9250::handleSteps()
+{
+    _stepCount = _imu.dmpGetPedometerSteps();
+    _stepTime = _imu.dmpGetPedometerTime();
+
+    if(_lastStepCount ==0){
+        _lastStepCount = _stepCount;
+    }
+    if (_stepCount != _lastStepCount)
+    {
+        _lastStepCount = _stepCount;
+        Serial.print("Walked " + String(_stepCount) +
+                     " steps");
+        Serial.println(" (" + String((float)_stepTime / 1000.0) + " s)");
+    }
+}
+
 void SDOS_MPU9250::handleTap()
 {
-    _events.trigger("mpu9250_tap", "available");
     // If a new tap happened, get the direction and count
     // by reading getTapDir and getTapCount
     unsigned char tapDir = _imu.getTapDir();

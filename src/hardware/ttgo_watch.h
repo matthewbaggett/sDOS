@@ -16,6 +16,6 @@
 
     // Enable MPU9250 Accellerometer
     #define ENABLE_MPU9250
-    #define PIN_INTERRUPT_MPU9250 38
+    #define PIN_INTERRUPT_MPU9250 39
 
 #endif

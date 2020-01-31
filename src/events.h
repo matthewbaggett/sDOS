@@ -8,6 +8,7 @@ public:
     void trigger(String event, String payload);
     void trigger(String event, char * payload);
     void trigger(String event, long payload);
+    void trigger(String event, double payload);
     void trigger(String event, uint32_t payload);
     void trigger(String event, byte payload);
     void trigger(String event, boolean payload);
@@ -47,6 +48,11 @@ void EventsManager::trigger(String event, char *payload)
 };
 
 void EventsManager::trigger(String event, long payload)
+{
+    _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
+};
+
+void EventsManager::trigger(String event, double payload)
 {
     _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
 };
