@@ -1,5 +1,7 @@
 #include "includes.h"
 
+#pragma message("Included TTP223")
+
 class TTP223{
     public:
         TTP223(EventsManager& eventsManager);
