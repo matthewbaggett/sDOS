@@ -5,6 +5,7 @@ class EventsManager
 public:
     EventsManager(Debugger &debugger);
     void trigger(String event, DateTime & payload);
+    void trigger(String event, const __FlashStringHelper * payload);
     void trigger(String event, String payload);
     void trigger(String event, char * payload);
     void trigger(String event, long payload);
@@ -36,6 +37,11 @@ void EventsManager::trigger(String event, DateTime & payload)
     strncpy(buf, "DD.MM.YYYY hh:mm:ss", 100);
     char * printableTime = payload.format(buf);
     _debugger.Debug(_component, "%s : %s", event.c_str(), printableTime);
+};
+
+void EventsManager::trigger(String event, const __FlashStringHelper * payload)
+{
+    _debugger.Debug(_component, "%s : %s", event.c_str(), payload);
 };
 
 void EventsManager::trigger(String event, String payload)
