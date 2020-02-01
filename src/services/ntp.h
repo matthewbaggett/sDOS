@@ -22,22 +22,23 @@ SDOS_NTP::SDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC &rtc, 
 
 void SDOS_NTP::setup()
 {
-    update();
 };
 
 void SDOS_NTP::loop()
 {
-    
+    update();
 };
 
 void SDOS_NTP::update()
 {
-    _wifi.addRequestActive();
-    return;
+    bool connected = _wifi.isConnected();
+    if(!connected){
+        _wifi.addRequestActive();
+        return;
+    }
     if(_wifi.waitForConnection()){
         _debugger.Debug(_component, "Connected to Wifi. Now I'm gonna terminate.");
-    }else{
-        _debugger.Debug(_component, "Failed to connect to Wifi. Now I'm gonna terminate.");
+        _wifi.removeRequestActive();
     }
-    //_wifi.removeRequestActive();
+    
 };

@@ -31,6 +31,7 @@ public:
   void removeRequestActive();
   boolean waitForConnection(int timeout = 30);
   unsigned int getRequestCount();
+  boolean isConnected();
 
 private:
   Debugger _debugger;
@@ -51,11 +52,20 @@ private:
   void powerOff();
   static unsigned int _requestsActive;
   void updateRequestedActivity();
+  static bool _wifiPowerState;
 };
 
 boolean WiFiManager::_isActive = false;
 unsigned int WiFiManager::_requestsActive = 0;
+boolean WiFiManager::_wifiPowerState = false;
 
+boolean WiFiManager::isConnected()
+{
+  if(WiFiManager::_wifiPowerState){
+    return true;
+  }
+  return false;
+}
 
 boolean WiFiManager::isActive()
 {
@@ -172,6 +182,10 @@ void WiFiManager::connect()
 
 void WiFiManager::powerOn()
 {
+  if(WiFiManager::_wifiPowerState == true){
+    return;
+  }
+  WiFiManager::_wifiPowerState = true;
   WiFi.mode(WIFI_MODE_STA);
   _events.trigger("wifi_on");
 
@@ -192,6 +206,10 @@ void WiFiManager::powerOn()
 
 void WiFiManager::powerOff()
 {
+  if(WiFiManager::_wifiPowerState == false){
+    return;
+  }
+  WiFiManager::_wifiPowerState = false;
   WiFi.disconnect();
   WiFi.mode(WIFI_MODE_NULL);
   btStop();
@@ -206,7 +224,7 @@ void WiFiManager::disconnect()
 
 unsigned int WiFiManager::getRequestCount()
 {
-  //_debugger.Debug(_component, "wifi request count: %d", _requestsActive);
+  _debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected":"Disconnected", WiFiManager::_wifiPowerState==true ? "on" : "off");
   return _requestsActive;
 }
 
@@ -217,6 +235,7 @@ void WiFiManager::addRequestActive()
     WiFiManager::_requestsActive++;
   }
   getRequestCount();
+  delay(500);
 }
 
 void WiFiManager::removeRequestActive()
@@ -226,6 +245,7 @@ void WiFiManager::removeRequestActive()
     WiFiManager::_requestsActive--;
   }
   getRequestCount();
+  powerOff();
 }
 
 void WiFiManager::updateRequestedActivity()
@@ -254,18 +274,15 @@ void WiFiManager::updateRequestedActivity()
 
 boolean WiFiManager::waitForConnection(int timeout)
 {
-  _debugger.Debug(_component, "waitForConnection w/timeout of %ds", timeout);
   int timeBegin = micros();
   while (true)
   {
     if (micros() > timeBegin + (timeout * 1000000))
     {
-      _debugger.Debug(_component, "waitForConnection timed out after %ds", timeout);
       return false;
     }
-    if (WiFi.isConnected())
+    if (isConnected())
     {
-      _debugger.Debug(_component, "waitForConnection succeeded after %ds", (micros() - timeBegin) / 1000000);
       return true;
     }
   }
