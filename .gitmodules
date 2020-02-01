@@ -10,3 +10,9 @@
 [submodule "lib/MPU9250-ESP32-compatable"]
 	path = lib/MPU9250-ESP32-compatable
 	url = git@github.com:UT2UH/SparkFun_MPU-9250-DMP_Arduino_Library.git
+[submodule "lib/NTPClient"]
+	path = lib/NTPClient
+	url = git@github.com:taranais/NTPClient.git
+[submodule "lib/NTPClient_"]
+	path = lib/NTPClient_
+	url = git@github.com:arduino-libraries/NTPClient.git
