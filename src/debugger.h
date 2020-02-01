@@ -16,7 +16,14 @@ public:
 
 private:
     HardwareSerial _serial = Serial;
+    static String lastComponent;
+    static char *lastBuff;
+    static int duplicates;
 };
+
+String Debugger::lastComponent;
+char * Debugger::lastBuff = "";
+int Debugger::duplicates = 0;
 
 void Debugger::Debug(String component, String format, ...)
 {
@@ -25,7 +32,25 @@ void Debugger::Debug(String component, String format, ...)
     va_start(args, format.c_str());
     vsprintf(buff, format.c_str(), args);
 
-    _serial.printf("[%s] %s\n", component.c_str(), buff);
+    //_serial.printf("[%s] %s\n", component.c_str(), buff);
+    //return;
+
+    if (!(component ==  Debugger::lastComponent && buff ==  Debugger::lastBuff))
+    {
+        if ( Debugger::duplicates > 0)
+        {
+            _serial.println();
+        }
+        _serial.printf("[%s] %s\n", component.c_str(), buff);
+         Debugger::lastComponent = component;
+         Debugger::lastBuff = buff;
+         Debugger::duplicates = 0;
+    }
+    else
+    {
+         Debugger::duplicates++;
+        _serial.printf("\t\t(repeated %d times)\r",  Debugger::duplicates);
+    }
 };
 
 //void Debugger::Debug(String component, String message){

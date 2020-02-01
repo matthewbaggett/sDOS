@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <ArduinoJson.h>
 #include "defaults.h"
+#include "integer.h"
 #include "FS.h"
 #include "Preferences.h"
 #include "RTClib.h"

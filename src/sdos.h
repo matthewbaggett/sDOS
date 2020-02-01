@@ -7,6 +7,9 @@
 #include "filesystem.h"
 #include "wifi.h"
 
+#include "drivers/rtc/abstract_rtc.h"
+#include "drivers/accellerometer/abstract_accellerometer.h"
+
 #ifdef ENABLE_POWER
 #include "drivers/power.h"
 #endif
@@ -21,6 +24,11 @@
 #endif
 #ifdef ENABLE_MPU9250
 #include "drivers/accellerometer/mpu9250.h"
+#endif
+
+// System Services
+#ifdef ENABLE_SERVICE_NTP
+#include "services/ntp.h";
 #endif
 
 class sDOS
@@ -49,10 +57,13 @@ private:
     SDOS_TTP223 _ttp223 = SDOS_TTP223(_events);
 #endif
 #ifdef ENABLE_PCF8563
-    SDOS_PCF8563 _pcf8563 = SDOS_PCF8563(_events, _i2c);
+    SDOS_PCF8563 _rtc = SDOS_PCF8563(_events, _i2c);
 #endif
 #ifdef ENABLE_MPU9250
     SDOS_MPU9250 _mpu9250 = SDOS_MPU9250(_events);
+#endif
+#ifdef ENABLE_SERVICE_NTP
+    SDOS_NTP _ntp = SDOS_NTP(_debugger,_events, _rtc, _wifi);
 #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
@@ -70,6 +81,8 @@ void sDOS::Setup(){
     _debugger.Debug(_component, String("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, "Built with love on %s at %s.", __DATE__, __TIME__);
     _cpuFrequencyUpdate();
+
+// System hardware & drivers
 #ifdef ENABLE_POWER
     _power.setup();
 #endif
@@ -78,22 +91,29 @@ void sDOS::Setup(){
     _i2c.connect();
     _i2c.scan();
 #endif
+    _wifi.setup();
 #ifdef ENABLE_TTP223
     _ttp223.setup();
 #endif
 #ifdef ENABLE_PCF8563
-    _pcf8563.setup();
+    _rtc.setup();
 #endif
 #ifdef ENABLE_MPU9250
     _mpu9250.setup();
+#endif
+
+// System Services
+#ifdef ENABLE_SERVICE_NTP
+    _ntp.setup();
 #endif
 };
 
 uint32_t sDOS::_cpuFrequencyUpdate()
 {
-#if defined(CPU_FREQ_MHZ)
+#ifdef CPU_FREQ_MHZ
     uint32_t targetFreq = CPU_FREQ_MHZ_NORADIO;
-    if (_wifi.isActive())
+    //_debugger.Debug(_component, "isActive? %s hasRequests? %d", _wifi.isActive() ? "yes": "no", _wifi.getRequestCount());
+    if (_wifi.isActive() || _wifi.getRequestCount() > 0)
     {
         targetFreq = CPU_FREQ_MHZ;
     }
@@ -104,8 +124,8 @@ uint32_t sDOS::_cpuFrequencyUpdate()
         _debugger.Debug("core", "CPU frequency changed from %dMhz to %dMhz", currentFreq, getCpuFrequencyMhz());
         _events.trigger("cpu_freq_mhz", getCpuFrequencyMhz());
     }
-
 #endif
+
     currentFreq = getCpuFrequencyMhz();
     if (currentFreq <= 20)
     {
@@ -149,14 +169,18 @@ void sDOS::Loop()
 #ifdef ENABLE_I2C
     _i2c.loop();
 #endif
+    _wifi.loop();
 #ifdef ENABLE_TTP223
     _ttp223.loop();
 #endif
 #ifdef ENABLE_PCF8563
-    _pcf8563.loop();
+    _rtc.loop();
 #endif
 #ifdef ENABLE_MPU9250
     _mpu9250.loop();
+#endif
+#ifdef ENABLE_SERVICE_NTP
+    _ntp.loop();
 #endif
 
 }

@@ -21,10 +21,16 @@ class WiFiManager
 {
 public:
   WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events);
+  void setup();
   void connect();
   void disconnect();
   void loop();
   boolean isActive();
+  boolean hasRequests();
+  void addRequestActive();
+  void removeRequestActive();
+  boolean waitForConnection(int timeout = 30);
+  unsigned int getRequestCount();
 
 private:
   Debugger _debugger;
@@ -40,38 +46,58 @@ private:
   enum AccessPointState _wifiAccessPointState = AP_DISABLED;
   void checkForStateChanges();
   long getSignalStrength();
-  boolean _isActive = false;
+  static boolean _isActive;
   void powerOn();
   void powerOff();
+  static unsigned int _requestsActive;
+  void updateRequestedActivity();
 };
+
+boolean WiFiManager::_isActive = false;
+unsigned int WiFiManager::_requestsActive = 0;
+
 
 boolean WiFiManager::isActive()
 {
-  return _isActive;
+  return WiFiManager::_isActive ;
+}
+
+boolean WiFiManager::hasRequests()
+{
+  return WiFiManager::_requestsActive > 0;
 }
 
 WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events)
     : _debugger(debugger), _fileSystem(fileSystem), _events(events)
+{
+}
+
+void WiFiManager::setup()
 {
   powerOff();
 }
 
 void WiFiManager::loop()
 {
-  uint8_t status = wifiMulti.run();
-  if (status == WL_CONNECTED)
+  if (isActive())
   {
-    _wifiClientState = WIFI_CONNECTED;
+    uint8_t status = wifiMulti.run();
+    if (status == WL_CONNECTED)
+    {
+      //_debugger.Debug(_component, "Connected!");
+      _wifiClientState = WIFI_CONNECTED;
+    }
+    else
+    {
+      //_debugger.Debug(_component, "Not connected.");
+      _wifiClientState = WIFI_DISCONNECTED;
+    }
+    _wifiSignalStrength = getSignalStrength();
   }
-  else
-  {
-    Serial.println("Wifi not connected");
-    _wifiClientState = WIFI_DISCONNECTED;
-  }
-  _wifiSignalStrength = getSignalStrength();
-
   yield();
   checkForStateChanges();
+  yield();
+  updateRequestedActivity();
 }
 
 void WiFiManager::loadWifiConfigs()
@@ -95,7 +121,7 @@ void WiFiManager::checkForStateChanges()
   {
     if (_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED)
     {
-      _debugger.Debug(_component, "Connected to %s as %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+      _debugger.Debug(_component, "Connected to %s as %s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
       _events.trigger("wifi_connect", WiFi.SSID());
       _events.trigger("wifi_ip_set", WiFi.localIP().toString());
     }
@@ -131,9 +157,10 @@ long WiFiManager::getSignalStrength()
     quality = 2 * (dBm + 100);
   return quality;
 }
+
 void WiFiManager::connect()
 {
-  _isActive = true;
+  WiFiManager::_isActive = true;
   _debugger.Debug(_component, "Connect begin");
   WiFi.persistent(false);
   WiFi.disconnect();
@@ -145,7 +172,9 @@ void WiFiManager::connect()
 
 void WiFiManager::powerOn()
 {
-  WiFi.mode(WIFI_AP_STA);
+  WiFi.mode(WIFI_MODE_STA);
+  _events.trigger("wifi_on");
+
 #ifdef WIFI_POWER_SAVING
 #pragma message("Compiling with WIFI_POWER_SAVING")
   if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK)
@@ -160,6 +189,7 @@ void WiFiManager::powerOn()
   }
 #endif
 }
+
 void WiFiManager::powerOff()
 {
   WiFi.disconnect();
@@ -170,6 +200,73 @@ void WiFiManager::powerOff()
 
 void WiFiManager::disconnect()
 {
-  _isActive = false;
+  WiFiManager::_isActive = false;
   _debugger.Debug(_component, "disconnect");
 };
+
+unsigned int WiFiManager::getRequestCount()
+{
+  //_debugger.Debug(_component, "wifi request count: %d", _requestsActive);
+  return _requestsActive;
+}
+
+void WiFiManager::addRequestActive()
+{
+  if (WiFiManager::_requestsActive >= 0)
+  {
+    WiFiManager::_requestsActive++;
+  }
+  getRequestCount();
+}
+
+void WiFiManager::removeRequestActive()
+{
+  if (WiFiManager::_requestsActive > 0)
+  {
+    WiFiManager::_requestsActive--;
+  }
+  getRequestCount();
+}
+
+void WiFiManager::updateRequestedActivity()
+{
+  getRequestCount();
+  // If cpu frequency is too low, return fast to let the scaler set the frequency.
+  if(getCpuFrequencyMhz() < CPU_FREQ_MHZ){
+    //Serial.println("Iterate and wait for CPU scaling increase");
+    if(isActive()){
+      disconnect();
+      powerOff();
+    }
+    return;
+  }
+  if (WiFiManager::_requestsActive > 0 && !isActive())
+  {
+    powerOn();
+    connect();
+  }
+  else if (WiFiManager::_requestsActive == 0 && isActive())
+  {
+    disconnect();
+    powerOff();
+  }
+}
+
+boolean WiFiManager::waitForConnection(int timeout)
+{
+  _debugger.Debug(_component, "waitForConnection w/timeout of %ds", timeout);
+  int timeBegin = micros();
+  while (true)
+  {
+    if (micros() > timeBegin + (timeout * 1000000))
+    {
+      _debugger.Debug(_component, "waitForConnection timed out after %ds", timeout);
+      return false;
+    }
+    if (WiFi.isConnected())
+    {
+      _debugger.Debug(_component, "waitForConnection succeeded after %ds", (micros() - timeBegin) / 1000000);
+      return true;
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 #pragma message("Included SDOS_MPU9250")
 
-class SDOS_MPU9250
+class SDOS_MPU9250: public AbstractAccellerometer
 {
 public:
     SDOS_MPU9250(EventsManager &eventsManager);

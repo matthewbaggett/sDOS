@@ -2,7 +2,7 @@
 
 #pragma message("Included PCF8563")
 
-class SDOS_PCF8563
+class SDOS_PCF8563: public AbstractRTC
 {
 public:
     SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C &i2c);

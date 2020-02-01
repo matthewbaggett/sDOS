@@ -1,4 +1,5 @@
 #if TTGO_WATCH == HARDWARE
+    // Hardware to enable:
     // Enable i2c
     #define ENABLE_I2C
     #define I2C_SDA 21
@@ -28,5 +29,8 @@
     // Enable activity light
     #define ENABLE_ACTIVITY_LIGHT 
     #define ACTIVITY_LIGHT_ONECOLOUR 4
+
+    // Services to enable:
+    #define ENABLE_SERVICE_NTP
 
 #endif
