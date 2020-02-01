@@ -1,7 +1,5 @@
 #include "includes.h"
 
-#pragma message("Included SDOS_MPU9250")
-
 class SDOS_MPU9250: public AbstractAccellerometer
 {
 public:
@@ -131,7 +129,7 @@ void SDOS_MPU9250::checkFIFO()
             // DMP FIFO must be updated in order to update tap data
             if (_imu.dmpUpdateFifo() != INV_SUCCESS)
             {
-                _events.trigger("mpu9250_fifo", "failure_to_read");
+                _events.trigger("mpu9250_fifo", F("failure_to_read"));
             }
 
             // Check for new tap data by polling tapAvailable
@@ -169,22 +167,22 @@ void SDOS_MPU9250::handleTap()
     switch (tapDir)
     {
     case TAP_X_UP:
-        _events.trigger("mpu9250_tap", "X+");
+        _events.trigger("mpu9250_tap", F("X+"));
         break;
     case TAP_X_DOWN:
-        _events.trigger("mpu9250_tap", "X-");
+        _events.trigger("mpu9250_tap", F("X-"));
         break;
     case TAP_Y_UP:
-        _events.trigger("mpu9250_tap", "Y+");
+        _events.trigger("mpu9250_tap", F("Y+"));
         break;
     case TAP_Y_DOWN:
-        _events.trigger("mpu9250_tap", "Y-");
+        _events.trigger("mpu9250_tap", F("Y-"));
         break;
     case TAP_Z_UP:
-        _events.trigger("mpu9250_tap", "Z+");
+        _events.trigger("mpu9250_tap", F("Z+"));
         break;
     case TAP_Z_DOWN:
-        _events.trigger("mpu9250_tap", "Z-");
+        _events.trigger("mpu9250_tap", F("Z-"));
         break;
     }
 }
@@ -216,9 +214,9 @@ void SDOS_MPU9250::printIMUData(void)
     float gyroX = _imu.calcGyro(_imu.gx);
     float gyroY = _imu.calcGyro(_imu.gy);
     float gyroZ = _imu.calcGyro(_imu.gz);
-    float magX = _imu.calcMag(_imu.mx);
-    float magY = _imu.calcMag(_imu.my);
-    float magZ = _imu.calcMag(_imu.mz);
+    //float magX = _imu.calcMag(_imu.mx);
+    //float magY = _imu.calcMag(_imu.my);
+    //float magZ = _imu.calcMag(_imu.mz);
 
     Serial.println("Accel: " + String(accelX) + ", " + String(accelY) + ", " + String(accelZ) + " g");
     Serial.println("Gyro: " + String(gyroX) + ", " + String(gyroY) + ", " + String(gyroZ) + " dps");

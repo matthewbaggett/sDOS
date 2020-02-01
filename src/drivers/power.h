@@ -1,7 +1,5 @@
 #include "includes.h"
 
-#pragma message("Included SDOS_POWER")
-
 class SDOS_POWER
 {
 public:
@@ -74,7 +72,7 @@ void SDOS_POWER::loop()
 #ifdef POWER_MONITOR_CHARGE_STATE
     if (SDOS_POWER::_chargingInterruptTriggered)
     {
-        SDOS_POWER::_chargingInterruptTriggered;
+        SDOS_POWER::_chargingInterruptTriggered = true;
         _debugger.Debug(_component, "Charging status changed to %s", digitalRead(POWER_MONITOR_CHARGE_STATE) ? "charging" : "discharging");
         // @todo trigger event
     }
@@ -84,7 +82,7 @@ void SDOS_POWER::loop()
     if(!(round(SDOS_POWER::_mon_mv_vbatt_previous/100) == round(SDOS_POWER::_mon_mv_vbatt/100))){
         _debugger.Debug(_component, "VBATT %dMv", SDOS_POWER::_mon_mv_vbatt);
         SDOS_POWER::_mon_mv_vbatt_previous = SDOS_POWER::_mon_mv_vbatt;
-        _events.trigger(String("power_vbatt_mv"), SDOS_POWER::_mon_mv_vbatt);
+        _events.trigger(F("power_vbatt_mv"), SDOS_POWER::_mon_mv_vbatt);
     }
 #endif
 #ifdef POWER_MONITOR_VBUS
@@ -92,7 +90,7 @@ void SDOS_POWER::loop()
     if(!(round(SDOS_POWER::_mon_mv_vbus_previous/100) == round(SDOS_POWER::_mon_mv_vbus/100))){
         _debugger.Debug(_component, "VBUS %dMv", SDOS_POWER::_mon_mv_vbus);
         SDOS_POWER::_mon_mv_vbus_previous = SDOS_POWER::_mon_mv_vbus;
-        _events.trigger(String("power_vbus_mv"), SDOS_POWER::_mon_mv_vbus);
+        _events.trigger(F("power_vbus_mv"), SDOS_POWER::_mon_mv_vbus);
     }
 #endif
 };

@@ -1,7 +1,5 @@
 #include "includes.h"
 
-#pragma message("Included SDOS_TTP223")
-
 class SDOS_TTP223
 {
 public:
@@ -26,7 +24,6 @@ SDOS_TTP223::SDOS_TTP223(EventsManager &eventsManager) : _events(eventsManager)
 void SDOS_TTP223::setup(){
 #ifdef PIN_POWER_TTP223
 // If we have a power pin to drive this sensor, enable it
-#pragma message("TTP223's PIN_POWER_TTP223 is defined, so we must provide power to drive the TTP223 chip")
     pinMode(PIN_POWER_TTP223, OUTPUT);
     enable();
 #endif

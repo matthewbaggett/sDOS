@@ -190,16 +190,15 @@ void WiFiManager::powerOn()
   _events.trigger("wifi_on");
 
 #ifdef WIFI_POWER_SAVING
-#pragma message("Compiling with WIFI_POWER_SAVING")
   if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK)
   {
     _debugger.Debug(_component, "Enabled wifi power saving successfully");
-    _events.trigger("wifi_powersave", String("okay"));
+    _events.trigger("wifi_powersave", F("okay"));
   }
   else
   {
     _debugger.Debug(_component, "Failed to enable wifi power saving");
-    _events.trigger("wifi_powersave", String("fail"));
+    _events.trigger("wifi_powersave", F("fail"));
   }
 #endif
 }

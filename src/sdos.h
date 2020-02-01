@@ -28,7 +28,7 @@
 
 // System Services
 #ifdef ENABLE_SERVICE_NTP
-#include "services/ntp.h";
+#include "services/ntp.h"
 #endif
 
 class sDOS
@@ -78,8 +78,8 @@ void sDOS::Setup(){
     Serial.begin(SERIAL_BAUD);
     Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
     delay(300);
-    _debugger.Debug(_component, String("Started Smol Device Operating System Kernel"));
-    _debugger.Debug(_component, "Built with love on %s at %s.", __DATE__, __TIME__);
+    _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
+    _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
     _cpuFrequencyUpdate();
 
 // System hardware & drivers
@@ -149,7 +149,7 @@ void sDOS::Loop()
     yield();
     if (_loopCount % 25000 == 0)
     {
-        _debugger.Debug(_component, String("Loops are executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
+        _debugger.Debug(_component, F("Loops are executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
     }
 
     // if the wifi manager is active, check the wifi loop

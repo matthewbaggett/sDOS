@@ -1,7 +1,5 @@
 #include "includes.h"
 
-#pragma message("Included PCF8563")
-
 class SDOS_PCF8563: public AbstractRTC
 {
 public:
@@ -44,7 +42,7 @@ void SDOS_PCF8563::setup(){
 void SDOS_PCF8563::setAlarmInMinutes(int minutes){
     DateTime alarm = _rtc.now();
     alarm.setminute(alarm.minute() + 1);
-    _events.trigger(String("alarm_set"), alarm);
+    _events.trigger(F("alarm_set"), alarm);
     _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
     _rtc.on_alarm();
 }

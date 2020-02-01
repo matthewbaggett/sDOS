@@ -1,7 +1,5 @@
 #include "includes.h"
 
-#pragma message("Included SDOS_I2C")
-
 class SDOS_I2C
 {
 public:

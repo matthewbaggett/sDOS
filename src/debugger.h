@@ -22,7 +22,7 @@ private:
 };
 
 String Debugger::lastComponent;
-char * Debugger::lastBuff = "";
+char * Debugger::lastBuff;
 int Debugger::duplicates = 0;
 
 void Debugger::Debug(String component, String format, ...)
