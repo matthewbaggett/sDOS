@@ -14,14 +14,13 @@ private:
     EventsManager _events;
     AbstractRTC _rtc;
     WiFiManager _wifi;
-    WiFiUDP * _ntpUDP;
+    WiFiUDP _ntpUDP = WiFiUDP();
     NTPClient * _timeClient;
 };
 
 SDOS_NTP::SDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC &rtc, WiFiManager &wifi)
     : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi)
 {
-    _ntpUDP = new WiFiUDP();
     _timeClient = new NTPClient(_ntpUDP);
 };
 
