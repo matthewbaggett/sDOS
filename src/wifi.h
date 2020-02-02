@@ -127,9 +127,8 @@ void WiFiManager::loadWifiConfigs()
       wifiMulti.addAP(row["ssid"].c_str(), row["psk"].c_str());
       _debugger.Debug(
         _component,
-        "Loaded Wifi Credential: %s (%s)",
-        row["ssid"].c_str(),
-        row["psk"].c_str()
+        "Loaded Wifi Credential: %s",
+        row["ssid"].c_str()
       );
     }
   }
@@ -234,7 +233,7 @@ void WiFiManager::disconnect()
 
 unsigned int WiFiManager::getRequestCount()
 {
-  _debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected" : "Disconnected", WiFiManager::_wifiPowerState == true ? "on" : "off");
+  //_debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected" : "Disconnected", WiFiManager::_wifiPowerState == true ? "on" : "off");
   return _requestsActive;
 }
 

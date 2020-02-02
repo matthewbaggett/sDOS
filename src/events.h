@@ -33,10 +33,7 @@ void EventsManager::loop()
 
 void EventsManager::trigger(String event, DateTime & payload)
 {
-    char buf[100];
-    strncpy(buf, "DD.MM.YYYY hh:mm:ss", 100);
-    char * printableTime = payload.format(buf);
-    _debugger.Debug(_component, "%s : %s", event.c_str(), printableTime);
+    _debugger.Debug(_component, "%s : %s", event.c_str(), payload.toStr());
 };
 
 void EventsManager::trigger(String event, const __FlashStringHelper * payload)

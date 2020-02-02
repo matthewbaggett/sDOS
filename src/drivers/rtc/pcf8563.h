@@ -7,7 +7,8 @@ public:
     void setup();
     void loop();
     void setAlarmInMinutes(int minutes);
-    void setTime(DateTime newTime);
+    void setTime(DateTime & newTime);
+    DateTime getTime();
 private:
     static void interrupt();
     static bool hasInterruptOccured();
@@ -22,13 +23,17 @@ bool SDOS_PCF8563::interruptTriggered = false;
 SDOS_PCF8563::SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C &i2c) : _events(eventsManager), _i2c(i2c)
 {}
 
-void SDOS_PCF8563::setTime(DateTime newTime){
+void SDOS_PCF8563::setTime(DateTime & newTime){
     _rtc.adjust(newTime);
     _events.trigger("PCF8563_update", String(newTime.toStr()));
 }
 
+DateTime SDOS_PCF8563::getTime(){
+    return _rtc.now();
+}
+
 void SDOS_PCF8563::setup(){
-    _events.trigger("PCF8563_enable");
+    _events.trigger(F("PCF8563_enable"));
     pinMode(PIN_INTERRUPT_PCF8563, INPUT);
     attachInterrupt(PIN_INTERRUPT_PCF8563, SDOS_PCF8563::interrupt, FALLING);
     TwoWire wire = _i2c.getWire();
@@ -40,8 +45,6 @@ void SDOS_PCF8563::setup(){
         _events.trigger(F("PCF8563_fail"));
         return;
     }
-
-    setTime(DateTime(__DATE__, __TIME__));
 
     setAlarmInMinutes(1);
 };
@@ -73,7 +76,7 @@ void SDOS_PCF8563::loop()
 {
     if (SDOS_PCF8563::hasInterruptOccured())
     {
-        _events.trigger("PCF8563_interrupt");
+        _events.trigger(F("PCF8563_interrupt"));
     }
 };
 

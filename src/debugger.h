@@ -35,7 +35,7 @@ void Debugger::Debug(String component, String format, ...)
     _serial.printf("[%s] %s\n", component.c_str(), buff);
     return;
 
-    if (!(component ==  Debugger::lastComponent && buff ==  Debugger::lastBuff))
+    if (component !=  Debugger::lastComponent || buff !=  Debugger::lastBuff)
     {
         if ( Debugger::duplicates > 0)
         {
