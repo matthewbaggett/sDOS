@@ -220,7 +220,12 @@ void WiFiManager::powerOff()
   }
   WiFiManager::_wifiPowerState = false;
   WiFi.disconnect();
-  WiFi.mode(WIFI_MODE_NULL);
+  //WiFi.mode(WIFI_MODE_NULL);
+  esp_wifi_disconnect();
+  delay(100);
+  esp_wifi_stop();
+  delay(100);
+  esp_wifi_deinit();
   btStop();
   _events.trigger("wifi_off");
 }
