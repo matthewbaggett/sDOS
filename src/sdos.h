@@ -112,13 +112,13 @@ uint32_t sDOS::_cpuFrequencyUpdate()
 {
 #ifdef CPU_FREQ_MHZ
     uint32_t targetFreq = CPU_FREQ_MHZ_NORADIO;
-    /*_debugger.Debug(
+    _debugger.Debug(
         _component,
-        "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s\n",
+        "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s",
         _wifi.isActive() ? "yes" : "no",
         _wifi.getRequestCount(), 
         WiFi.isConnected() ? "yes" : "no"
-    );*/
+    );
     if (_wifi.isActive() || _wifi.getRequestCount() > 0 || WiFi.isConnected())
     {
         targetFreq = CPU_FREQ_MHZ;

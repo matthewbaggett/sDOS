@@ -17,12 +17,12 @@ public:
 private:
     HardwareSerial _serial = Serial;
     static String lastComponent;
-    static char *lastBuff;
+    static char lastBuff[128];
     static int duplicates;
 };
 
 String Debugger::lastComponent;
-char * Debugger::lastBuff;
+char Debugger::lastBuff[128];
 int Debugger::duplicates = 0;
 
 void Debugger::Debug(String component, String format, ...)
@@ -32,27 +32,25 @@ void Debugger::Debug(String component, String format, ...)
     va_start(args, format.c_str());
     vsprintf(buff, format.c_str(), args);
 
-    _serial.printf("[%s] %s\n", component.c_str(), buff);
-    return;
+    /*Serial.printf(
+        "\n  Component     : %s\n  LastComponent : %s\n  Buff          : %s\n  LastBuff      : %s\n",
+        component,
+        Debugger::lastComponent,
+        buff,
+        Debugger::lastBuff
+    );*/
 
-    if (component !=  Debugger::lastComponent || buff !=  Debugger::lastBuff)
+    if (Debugger::lastComponent.equals(component) && strcmp(buff, Debugger::lastBuff) == 0)
     {
-        if ( Debugger::duplicates > 0)
-        {
-            _serial.println();
-        }
-        _serial.printf("[%s] %s\n", component.c_str(), buff);
-         Debugger::lastComponent = component;
-         Debugger::lastBuff = buff;
-         Debugger::duplicates = 0;
+        Debugger::duplicates++;
+        _serial.printf("\t\t(repeated %d times)\r", Debugger::duplicates);
+        return;
     }
-    else
-    {
-         Debugger::duplicates++;
-        _serial.printf("\t\t(repeated %d times)\r",  Debugger::duplicates);
-    }
+
+    _serial.printf("%s[%s] %s\n", Debugger::duplicates > 0 ? "\n":"", component.c_str(), buff);
+    memcpy(Debugger::lastBuff, buff, sizeof(buff));
+    Debugger::lastComponent = component;
+    Debugger::duplicates = 0;
+    return;
 };
 
-//void Debugger::Debug(String component, String message){
-//    _serial.printf("[%s] %s\n", component.c_str(), message.c_str());
-//};
