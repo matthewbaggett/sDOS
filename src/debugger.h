@@ -32,8 +32,8 @@ void Debugger::Debug(String component, String format, ...)
     va_start(args, format.c_str());
     vsprintf(buff, format.c_str(), args);
 
-    //_serial.printf("[%s] %s\n", component.c_str(), buff);
-    //return;
+    _serial.printf("[%s] %s\n", component.c_str(), buff);
+    return;
 
     if (!(component ==  Debugger::lastComponent && buff ==  Debugger::lastBuff))
     {

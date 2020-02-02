@@ -7,6 +7,7 @@ public:
     void setup();
     void loop();
     void setAlarmInMinutes(int minutes);
+    void setTime(DateTime newTime);
 private:
     static void interrupt();
     static bool hasInterruptOccured();
@@ -21,6 +22,11 @@ bool SDOS_PCF8563::interruptTriggered = false;
 SDOS_PCF8563::SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C &i2c) : _events(eventsManager), _i2c(i2c)
 {}
 
+void SDOS_PCF8563::setTime(DateTime newTime){
+    _rtc.adjust(newTime);
+    _events.trigger("PCF8563_update", String(newTime.toStr()));
+}
+
 void SDOS_PCF8563::setup(){
     _events.trigger("PCF8563_enable");
     pinMode(PIN_INTERRUPT_PCF8563, INPUT);
@@ -28,13 +34,14 @@ void SDOS_PCF8563::setup(){
     TwoWire wire = _i2c.getWire();
     // rtc lib can't take _wire as an argument, sadly.
     _rtc.begin();
-    _rtc.adjust(DateTime(__DATE__, __TIME__));
     if(_rtc.isrunning()){
-        _events.trigger("PCF8563_ready");
+        _events.trigger(F("PCF8563_ready"));
     }else{
-        _events.trigger("PCF8563_fail");
+        _events.trigger(F("PCF8563_fail"));
         return;
     }
+
+    setTime(DateTime(__DATE__, __TIME__));
 
     setAlarmInMinutes(1);
 };
@@ -42,7 +49,7 @@ void SDOS_PCF8563::setup(){
 void SDOS_PCF8563::setAlarmInMinutes(int minutes){
     DateTime alarm = _rtc.now();
     alarm.setminute(alarm.minute() + 1);
-    _events.trigger(F("alarm_set"), alarm);
+    _events.trigger(F("PCF8563_alarm_set"), alarm);
     _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
     _rtc.on_alarm();
 }

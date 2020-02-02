@@ -1,5 +1,5 @@
 #include "includes.h"
-
+using namespace std;
 #ifndef WIFI_POWER_SAVING
 #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM
 #endif
@@ -19,6 +19,8 @@ enum AccessPointState
 
 class WiFiManager
 {
+  const unsigned int MAX_WIFI_CREDENTIALS = 10;
+
 public:
   WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events);
   void setup();
@@ -37,8 +39,8 @@ private:
   Debugger _debugger;
   FileSystem _fileSystem;
   EventsManager _events;
-  String _component = "WiFi";
-  String _fileWifiCredentials = "/wifi.json";
+  const String _component = "WiFi";
+  const String _fileWifiCredentials = "/wifi.json";
   void loadWifiConfigs();
   enum WifiState _wifiClientState = WIFI_DISCONNECTED;
   enum WifiState _wifiClientStatePrevious = WIFI_DISCONNECTED;
@@ -61,7 +63,8 @@ boolean WiFiManager::_wifiPowerState = false;
 
 boolean WiFiManager::isConnected()
 {
-  if(WiFiManager::_wifiPowerState){
+  if (WiFiManager::_wifiPowerState)
+  {
     return true;
   }
   return false;
@@ -69,7 +72,7 @@ boolean WiFiManager::isConnected()
 
 boolean WiFiManager::isActive()
 {
-  return WiFiManager::_isActive ;
+  return WiFiManager::_isActive;
 }
 
 boolean WiFiManager::hasRequests()
@@ -85,6 +88,7 @@ WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManag
 void WiFiManager::setup()
 {
   powerOff();
+  loadWifiConfigs();
 }
 
 void WiFiManager::loop()
@@ -112,15 +116,21 @@ void WiFiManager::loop()
 
 void WiFiManager::loadWifiConfigs()
 {
-  JsonArray wifiConfigs = _fileSystem.loadJsonArray(_fileWifiCredentials);
-  if (wifiConfigs.success())
+  JsonConfigFile wifiCreds[MAX_WIFI_CREDENTIALS];
+  _fileSystem.loadJsonArray(wifiCreds, _fileWifiCredentials);
+
+  for (int i = 0; i < MAX_WIFI_CREDENTIALS; i++)
   {
-    for (auto wifiConfig : wifiConfigs)
+    std::map<std::string, std::string> row = wifiCreds[i].data;
+    if (!row["ssid"].empty())
     {
-      String ssid = wifiConfig["ssid"];
-      String psk = wifiConfig["psk"];
-      _debugger.Debug(_component, "Stored Wifi credentials found: %s (%s)", ssid.c_str(), psk.c_str());
-      wifiMulti.addAP(ssid.c_str(), psk.c_str());
+      wifiMulti.addAP(row["ssid"].c_str(), row["psk"].c_str());
+      _debugger.Debug(
+        _component,
+        "Loaded Wifi Credential: %s (%s)",
+        row["ssid"].c_str(),
+        row["psk"].c_str()
+      );
     }
   }
 }
@@ -176,13 +186,13 @@ void WiFiManager::connect()
   WiFi.disconnect();
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(true);
-  loadWifiConfigs();
   powerOn();
 };
 
 void WiFiManager::powerOn()
 {
-  if(WiFiManager::_wifiPowerState == true){
+  if (WiFiManager::_wifiPowerState == true)
+  {
     return;
   }
   WiFiManager::_wifiPowerState = true;
@@ -205,7 +215,8 @@ void WiFiManager::powerOn()
 
 void WiFiManager::powerOff()
 {
-  if(WiFiManager::_wifiPowerState == false){
+  if (WiFiManager::_wifiPowerState == false)
+  {
     return;
   }
   WiFiManager::_wifiPowerState = false;
@@ -223,7 +234,7 @@ void WiFiManager::disconnect()
 
 unsigned int WiFiManager::getRequestCount()
 {
-  _debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected":"Disconnected", WiFiManager::_wifiPowerState==true ? "on" : "off");
+  _debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected" : "Disconnected", WiFiManager::_wifiPowerState == true ? "on" : "off");
   return _requestsActive;
 }
 
@@ -251,9 +262,11 @@ void WiFiManager::updateRequestedActivity()
 {
   getRequestCount();
   // If cpu frequency is too low, return fast to let the scaler set the frequency.
-  if(getCpuFrequencyMhz() < CPU_FREQ_MHZ){
+  if (getCpuFrequencyMhz() < CPU_FREQ_MHZ)
+  {
     //Serial.println("Iterate and wait for CPU scaling increase");
-    if(isActive()){
+    if (isActive())
+    {
       disconnect();
       powerOff();
     }
@@ -282,7 +295,10 @@ boolean WiFiManager::waitForConnection(int timeout)
     }
     if (isConnected())
     {
-      return true;
+      if (WiFi.isConnected())
+      {
+        return true;
+      }
     }
   }
 }

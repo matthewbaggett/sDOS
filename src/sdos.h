@@ -63,7 +63,7 @@ private:
     SDOS_MPU9250 _mpu9250 = SDOS_MPU9250(_events);
 #endif
 #ifdef ENABLE_SERVICE_NTP
-    SDOS_NTP _ntp = SDOS_NTP(_debugger,_events, _rtc, _wifi);
+    SDOS_NTP _ntp = SDOS_NTP(_debugger,_events, & _rtc, _wifi);
 #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;

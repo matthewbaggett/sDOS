@@ -1,23 +1,33 @@
 #include "includes.h"
+#include "ArduinoJson.h"
+#include <iostream>
+#include <map>
+#include <string>
+using namespace std;
+
+struct JsonConfigFile
+{
+    std::map<std::string, std::string> data;
+};
+
 class FileSystem
 {
+    const int MAX_PROBABLE_CONFIGURED_WIFIS = 20;
+
 public:
     FileSystem(Debugger &debugger)
     {
         _debugger = debugger;
     }
-    JsonArray loadJsonArray(String fileName);
+    JsonConfigFile * loadJsonArray(JsonConfigFile * config, String fileName);
 
 private:
     Debugger _debugger;
-    String _component = "FS";
+    const String _component = "FS";
 };
 
-JsonArray FileSystem::loadJsonArray(String fileName)
+JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileName)
 {
-
-    DynamicJsonBuffer jsonBuff;
-
     if (!SPIFFS.begin())
     {
         _debugger.Debug(_component, "loadJsonArray _spiffs.begin() for %s did not succeed\n", fileName.c_str());
@@ -27,9 +37,36 @@ JsonArray FileSystem::loadJsonArray(String fileName)
     {
         _debugger.Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed\n", fileName.c_str());
     }
+
+    // Read the file into buffer
+    int documentSize = f.size() * 2.5;
     char temp[f.size()];
     f.readBytes(temp, f.size());
-    JsonArray jsonData = jsonBuff.parseArray(temp);
     f.close();
-    return jsonData;
+
+    DynamicJsonDocument doc(documentSize);
+    DeserializationError error = deserializeJson(doc, temp);
+    // Test if parsing succeeds.
+    if (error)
+    {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.c_str());
+        return config;
+    }
+    int rowId = 0;
+    for (JsonObject row : doc.as<JsonArray>())
+    {
+        JsonConfigFile & _config = config[rowId];
+
+        for (JsonObject::iterator it = row.begin(); it != row.end(); ++it)
+        {
+            const char *_key = it->key().c_str();
+            const char *_value = it->value().as<char *>();
+            _config.data.emplace(_key, _value);
+        }
+
+        rowId++;
+    }
+
+    return config;
 }

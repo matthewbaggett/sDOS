@@ -22,3 +22,9 @@
 #endif
 
 #define BATTERY_MAGIC_MULTIPLIER 0.91911764705 
+
+#define NTP_POOL "europe.pool.ntp.org"
+#define NTP_OFFSET 1
+
+#undef ESP32_PANIC
+#define ESP32_PANIC ESP32_PANIC_PRINT_HALT
