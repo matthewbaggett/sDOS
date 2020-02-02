@@ -1,36 +1,41 @@
+#include "driver/gpio.h"
+
 #if TTGO_WATCH == HARDWARE
     // Hardware to enable:
     // Enable i2c
     #define ENABLE_I2C
-    #define I2C_SDA 21
-    #define I2C_SCL 22
+    #define I2C_SDA GPIO_NUM_21
+    #define I2C_SCL GPIO_NUM_22
     #define I2C_CLOCK I2C_FREQ_DEFAULT
 
     // Enable TTP223 touch button driver
     #define ENABLE_TTP223
-    #define PIN_INTERRUPT_TTP223 33
-    #define PIN_POWER_TTP223 25
+    #define PIN_INTERRUPT_TTP223 GPIO_NUM_33
+    #define PIN_POWER_TTP223 GPIO_NUM_25
 
     // Enable PCF8563 RTC
     #define ENABLE_PCF8563
-    #define PIN_INTERRUPT_PCF8563 34
+    #define PIN_INTERRUPT_PCF8563 GPIO_NUM_34
 
     // Enable MPU9250 Accellerometer
     #define ENABLE_MPU9250
-    #define PIN_INTERRUPT_MPU9250 39
+    #define PIN_INTERRUPT_MPU9250 GPIO_NUM_39
 
     // Enable voltage monitoring
     #define ENABLE_POWER
-    #define POWER_MONITOR_CHARGE_STATE 32
-    #define POWER_MONITOR_VBATT 35
-    #define POWER_MONITOR_VBUS 36
+    #define POWER_MONITOR_CHARGE_STATE GPIO_NUM_32
+    #define POWER_MONITOR_VBATT GPIO_NUM_35
+    #define POWER_MONITOR_VBUS GPIO_NUM_36
     #define POWER_MONITOR_DIVISOR 2
 
     // Enable activity light
     #define ENABLE_ACTIVITY_LIGHT 
-    #define ACTIVITY_LIGHT_ONECOLOUR 4
+    #define ACTIVITY_LIGHT_ONECOLOUR GPIO_NUM_4
 
     // Services to enable:
     #define ENABLE_SERVICE_NTP
+    #define ENABLE_SERVICE_SLEEPTUNE
+    #define SLEEPTUNE_LOOPS_PER_SECOND 1
+    #define SLEEPTUNE_WAKEUP_EXT1_BITMASK BIT(PIN_INTERRUPT_TTP223)|BIT(PIN_INTERRUPT_PCF8563)|BIT(PIN_INTERRUPT_MPU9250)
 
 #endif

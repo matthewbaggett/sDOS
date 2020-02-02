@@ -30,6 +30,9 @@
 #ifdef ENABLE_SERVICE_NTP
 #include "services/ntp.h"
 #endif
+#ifdef ENABLE_SERVICE_SLEEPTUNE
+#include "services/sleeptune.h"
+#endif
 
 class sDOS
 {
@@ -64,6 +67,9 @@ private:
 #endif
 #ifdef ENABLE_SERVICE_NTP
     SDOS_NTP _ntp = SDOS_NTP(_debugger,_events, & _rtc, _wifi);
+#endif
+#ifdef ENABLE_SERVICE_SLEEPTUNE
+    SDOS_SLEEPTUNE _sleeptune = SDOS_SLEEPTUNE(_debugger, _events, _wifi);
 #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
@@ -106,23 +112,28 @@ void sDOS::Setup(){
 #ifdef ENABLE_SERVICE_NTP
     _ntp.setup();
 #endif
+#ifdef ENABLE_SERVICE_SLEEPTUNE
+    _sleeptune.setup();
+#endif
 };
 
 uint32_t sDOS::_cpuFrequencyUpdate()
 {
 #ifdef CPU_FREQ_MHZ
-    uint32_t targetFreq = CPU_FREQ_MHZ_NORADIO;
-    _debugger.Debug(
+    uint32_t targetFreq = CPU_FREQ_MHZ;
+    /*_debugger.Debug(
         _component,
         "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s",
         _wifi.isActive() ? "yes" : "no",
         _wifi.getRequestCount(), 
         WiFi.isConnected() ? "yes" : "no"
-    );
-    if (_wifi.isActive() || _wifi.getRequestCount() > 0 || WiFi.isConnected())
+    );*/
+    #ifdef CPU_FREQ_MHZ_NORADIO
+    if (_wifi.canSleep())
     {
-        targetFreq = CPU_FREQ_MHZ;
+        targetFreq = CPU_FREQ_MHZ_NORADIO;
     }
+    #endif
     uint32_t currentFreq = getCpuFrequencyMhz();
     if (currentFreq != targetFreq)
     {
@@ -187,6 +198,9 @@ void sDOS::Loop()
 #endif
 #ifdef ENABLE_SERVICE_NTP
     _ntp.loop();
+#endif
+#ifdef ENABLE_SERVICE_SLEEPTUNE
+    _sleeptune.loop();
 #endif
 
 }

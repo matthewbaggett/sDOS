@@ -34,6 +34,7 @@ public:
   boolean waitForConnection(int timeout = 30);
   unsigned int getRequestCount();
   boolean isConnected();
+  boolean canSleep();
 
 private:
   Debugger _debugger;
@@ -180,7 +181,7 @@ long WiFiManager::getSignalStrength()
 void WiFiManager::connect()
 {
   WiFiManager::_isActive = true;
-  _debugger.Debug(_component, "Connect begin");
+  _debugger.Debug(_component, "Connect begin.. This takes a hot minute..");
   WiFi.persistent(false);
   WiFi.disconnect();
   WiFi.setAutoConnect(false);
@@ -305,4 +306,17 @@ boolean WiFiManager::waitForConnection(int timeout)
       }
     }
   }
+}
+
+boolean WiFiManager::canSleep(){ 
+  if(isActive()){
+    return false;
+  } 
+  if(getRequestCount() > 0){
+    return false;
+  }
+  if(WiFi.isConnected()){
+    return false;
+  }
+  return true;
 }
