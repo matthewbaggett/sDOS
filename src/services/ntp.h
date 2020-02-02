@@ -35,7 +35,7 @@ SDOS_NTP::SDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, 
 
 void SDOS_NTP::setup()
 {
-    
+    _debugger.Debug(_component, "setup");   
 };
 
 void SDOS_NTP::loop()
