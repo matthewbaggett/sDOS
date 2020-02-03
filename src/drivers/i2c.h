@@ -1,17 +1,19 @@
 #include "includes.h"
 
-class SDOS_I2C
+class SDOS_I2C : public sDOS_Abstract_Driver
 {
 public:
     SDOS_I2C(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
+    boolean isActive() { return true; }
     //static TwoWire wire;
     static bool isConnected();
     void connect();
     TwoWire getWire();
     void scan();
     bool i2cDeviceExists(byte address);
+    
 private:
     Debugger _debugger;
     EventsManager _events;
@@ -26,7 +28,8 @@ SDOS_I2C::SDOS_I2C(Debugger &debugger, EventsManager &eventsManager) :  _debugge
 };
 
 void SDOS_I2C::setup(){
-
+    connect();
+    scan();
 };
 
 bool SDOS_I2C::isConnected(){

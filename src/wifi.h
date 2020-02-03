@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "abstracts/abstract_sdos_driver.h"
 using namespace std;
 #ifndef WIFI_POWER_SAVING
 #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM
@@ -17,7 +18,7 @@ enum AccessPointState
   AP_BUSY
 };
 
-class WiFiManager
+class WiFiManager : public sDOS_Abstract_Driver
 {
   const unsigned int MAX_WIFI_CREDENTIALS = 10;
 
@@ -123,6 +124,7 @@ void WiFiManager::loadWifiConfigs()
   for (int i = 0; i < MAX_WIFI_CREDENTIALS; i++)
   {
     std::map<std::string, std::string> row = wifiCreds[i].data;
+    yield();
     if (!row["ssid"].empty())
     {
       wifiMulti.addAP(row["ssid"].c_str(), row["psk"].c_str());
@@ -132,6 +134,7 @@ void WiFiManager::loadWifiConfigs()
         row["ssid"].c_str()
       );
     }
+    yield();
   }
 }
 
@@ -215,20 +218,29 @@ void WiFiManager::powerOn()
 
 void WiFiManager::powerOff()
 {
+  yield();
   if (WiFiManager::_wifiPowerState == false)
   {
     return;
   }
   WiFiManager::_wifiPowerState = false;
+  yield();
   WiFi.disconnect();
+  yield();
   //WiFi.mode(WIFI_MODE_NULL);
+  //yield();
   esp_wifi_disconnect();
+  yield();
   delay(100);
   esp_wifi_stop();
+  yield();
   delay(100);
   esp_wifi_deinit();
+  yield();
   btStop();
+  yield();
   _events.trigger("wifi_off");
+  yield();
 }
 
 void WiFiManager::disconnect()

@@ -1,11 +1,12 @@
 #include "includes.h"
 
-class SDOS_POWER
+class SDOS_POWER : public sDOS_Abstract_Driver
 {
 public:
     SDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
+    boolean isActive() { return true; }
     //static TwoWire wire;
     static bool isCharging();
 

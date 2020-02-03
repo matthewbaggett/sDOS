@@ -7,11 +7,11 @@
 #define SLEEPTUNE_LOOPS_PER_SECOND_VARIATION 1
 #endif
 
-class SDOS_SLEEPTUNE
+class SDOS_SLEEPTUNE : public sDOS_Abstract_Service
 {
 
 public:
-    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager &wifi);
+    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi);
     void setup();
     void loop();
     void oncePerSecond();
@@ -20,7 +20,7 @@ private:
     String _component = "SleepTune";
     Debugger _debugger;
     EventsManager _events;
-    WiFiManager _wifi;
+    WiFiManager * _wifi;
 
     int _loopPerSecondCount = 0;
     int _tuningStep = 5;
@@ -30,7 +30,7 @@ private:
 
 unsigned long SDOS_SLEEPTUNE::_micros = 0;
 
-SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager &wifi)
+SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi)
     : _debugger(debugger), _events(events), _wifi(wifi)
     {};
 
@@ -38,11 +38,12 @@ void SDOS_SLEEPTUNE::setup()
 {
     _debugger.Debug(_component, "setup");
     _loopPerSecondCount = 0;
+    Serial.println("SDOS_SLEEPTUNE::setup End");
 };
 
 void SDOS_SLEEPTUNE::loop()
 {
-    if(!_wifi.canSleep()){
+    if(!_wifi->canSleep()){
         return;
     }
     /*Serial.printf(

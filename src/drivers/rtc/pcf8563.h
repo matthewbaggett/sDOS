@@ -3,25 +3,28 @@
 class SDOS_PCF8563: public AbstractRTC
 {
 public:
-    SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C &i2c);
+    SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C *i2c);
     void setup();
     void loop();
     void setAlarmInMinutes(int minutes);
     void setTime(DateTime & newTime);
     DateTime getTime();
+    boolean isActive() { return true; }
+
 private:
     static void interrupt();
     static bool hasInterruptOccured();
     static bool interruptTriggered;
     EventsManager _events;
-    SDOS_I2C _i2c;
+    SDOS_I2C * _i2c;
     PCF8563 _rtc;
 };
 
 bool SDOS_PCF8563::interruptTriggered = false;
 
-SDOS_PCF8563::SDOS_PCF8563(EventsManager &eventsManager, SDOS_I2C &i2c) : _events(eventsManager), _i2c(i2c)
-{}
+SDOS_PCF8563::SDOS_PCF8563(EventsManager & eventsManager, SDOS_I2C * i2c) 
+    : _events(eventsManager), _i2c(i2c)
+    {}
 
 void SDOS_PCF8563::setTime(DateTime & newTime){
     _rtc.adjust(newTime);
@@ -36,7 +39,7 @@ void SDOS_PCF8563::setup(){
     _events.trigger(F("PCF8563_enable"));
     pinMode(PIN_INTERRUPT_PCF8563, INPUT);
     attachInterrupt(PIN_INTERRUPT_PCF8563, SDOS_PCF8563::interrupt, FALLING);
-    TwoWire wire = _i2c.getWire();
+    TwoWire wire = _i2c->getWire();
     // rtc lib can't take _wire as an argument, sadly.
     _rtc.begin();
     if(_rtc.isrunning()){

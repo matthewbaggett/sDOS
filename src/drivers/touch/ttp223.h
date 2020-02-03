@@ -1,6 +1,6 @@
 #include "includes.h"
 
-class SDOS_TTP223
+class SDOS_TTP223 : public sDOS_Abstract_Driver
 {
 public:
     SDOS_TTP223(EventsManager &eventsManager);
@@ -8,6 +8,7 @@ public:
     void loop();
     void enable();
     void disable();
+    boolean isActive() { return true; }
 
 private:
     static void interrupt();

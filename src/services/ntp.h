@@ -1,11 +1,11 @@
 #include "includes.h"
 
-class SDOS_NTP
+class SDOS_NTP : public sDOS_Abstract_Service
 {
     const int NTP_UPDATE_INTERVAL_SECONDS = 60 * 60 * 12;
 
 public:
-    SDOS_NTP(Debugger &debugger, EventsManager &eventsManager, AbstractRTC *rtc, WiFiManager &wifi);
+    SDOS_NTP(Debugger &debugger, EventsManager &eventsManager, AbstractRTC *rtc, WiFiManager *wifi);
     void setup();
     void loop();
     void update();
@@ -15,7 +15,7 @@ private:
     Debugger _debugger;
     EventsManager _events;
     AbstractRTC * _rtc;
-    WiFiManager _wifi;
+    WiFiManager * _wifi;
     WiFiUDP _ntpUDP = WiFiUDP();
     NTPClient * _timeClient;
     boolean talkNTP();
@@ -25,7 +25,7 @@ private:
 
 int SDOS_NTP::_lastSuccessfulUpdateEpoch = 0;
 
-SDOS_NTP::SDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, WiFiManager &wifi)
+SDOS_NTP::SDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, WiFiManager *wifi)
     : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi)
 {
     _timeClient = new NTPClient(_ntpUDP,NTP_POOL, NTP_OFFSET * 3600);
@@ -48,15 +48,15 @@ void SDOS_NTP::update()
     if(!needsUpdate()){
         return;
     }
-    bool connected = _wifi.isConnected();
+    bool connected = _wifi->isConnected();
     if(!connected){
-        _wifi.addRequestActive();
+        _wifi->addRequestActive();
         return;
     }
-    if(_wifi.waitForConnection()){
+    if(_wifi->waitForConnection()){
         boolean successfulUpdate = talkNTP();
         if(successfulUpdate){
-            _wifi.removeRequestActive();
+            _wifi->removeRequestActive();
         }
     }
 };
@@ -89,7 +89,7 @@ boolean SDOS_NTP::talkNTP(){
     unsigned long epoch = _timeClient->getEpochTime();
     DateTime newEpoch(epoch);
     SDOS_NTP::_lastSuccessfulUpdateEpoch = newEpoch.unixtime();
-    Serial.printf("Updated: %s\n", newEpoch.toStr());
+    //Serial.printf("Updated: %s\n", newEpoch.toStr());
     _rtc->setTime(newEpoch);
 
     _rtc->setAlarmInMinutes(1);
