@@ -148,7 +148,7 @@ void WiFiManager::checkForStateChanges()
     else if (_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED)
     {
       _debugger.Debug(_component, "Disconnected from Wifi.");
-      _events.trigger("wifi_disconnect", WiFi.SSID());
+      _events.trigger("wifi_disconnect");
       _events.trigger("wifi_ip_unset");
       disconnect();
     }
