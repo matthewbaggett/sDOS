@@ -8,7 +8,6 @@ public:
         _serial = Serial;
         _serial.begin(SERIAL_BAUD);
         _serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
-        delay(300);
     }
 
     //void Debug(String component, String message);
@@ -47,7 +46,16 @@ void Debugger::Debug(String component, String format, ...)
         return;
     }
 
-    _serial.printf("%s[%s] %s\n", Debugger::duplicates > 0 ? "\n":"", component.c_str(), buff);
+    component.toUpperCase();
+
+    _serial.printf(
+        "%s[%.10-10s %dMhz %s] %s\n", 
+        Debugger::duplicates > 0 ? "\n":"", 
+        component.c_str(), 
+        getCpuFrequencyMhz(),
+        WiFi.isConnected() ? "W+" : "W-",
+        buff
+    );
     memcpy(Debugger::lastBuff, buff, sizeof(buff));
     Debugger::lastComponent = component;
     Debugger::duplicates = 0;

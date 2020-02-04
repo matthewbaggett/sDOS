@@ -6,7 +6,6 @@ public:
     SDOS_I2C(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
-    boolean isActive() { return true; }
     //static TwoWire wire;
     static bool isConnected();
     void connect();

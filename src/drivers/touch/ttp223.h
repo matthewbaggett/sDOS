@@ -8,7 +8,6 @@ public:
     void loop();
     void enable();
     void disable();
-    boolean isActive() { return true; }
 
 private:
     static void interrupt();

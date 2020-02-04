@@ -38,6 +38,8 @@
 #endif
 
 using namespace std;
+using driverMap = std::map<String, sDOS_Abstract_Driver *>;
+using serviceMap = std::map<String, sDOS_Abstract_Service *>;
 
 class sDOS
 {
@@ -48,8 +50,8 @@ public:
 
 private:
     String _component = "Kernel";
-    std::map<std::string, sDOS_Abstract_Driver *> _drivers;
-    std::map<std::string, sDOS_Abstract_Service *> _services;
+    driverMap _drivers;
+    serviceMap _services;
     void _configure();
     uint32_t _cpuFrequencyUpdate();
     Preferences _preferences;
@@ -61,7 +63,7 @@ private:
     long _lastTimeStampUS = 0;
     uint64_t _loopCount = 0;
     static uint driverId;
-    std::string getDriverID(char* name);
+    String getDriverID(String name);
 };
 
 sDOS::sDOS(){
@@ -70,16 +72,12 @@ sDOS::sDOS(){
 
 uint sDOS::driverId = 0;
 
-std::string sDOS::getDriverID(char* name){
+String sDOS::getDriverID(String name)
+{
     char id[12];
-
-    Serial.printf("name:  %s\n", name);
-    Serial.printf("driverId:  %d\n", driverId);
-    sprintf(id, "%d-%.8s", driverId, name);
-    Serial.printf("driver index: %s\n", id);
+    sprintf(id, "%d-%.8s", driverId, name.c_str());
     driverId++;
-
-    return id;
+    return String(id);
 }
 
 void sDOS::Setup()
@@ -90,43 +88,45 @@ void sDOS::Setup()
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
     
-    _drivers.insert(std::make_pair(getDriverID("wifi"), driver_WiFi));
+    _drivers.insert(std::make_pair(getDriverID(F("wifi")), driver_WiFi));
     _cpuFrequencyUpdate();
+
 #ifdef ENABLE_POWER
-    _drivers.insert(std::make_pair(getDriverID("power"), new SDOS_POWER(_debugger, _events)));
+    _drivers.insert(std::make_pair(getDriverID(F("power")), new SDOS_POWER(_debugger, _events)));
 #endif
 #ifdef ENABLE_I2C
     SDOS_I2C * driver_I2C = new SDOS_I2C(_debugger, _events);
-    _drivers.insert(std::make_pair(getDriverID("i2c"), driver_I2C));
+    _drivers.insert(std::make_pair(getDriverID(F("i2c")), driver_I2C));
 #endif
 #ifdef ENABLE_TTP223
-    _drivers.insert(std::make_pair(getDriverID("touch"), new SDOS_TTP223(_events)));
+    _drivers.insert(std::make_pair(getDriverID(F("touch")), new SDOS_TTP223(_events)));
 #endif
 #ifdef ENABLE_PCF8563
-    SDOS_PCF8563 * driver_RTC = new SDOS_PCF8563(_events, driver_I2C);
-    _drivers.insert(std::make_pair(getDriverID("rtc"), driver_RTC));
+    SDOS_PCF8563 * driver_RTC = new SDOS_PCF8563(_debugger, _events, driver_I2C);
+    _drivers.insert(std::make_pair(getDriverID(F("rtc")), driver_RTC));
 #endif
 #ifdef ENABLE_MPU9250
-    _drivers.insert(std::make_pair(getDriverID("accellerometer"), new SDOS_MPU9250(_events)));
-#endif
-#ifdef ENABLE_SERVICE_NTP
-    _services.insert(std::make_pair(getDriverID("ntp"), new SDOS_NTP(_debugger, _events, driver_RTC, driver_WiFi)));
-#endif
-#ifdef ENABLE_SERVICE_SLEEPTUNE
-    _services.insert(std::make_pair(getDriverID("sleeptune"), new SDOS_SLEEPTUNE(_debugger, _events, driver_WiFi)));
+    _drivers.insert(std::make_pair(getDriverID(F("accellerometer")), new SDOS_MPU9250(_events)));
 #endif
 
-    for (std::map <std::string, sDOS_Abstract_Driver *>::iterator it = _drivers.begin(); it != _drivers.end(); ++it)
+#ifdef ENABLE_SERVICE_SLEEPTUNE
+    _services.insert(std::make_pair(getDriverID(F("sleeptune")), new SDOS_SLEEPTUNE(_debugger, _events, driver_WiFi)));
+#endif
+#ifdef ENABLE_SERVICE_NTP
+    _services.insert(std::make_pair(getDriverID(F("ntp")), new SDOS_NTP(_debugger, _events, driver_RTC, driver_WiFi)));
+#endif
+
+    for (driverMap::iterator it = _drivers.begin(); it != _drivers.end(); ++it)
     {
-        std::string name = it->first;
+        String name = it->first;
         sDOS_Abstract_Driver *driver = it->second;
         //_debugger.Debug(_component, "Driver::Setup::%s", name.c_str());
         driver->setup();
     }
 
-    for (std::map<std::string, sDOS_Abstract_Service *>::iterator it = _services.begin(); it != _services.end(); ++it)
+    for (serviceMap::iterator it = _services.begin(); it != _services.end(); ++it)
     {
-        std::string name = it->first;
+        String name = it->first;
         sDOS_Abstract_Service *service = it->second;
         //_debugger.Debug(_component, "Service::Setup::%s", name.c_str());
         service->setup();
@@ -140,10 +140,11 @@ uint32_t sDOS::_cpuFrequencyUpdate()
     /*
     _debugger.Debug(
         _component,
-        "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s",
-        _wifi.isActive() ? "yes" : "no",
-        _wifi.getRequestCount(), 
-        WiFi.isConnected() ? "yes" : "no"
+        "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s, cansleep? %s",
+        driver_WiFi->isActive() ? "yes" : "no",
+        driver_WiFi->getRequestCount(), 
+        WiFi.isConnected() ? "yes" : "no",
+        driver_WiFi->canSleep() ? "yes" : "no"
     );
     */
 #ifdef CPU_FREQ_MHZ_NORADIO
@@ -183,28 +184,17 @@ void sDOS::Loop()
     // Check CPU frequency is correct.
     uint32_t cpuFreq = _cpuFrequencyUpdate();
     yield();
-    if (_loopCount % 25000 == 0)
+    if (_loopCount % LOOPS_PER_TIMING_REPORT == 0)
     {
-        _debugger.Debug(_component, F("Loops are executing in %dms at %d Mhz."), _lastCycleTimeMS, cpuFreq);
+        _debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
     }
-
-    // if the wifi manager is active, check the wifi loop
-    if (driver_WiFi->isActive())
-    {
-        driver_WiFi->loop();
-        yield();
-    }
-
-    // Check the Events loop
-    _events.loop();
-    yield();
 
     // Loop over Drivers
-    for (std::map<std::string, sDOS_Abstract_Driver *>::iterator it = _drivers.begin(); it != _drivers.end(); ++it)
+    for (driverMap::iterator it = _drivers.begin(); it != _drivers.end(); ++it)
     {
-        std::string name = it->first;
+        String name = it->first;
         sDOS_Abstract_Driver *driver = it->second;
-        //_debugger.Debug(_component, "Driver::Loop::%s", name.c_str());
+        //_debugger.Debug(_component, "Driver::Loop::%s (active=%s)", name.c_str(), driver->isActive() ? "yes" : "no");
         if(driver->isActive()){
             driver->loop();
             yield();
@@ -212,14 +202,20 @@ void sDOS::Loop()
     }
 
     // Loop over Services
-    for (std::map<std::string, sDOS_Abstract_Service *>::iterator it = _services.begin(); it != _services.end(); ++it)
+    for (serviceMap::iterator it = _services.begin(); it != _services.end(); ++it)
     {
-        std::string name = it->first;
+        String name = it->first;
         sDOS_Abstract_Service *service = it->second;
-        //_debugger.Debug(_component, "Service::Loop::%s",  name.c_str());
-        service->loop();
-        yield();
+        //_debugger.Debug(_component, "Service::Loop::%s (active=%s)", name.c_str(), service->isActive() ? "yes" : "no");
+        if(service->isActive()){
+            service->loop();
+            yield();
+        }
     }
+
+    // Check the Events loop
+    _events.loop();
+    yield();
 }
 
 #endif

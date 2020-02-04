@@ -39,6 +39,8 @@ ESP8266WiFiMulti wifiMulti;
 
 #include <SparkFunMPU9250-DMP.h>
 
+#include "../lib/util/printbits.h"
+
 #include "hardware/all.h"
 
 #endif

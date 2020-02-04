@@ -6,6 +6,6 @@ class sDOS_Abstract_Driver{
     public: 
     virtual void setup();
     virtual void loop();
-    virtual boolean isActive();
+    virtual boolean isActive() { return true; }
 };
 #endif

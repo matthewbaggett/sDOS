@@ -6,5 +6,6 @@ class sDOS_Abstract_Service{
     public: 
     virtual void setup();
     virtual void loop();
+    virtual boolean isActive() { return true; }
 };
 #endif

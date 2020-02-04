@@ -2,6 +2,9 @@
 
 #if TTGO_WATCH == HARDWARE
     // Hardware to enable:
+    // WiFi power saving:
+    #define WIFI_POWER_SAVING WIFI_PS_NONE
+    
     // Enable i2c
     #define ENABLE_I2C
     #define I2C_SDA GPIO_NUM_21

@@ -8,7 +8,6 @@ public:
     void loop();
     void enable();
     void disable();
-    boolean isActive() { return true; }
 
 private:
     static void interrupt();
@@ -40,7 +39,6 @@ void SDOS_MPU9250::setup()
     if (_imu.begin() != INV_SUCCESS)
     {
         _events.trigger("MPU9250_fail");
-        delay(5000);
         return;
     }
 

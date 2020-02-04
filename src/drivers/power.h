@@ -6,7 +6,6 @@ public:
     SDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
-    boolean isActive() { return true; }
     //static TwoWire wire;
     static bool isCharging();
 

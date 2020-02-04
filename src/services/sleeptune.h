@@ -15,6 +15,8 @@ public:
     void setup();
     void loop();
     void oncePerSecond();
+    boolean isActive() override;
+    boolean sleepIsPossible();
 
 private:
     String _component = "SleepTune";
@@ -26,6 +28,8 @@ private:
     int _tuningStep = 5;
     int _sleepMs = 0;
     static unsigned long _micros;
+
+    
 };
 
 unsigned long SDOS_SLEEPTUNE::_micros = 0;
@@ -38,14 +42,20 @@ void SDOS_SLEEPTUNE::setup()
 {
     _debugger.Debug(_component, "setup");
     _loopPerSecondCount = 0;
-    Serial.println("SDOS_SLEEPTUNE::setup End");
 };
+
+boolean SDOS_SLEEPTUNE::isActive() 
+{
+    return sleepIsPossible();
+}
+
+boolean SDOS_SLEEPTUNE::sleepIsPossible()
+{
+    return _wifi->canSleep();
+}
 
 void SDOS_SLEEPTUNE::loop()
 {
-    if(!_wifi->canSleep()){
-        return;
-    }
     /*Serial.printf(
         "_micros: %d\nmicros(): %d\ncheck? %s\n", 
         SDOS_SLEEPTUNE::_micros, 
@@ -61,10 +71,11 @@ void SDOS_SLEEPTUNE::loop()
 
     if (_sleepMs > 0)
     {
-        //_debugger.Debug(_component, "Going to sleep!");
         int sleepUS = _sleepMs * 1000;
+        //_debugger.Debug(_component, "Going to sleep for %dmS!", _sleepMs);
         #ifdef SLEEPTUNE_WAKEUP_EXT1_BITMASK
         esp_sleep_enable_ext1_wakeup(SLEEPTUNE_WAKEUP_EXT1_BITMASK, ESP_EXT1_WAKEUP_ALL_LOW);
+        //_debugger.Debug(_component, "Set EXT1 interrupt bitmask to %s", byte_to_binary(SLEEPTUNE_WAKEUP_EXT1_BITMASK));
         #endif
         //esp_sleep_enable_touchpad_wakeup();
         esp_sleep_enable_timer_wakeup(sleepUS);
@@ -97,14 +108,14 @@ void SDOS_SLEEPTUNE::oncePerSecond(){
         {
             _sleepMs = _sleepMs + _tuningStep;
             //_debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
-            //_events.trigger("sleeptune_adjust", _sleepMs);
+            _events.trigger("sleeptune_adjust", _sleepMs);
         }
         else if (_loopPerSecondCount < SLEEPTUNE_LOOPS_PER_SECOND - SLEEPTUNE_LOOPS_PER_SECOND_VARIATION)
         {
             _sleepMs = _sleepMs - _tuningStep;
             _sleepMs = max(_sleepMs, 0);
             //_debugger.Debug(_component, "Loop per second: %d/s (too slow). Decreasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
-            //_events.trigger("sleeptune_adjust", _sleepMs);
+            _events.trigger("sleeptune_adjust", _sleepMs);
         }
     }
     _loopPerSecondCount = 0;
