@@ -1,4 +1,8 @@
 #include "includes.h"
+#define COL_YELLOW "\033[1;33m"
+#define COL_GREEN "\033[1;32m"
+#define COL_RED   "\033[1;31m"
+#define COL_RESET "\033[0m"
 
 class Debugger
 {
@@ -49,11 +53,17 @@ void Debugger::Debug(String component, String format, ...)
     component.toUpperCase();
 
     _serial.printf(
-        "%s[%.10-10s %dMhz %s] %s\n", 
+        "%s[%s%.7-7s%s %s%dMhz%s %s%s%s] %s\n", 
         Debugger::duplicates > 0 ? "\n":"", 
+        COL_YELLOW,
         component.c_str(), 
+        COL_RESET,
+        getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN,
         getCpuFrequencyMhz(),
+        COL_RESET,
+        WiFi.isConnected() ? COL_RED : COL_GREEN,
         WiFi.isConnected() ? "W+" : "W-",
+        COL_RESET,
         buff
     );
     memcpy(Debugger::lastBuff, buff, sizeof(buff));
