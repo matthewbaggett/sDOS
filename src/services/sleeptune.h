@@ -1,4 +1,10 @@
-#include "includes.h"
+#ifndef SLEEPTUNE_H
+#define SLEEPTUNE_H
+
+#include "kernel_inc.h"
+#include "debugger.hpp"
+#include "events.hpp"
+#include "wifi.hpp"
 
 #ifndef SLEEPTUNE_LOOPS_PER_SECOND
 #define SLEEPTUNE_LOOPS_PER_SECOND 5
@@ -11,7 +17,11 @@ class SDOS_SLEEPTUNE : public sDOS_Abstract_Service
 {
 
 public:
-    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi);
+    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager &wifi) {
+        _debugger = debugger;
+        _events = eventsManager;
+        _wifi = wifi;
+    }
     void setup();
     void loop();
     void oncePerSecond();
@@ -22,7 +32,7 @@ private:
     String _component = "SLPTUNE";
     Debugger _debugger;
     EventsManager _events;
-    WiFiManager * _wifi;
+    WiFiManager _wifi;
 
     int _loopPerSecondCount = 0;
     int _tuningStep = SLEEPTUNE_TUNING_STEP_MS;
@@ -131,3 +141,5 @@ void SDOS_SLEEPTUNE::oncePerSecond(){
     }
     _loopPerSecondCount = 0;
 }
+
+#endif

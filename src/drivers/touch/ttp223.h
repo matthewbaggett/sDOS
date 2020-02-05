@@ -1,9 +1,14 @@
-#include "includes.h"
+#ifndef TTP223_H
+#define TTP223_H
+#include "kernel_inc.h"
 
 class SDOS_TTP223 : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_TTP223(EventsManager &eventsManager);
+    SDOS_TTP223(Debugger & debugger, EventsManager & eventsManager){
+        _debugger = debugger;
+        _events = eventsManager;
+    };
     void setup();
     void loop();
     void enable();
@@ -13,13 +18,11 @@ private:
     static void interrupt();
     static bool hasInterruptOccured();
     static bool interruptTriggered;
+    Debugger _debugger;
     EventsManager _events;
 };
 
 bool SDOS_TTP223::interruptTriggered = false;
-
-SDOS_TTP223::SDOS_TTP223(EventsManager &eventsManager) : _events(eventsManager)
-{}
 
 void SDOS_TTP223::setup(){
 #ifdef PIN_POWER_TTP223
@@ -71,3 +74,4 @@ void SDOS_TTP223::disable()
     digitalWrite(PIN_POWER_TTP223, LOW);
 #endif
 }
+#endif

@@ -1,5 +1,8 @@
-#include "includes.h"
-#include "abstract_sdos_driver.h"
+#ifndef ABSTRACT_RTC_H
+#define ABSTRACT_RTC_H
+#include "../kernel_inc.h"
+#include "driver.h"
+#include "RTClib.h"
 
 class AbstractRTC  : public sDOS_Abstract_Driver
 {
@@ -9,3 +12,4 @@ class AbstractRTC  : public sDOS_Abstract_Driver
     virtual void setAlarmInSeconds(int seconds);
     virtual DateTime getTime();
 };
+#endif

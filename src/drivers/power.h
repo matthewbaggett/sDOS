@@ -1,9 +1,14 @@
-#include "includes.h"
+#ifndef SDOS_POWER_H
+#define SDOS_POWER_H
+#include "kernel_inc.h"
 
 class SDOS_POWER : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
+    SDOS_POWER(Debugger & debugger, EventsManager & eventsManager) {
+        _debugger = debugger;
+        _events = eventsManager;
+    };
     void setup();
     void loop();
     //static TwoWire wire;
@@ -39,8 +44,6 @@ bool SDOS_POWER::_chargingInterruptTriggered = false;
     int SDOS_POWER::_mon_mv_vbus = 0;
     int SDOS_POWER::_mon_mv_vbus_previous = 0;
 #endif
-
-SDOS_POWER::SDOS_POWER(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager){};
 
 void SDOS_POWER::setup()
 {
@@ -99,3 +102,4 @@ bool SDOS_POWER::isCharging()
 {
     return SDOS_POWER::_isCharging;
 };
+#endif

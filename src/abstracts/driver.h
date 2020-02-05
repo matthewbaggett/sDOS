@@ -1,8 +1,8 @@
-#ifndef ABSTRACT_SDOS_SERVICE_h
-#define ABSTRACT_SDOS_SERVICE_h
-#include "includes.h"
+#ifndef ABSTRACT_SDOS_DRIVER_H
+#define ABSTRACT_SDOS_DRIVER_H
+#include "../kernel_inc.h"
 
-class sDOS_Abstract_Service{
+class sDOS_Abstract_Driver{
     public: 
     virtual void setup();
     virtual void loop();

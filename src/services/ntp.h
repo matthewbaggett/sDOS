@@ -1,4 +1,7 @@
-#include "includes.h"
+#ifndef SDOS_NTP_H
+#define SDOS_NTP_H
+#include "kernel_inc.h"
+#include <NTPClient.h>
 #ifndef NTP_UPDATE_INTERVAL_SECONDS
 #define NTP_UPDATE_INTERVAL_SECONDS 60 * 60 * 12
 #endif
@@ -107,3 +110,5 @@ boolean SDOS_NTP::talkNTP()
     _rtc->setAlarmInSeconds(5);
     return true;
 }
+
+#endif
