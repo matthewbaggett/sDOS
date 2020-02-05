@@ -91,7 +91,9 @@ void SDOS_PCF8563::loop()
     if (SDOS_PCF8563::hasInterruptOccured())
     {
         _events.trigger(F("PCF8563_interrupt"));
-        setAlarmInMinutes(1);
+        setAlarmInSeconds(5);
+        //setAlarmInMinutes(1);
+
     }
 };
 

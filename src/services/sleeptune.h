@@ -16,7 +16,7 @@ public:
     void loop();
     void oncePerSecond();
     boolean isActive() override;
-    boolean sleepIsPossible();
+    boolean isSleepPossible();
 
 private:
     String _component = "SLPTUNE";
@@ -25,8 +25,8 @@ private:
     WiFiManager * _wifi;
 
     int _loopPerSecondCount = 0;
-    int _tuningStep = 5;
-    int _sleepMs = 0;
+    int _tuningStep = SLEEPTUNE_TUNING_STEP_MS;
+    int _sleepMs = SLEEPTUNE_INITIAL_SLEEP_MS;
     static unsigned long _micros;  
 };
 
@@ -44,10 +44,12 @@ void SDOS_SLEEPTUNE::setup()
 
 boolean SDOS_SLEEPTUNE::isActive() 
 {
-    return sleepIsPossible();
+    boolean possible = isSleepPossible();
+    //_debugger.Debug(_component, "is Sleep possible? %s", possible ? "yes" : "no");
+    return possible;
 }
 
-boolean SDOS_SLEEPTUNE::sleepIsPossible()
+boolean SDOS_SLEEPTUNE::isSleepPossible()
 {
     return _wifi->canSleep();
 }
@@ -71,30 +73,47 @@ void SDOS_SLEEPTUNE::loop()
     {
         int sleepUS = _sleepMs * 1000;
         //_debugger.Debug(_component, "Going to sleep for %dmS!", _sleepMs);
+
         #ifdef SLEEPTUNE_WAKEUP_EXT1_BITMASK
-        esp_sleep_enable_ext1_wakeup(SLEEPTUNE_WAKEUP_EXT1_BITMASK, ESP_EXT1_WAKEUP_ALL_LOW);
-        //_debugger.Debug(_component, "Set EXT1 interrupt bitmask to %s", byte_to_binary(SLEEPTUNE_WAKEUP_EXT1_BITMASK));
+            //if(esp_err_t err = esp_sleep_enable_ext1_wakeup(SLEEPTUNE_WAKEUP_EXT1_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH) != ESP_OK) {
+            //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_ext1_wakeup, reason: %s", esp_err_to_name(err));
+            //}
         #endif
-        //esp_sleep_enable_touchpad_wakeup();
-        esp_sleep_enable_timer_wakeup(sleepUS);
-        esp_err_t ret = esp_light_sleep_start();
-        if (ret == ESP_OK)
+
+        //if(esp_err_t err = esp_sleep_enable_touchpad_wakeup() != ESP_OK) {
+        //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_touchpad_wakeup, reason: %s", esp_err_to_name(err));
+        //}
+
+        if(esp_err_t err = esp_sleep_enable_timer_wakeup(sleepUS) != ESP_OK) {
+            _debugger.Debug(_component, "Failed to call esp_sleep_enable_timer_wakeup, reason: %s", esp_err_to_name(err));
+        }
+
+        //if(esp_err_t err = esp_sleep_enable_uart_wakeup(0) != ESP_OK) {
+        //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_uart_wakeup, reason: %s", esp_err_to_name(err));
+        //}
+
+        unsigned long timeAsleep = micros();
+        esp_err_t lightSleepReturn = esp_light_sleep_start();
+        if (lightSleepReturn == ESP_OK)
         {
+            timeAsleep = micros() - timeAsleep;
             //_debugger.Debug(_component, "Woke from light sleep of %d\n", sleepUS);
             esp_sleep_wakeup_cause_t wakeup_reason;
             wakeup_reason = esp_sleep_get_wakeup_cause();
             switch(wakeup_reason)
             {
-                case 1  : _debugger.Debug(_component, "Wakeup caused by external signal using RTC_IO"); break;
-                case 2  : _debugger.Debug(_component, "Wakeup caused by external signal using RTC_CNTL"); break;
-                case 3  : break; //_debugger.Debug(_component, "Wakeup caused by timer"); break;
-                case 4  : _debugger.Debug(_component, "Wakeup caused by touchpad"); break;
-                case 5  : _debugger.Debug(_component, "Wakeup caused by ULP program"); break;
-                default : _debugger.Debug(_component, "Wakeup was not caused by light sleep"); break;
+                case ESP_SLEEP_WAKEUP_EXT0      : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by EXT1",                  timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_EXT1      : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by EXT1",                  timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_UART      : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by UART",                  timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_TIMER     : break; //_debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by timer",                 timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_TOUCHPAD  : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by touchpad",              timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_ULP       : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by ULP program",           timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_GPIO      : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by GPIO",                  timeAsleep, sleepUS); break;
+                default                         : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) was not caused by light sleep",   timeAsleep, sleepUS); break;
             }
-            return;
+        }else{
+            _debugger.Debug(_component, "Failed to light sleep of %duS: %s\n", sleepUS, esp_err_to_name(lightSleepReturn));
         }
-        _debugger.Debug(_component, "Failed to light sleep of %d\n", sleepUS);
     }
 }
 
@@ -102,7 +121,7 @@ void SDOS_SLEEPTUNE::oncePerSecond(){
     // Ignore when the processor shits itself and gets 1 loop out in a second.
     if (_loopPerSecondCount > 1)
     {
-        if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION)
+        if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION && _sleepMs <= 750 - _tuningStep)
         {
             _sleepMs = _sleepMs + _tuningStep;
             _debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);

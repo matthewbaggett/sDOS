@@ -184,9 +184,9 @@ void sDOS::Loop()
     // Check CPU frequency is correct.
     uint32_t cpuFreq = _cpuFrequencyUpdate();
     yield();
-    if (_loopCount % LOOPS_PER_TIMING_REPORT == 0)
+    if (_loopCount % SLEEPTUNE_LOOPS_PER_TIMING_REPORT == 0)
     {
-        _debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
+        _debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), SLEEPTUNE_LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
     }
 
     // Loop over Drivers
