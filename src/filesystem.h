@@ -49,8 +49,7 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
     // Test if parsing succeeds.
     if (error)
     {
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.c_str());
+        _debugger.Debug(F("deserializeJson() failed: %s"), error.c_str());
         return config;
     }
     int rowId = 0;

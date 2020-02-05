@@ -1,8 +1,10 @@
 #include "includes.h"
+#ifndef NTP_UPDATE_INTERVAL_SECONDS
+#define NTP_UPDATE_INTERVAL_SECONDS 60 * 60 * 12
+#endif
 
 class SDOS_NTP : public sDOS_Abstract_Service
 {
-    const int NTP_UPDATE_INTERVAL_SECONDS = 60 * 60 * 12;
 
 public:
     SDOS_NTP(Debugger &debugger, EventsManager &eventsManager, AbstractRTC *rtc, WiFiManager *wifi);
@@ -56,21 +58,18 @@ void SDOS_NTP::update()
     {
         _wifi->addRequestActive();
         SDOS_NTP::_hasRequestedWifi = true;
-        _debugger.Debug(_component, "Requested wifi on.");
+        //_debugger.Debug(_component, "Requested wifi on.");
         return;
     }
     
     if (_wifi->isConnected())
     {
-        _debugger.Debug(_component, "Wifi on, doing NTP update.");
         boolean successfulUpdate = talkNTP();
         if (successfulUpdate)
         {
-            _debugger.Debug(_component, "Requested wifi off.");
+            //_debugger.Debug(_component, "Requested wifi off.");
             _wifi->removeRequestActive();
             SDOS_NTP::_hasRequestedWifi = false;
-        }else{
-            _debugger.Debug(_component, "NTP update unsuccessful.");
         }
     }
 };
@@ -78,27 +77,22 @@ void SDOS_NTP::update()
 boolean SDOS_NTP::needsUpdate()
 {
     bool _needsToUpdate = _rtc->getTime().unixtime() - SDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
-    /*Serial.printf(
-        "needs update? %s. last success %d (%d > %d)\n",
+    /*_debugger.Debug(
+        _component,
+        "needs update? %s. last success %d (%d > %d)",
         _needsToUpdate ? "Yes":"No",
         SDOS_NTP::_lastSuccessfulUpdateEpoch,
         _rtc->getTime().unixtime() - SDOS_NTP::_lastSuccessfulUpdateEpoch,
         NTP_UPDATE_INTERVAL_SECONDS
     );*/
-    if (_needsToUpdate)
-    {
-        return true;
-    }
-    return false;
+    return _needsToUpdate;
 }
 
 boolean SDOS_NTP::talkNTP()
 {
-    _debugger.Debug(_component, "talkNTP");
     _timeClient->begin();
     if (!_timeClient->update())
     {
-        _debugger.Debug(_component, "Time failed to update");
         return false;
     }
 

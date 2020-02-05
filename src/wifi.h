@@ -196,7 +196,7 @@ void WiFiManager::powerOn()
   }
   WiFiManager::_powerOnState = true;
 
-  _debugger.Debug(_component, "powerOn()");
+  //_debugger.Debug(_component, "powerOn()");
   WiFi.mode(WIFI_MODE_STA);
 
   WiFi.persistent(false);
@@ -230,24 +230,20 @@ void WiFiManager::powerOff()
     return;
   }
 
-  _debugger.Debug(_component, "powerOff()");
-  WiFi.disconnect();
-  yield();
-  //WiFi.mode(WIFI_MODE_NULL);
-  //yield();
-  esp_wifi_disconnect();
-  yield();
-  delay(100);
-  //esp_wifi_stop();
-  yield();
-  delay(100);
-  esp_wifi_deinit();
-  yield();
-  btStop();
-  yield();
-  _events.trigger("wifi_off");
-  yield();
+  //_debugger.Debug(_component, "powerOff()");
+
   WiFiManager::_powerOnState = false;
+
+  //WiFi.mode(WIFI_MODE_NULL);
+
+  WiFi.persistent(false);
+  WiFi.setAutoConnect(false);
+  WiFi.setAutoReconnect(false);
+  if(!WiFi.disconnect()){
+    _debugger.Debug(_component, "Failed calling WiFi.disconnect()");
+  }
+
+  return;
 }
 
 unsigned int WiFiManager::getRequestCount()

@@ -19,7 +19,7 @@ public:
     boolean sleepIsPossible();
 
 private:
-    String _component = "SleepTune";
+    String _component = "SLPTUNE";
     Debugger _debugger;
     EventsManager _events;
     WiFiManager * _wifi;
@@ -27,9 +27,7 @@ private:
     int _loopPerSecondCount = 0;
     int _tuningStep = 5;
     int _sleepMs = 0;
-    static unsigned long _micros;
-
-    
+    static unsigned long _micros;  
 };
 
 unsigned long SDOS_SLEEPTUNE::_micros = 0;
@@ -107,14 +105,14 @@ void SDOS_SLEEPTUNE::oncePerSecond(){
         if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION)
         {
             _sleepMs = _sleepMs + _tuningStep;
-            //_debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
+            _debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
             _events.trigger("sleeptune_adjust", _sleepMs);
         }
         else if (_loopPerSecondCount < SLEEPTUNE_LOOPS_PER_SECOND - SLEEPTUNE_LOOPS_PER_SECOND_VARIATION)
         {
             _sleepMs = _sleepMs - _tuningStep;
             _sleepMs = max(_sleepMs, 0);
-            //_debugger.Debug(_component, "Loop per second: %d/s (too slow). Decreasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
+            _debugger.Debug(_component, "Loop per second: %d/s (too slow). Decreasing tuned sleep to %dms.", _loopPerSecondCount, _sleepMs);
             _events.trigger("sleeptune_adjust", _sleepMs);
         }
     }

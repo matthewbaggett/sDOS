@@ -3,7 +3,7 @@
 #if TTGO_WATCH == HARDWARE
     // Hardware to enable:
     // WiFi power saving:
-    #define WIFI_POWER_SAVING WIFI_PS_NONE
+    #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM
     
     // Enable i2c
     #define ENABLE_I2C
@@ -36,7 +36,11 @@
     #define ACTIVITY_LIGHT_ONECOLOUR GPIO_NUM_4
 
     // Services to enable:
+    // NTP service
     #define ENABLE_SERVICE_NTP
+    #define NTP_UPDATE_INTERVAL_SECONDS 65
+
+    // Sleeptune automatic sleep optimmiser
     #define ENABLE_SERVICE_SLEEPTUNE
     #define SLEEPTUNE_LOOPS_PER_SECOND 1
     #define SLEEPTUNE_WAKEUP_EXT1_BITMASK BIT(PIN_INTERRUPT_TTP223)|BIT(PIN_INTERRUPT_PCF8563)|BIT(PIN_INTERRUPT_MPU9250)

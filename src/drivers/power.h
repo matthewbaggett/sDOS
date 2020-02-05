@@ -25,7 +25,7 @@ private:
     EventsManager _events;
     static bool _isCharging;
     static bool _chargingInterruptTriggered;
-    String _component = "PowerMGMT";
+    String _component = "PWRMGMT";
 };
 
 //TwoWire SDOS_POWER::wire = Wire;
