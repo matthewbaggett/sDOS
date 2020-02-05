@@ -74,23 +74,17 @@ void SDOS_SLEEPTUNE::loop()
         int sleepUS = _sleepMs * 1000;
         //_debugger.Debug(_component, "Going to sleep for %dmS!", _sleepMs);
 
-        #ifdef SLEEPTUNE_WAKEUP_EXT1_BITMASK
-            //if(esp_err_t err = esp_sleep_enable_ext1_wakeup(SLEEPTUNE_WAKEUP_EXT1_BITMASK, ESP_EXT1_WAKEUP_ANY_HIGH) != ESP_OK) {
-            //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_ext1_wakeup, reason: %s", esp_err_to_name(err));
-            //}
-        #endif
-
-        //if(esp_err_t err = esp_sleep_enable_touchpad_wakeup() != ESP_OK) {
-        //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_touchpad_wakeup, reason: %s", esp_err_to_name(err));
-        //}
-
         if(esp_err_t err = esp_sleep_enable_timer_wakeup(sleepUS) != ESP_OK) {
             _debugger.Debug(_component, "Failed to call esp_sleep_enable_timer_wakeup, reason: %s", esp_err_to_name(err));
         }
 
-        //if(esp_err_t err = esp_sleep_enable_uart_wakeup(0) != ESP_OK) {
-        //    _debugger.Debug(_component, "Failed to call esp_sleep_enable_uart_wakeup, reason: %s", esp_err_to_name(err));
-        //}
+        if(esp_err_t err = esp_sleep_enable_uart_wakeup(0) != ESP_OK) {
+            _debugger.Debug(_component, "Failed to call esp_sleep_enable_uart_wakeup, reason: %s", esp_err_to_name(err));
+        }
+        
+        if(esp_err_t err = esp_sleep_enable_gpio_wakeup() != ESP_OK) {
+            _debugger.Debug(_component, "Failed to call esp_sleep_enable_gpio_wakeup, reason: %s", esp_err_to_name(err));
+        }
 
         unsigned long timeAsleep = micros();
         esp_err_t lightSleepReturn = esp_light_sleep_start();

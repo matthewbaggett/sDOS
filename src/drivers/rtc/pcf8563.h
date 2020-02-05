@@ -41,6 +41,7 @@ void SDOS_PCF8563::setup(){
     _events.trigger(F("PCF8563_enable"));
     pinMode(PIN_INTERRUPT_PCF8563, INPUT);
     attachInterrupt(PIN_INTERRUPT_PCF8563, SDOS_PCF8563::interrupt, FALLING);
+    gpio_wakeup_enable(PIN_INTERRUPT_PCF8563, GPIO_INTR_LOW_LEVEL);
     TwoWire wire = _i2c->getWire();
     // rtc lib can't take _wire as an argument, sadly.
     _rtc.begin();

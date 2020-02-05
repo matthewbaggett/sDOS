@@ -75,6 +75,7 @@ void SDOS_MPU9250::setup()
     // Setup DMP interrupt
     pinMode(PIN_INTERRUPT_MPU9250, INPUT);
     attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MPU9250), SDOS_MPU9250::interrupt, FALLING);
+    //gpio_wakeup_enable(PIN_INTERRUPT_MPU9250, GPIO_INTR_LOW_LEVEL);
     _imu.enableInterrupt();
     _imu.setIntLevel(INT_ACTIVE_LOW);
     interruptTriggered = false;

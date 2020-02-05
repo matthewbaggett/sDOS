@@ -29,6 +29,7 @@ void SDOS_TTP223::setup(){
 #endif
     pinMode(PIN_INTERRUPT_TTP223, INPUT);
     attachInterrupt(PIN_INTERRUPT_TTP223, SDOS_TTP223::interrupt, RISING);
+    gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
     _events.trigger("TTP223_ready");
 };
 
