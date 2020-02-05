@@ -38,11 +38,10 @@
     // Services to enable:
     // NTP service
     #define ENABLE_SERVICE_NTP
-    #define NTP_UPDATE_INTERVAL_SECONDS 65
 
     // Sleeptune automatic sleep optimmiser
     #define ENABLE_SERVICE_SLEEPTUNE
-    #define SLEEPTUNE_LOOPS_PER_SECOND 1
+    #define SLEEPTUNE_LOOPS_PER_SECOND 10
     #define SLEEPTUNE_WAKEUP_EXT1_BITMASK BIT64(PIN_INTERRUPT_PCF8563) | BIT64(PIN_INTERRUPT_TTP223) | BIT64(PIN_INTERRUPT_MPU9250)
 
     #define DEBUG_EVENTS

@@ -57,7 +57,7 @@ void SDOS_PCF8563::setup(){
 
 void SDOS_PCF8563::setAlarmInMinutes(int minutes){
     DateTime alarm = _rtc.now();
-    alarm.setminute(alarm.minute() + 1);
+    alarm.setminute(alarm.minute() + minutes);
     _events.trigger(F("PCF8563_alarm_set"), alarm);
     _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
     _rtc.on_alarm();
@@ -65,8 +65,8 @@ void SDOS_PCF8563::setAlarmInMinutes(int minutes){
 
 void SDOS_PCF8563::setAlarmInSeconds(int seconds){
     DateTime alarm = _rtc.now();
-    alarm.setsecond(alarm.second() + 1);
-    //_events.trigger(F("PCF8563_alarm_set"), alarm);
+    alarm.setsecond(alarm.second() + seconds);
+    _events.trigger(F("PCF8563_alarm_set"), alarm);
     _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
     _rtc.on_alarm();
 }
@@ -91,8 +91,7 @@ void SDOS_PCF8563::loop()
     if (SDOS_PCF8563::hasInterruptOccured())
     {
         _events.trigger(F("PCF8563_interrupt"));
-        setAlarmInSeconds(5);
-        //setAlarmInMinutes(1);
+        setAlarmInMinutes(1);
 
     }
 };

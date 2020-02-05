@@ -186,7 +186,7 @@ void sDOS::Loop()
     yield();
     if (_loopCount % SLEEPTUNE_LOOPS_PER_TIMING_REPORT == 0)
     {
-        _debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), SLEEPTUNE_LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
+        //_debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), SLEEPTUNE_LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
     }
 
     // Loop over Drivers

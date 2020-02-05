@@ -104,6 +104,6 @@ boolean SDOS_NTP::talkNTP()
     //Serial.printf("Updated: %s\n", newEpoch.toStr());
     _rtc->setTime(newEpoch);
 
-    _rtc->setAlarmInMinutes(1);
+    _rtc->setAlarmInSeconds(5);
     return true;
 }
