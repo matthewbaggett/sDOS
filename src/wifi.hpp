@@ -25,7 +25,6 @@ public:
   boolean hasRequests();
   void addRequestActive();
   void removeRequestActive();
-  boolean waitForConnection(int timeout = 30);
   static unsigned int getRequestCount();
   boolean canSleep();
   boolean isConnected();
@@ -269,23 +268,6 @@ void WiFiManager::removeRequestActive()
 void WiFiManager::updateRequestedActivity()
 {
   WiFiManager::getRequestCount() > 0 ? powerOn() : powerOff();
-}
-
-boolean WiFiManager::waitForConnection(int timeout)
-{
-  int timeBegin = micros();
-  while (true)
-  {
-    if (micros() > timeBegin + (timeout * 1000000))
-    {
-      return false;
-    }
-
-    if (WiFi.isConnected())
-    {
-      return true;
-    }
-  }
 }
 
 boolean WiFiManager::canSleep()
