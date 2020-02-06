@@ -103,7 +103,7 @@ void SDOS_SLEEPTUNE::loop()
                 case ESP_SLEEP_WAKEUP_TIMER     : break; //_debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by timer",                 timeAsleep, sleepUS); break;
                 case ESP_SLEEP_WAKEUP_TOUCHPAD  : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by touchpad",              timeAsleep, sleepUS); break;
                 case ESP_SLEEP_WAKEUP_ULP       : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by ULP program",           timeAsleep, sleepUS); break;
-                case ESP_SLEEP_WAKEUP_GPIO      : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by GPIO",                  timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_GPIO      : break; //_debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) caused by GPIO",                  timeAsleep, sleepUS); break;
                 default                         : _debugger.Debug(_component, "Wakeup after %duS (scheduled for %duS) was not caused by light sleep",   timeAsleep, sleepUS); break;
             }
         }else{
