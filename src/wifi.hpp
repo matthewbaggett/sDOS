@@ -14,13 +14,6 @@ enum WifiState
   WIFI_CONNECTED
 };
 
-enum AccessPointState
-{
-  AP_DISABLED,
-  AP_ENABLED,
-  AP_BUSY
-};
-
 class WiFiManager : public sDOS_Abstract_Driver
 {
   const unsigned int MAX_WIFI_CREDENTIALS = 10;
@@ -48,7 +41,6 @@ private:
   enum WifiState _wifiClientStatePrevious = WIFI_DISCONNECTED;
   long _wifiSignalStrength = 0;
   long _wifiSignalStrengthPrevious = 0;
-  enum AccessPointState _wifiAccessPointState = AP_DISABLED;
   void checkForStateChanges();
   long getSignalStrength();
   void powerOn();
