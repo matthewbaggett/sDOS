@@ -7,12 +7,6 @@
 #include "filesystem.hpp"
 #include "wifi.hpp"
 
-#include "abstracts/accellerometer.hpp"
-#include "abstracts/rtc.hpp"
-
-#include "abstracts/driver.hpp"
-#include "abstracts/service.hpp"
-
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
 #endif

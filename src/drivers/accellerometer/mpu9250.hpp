@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include "abstracts/accellerometer.hpp"
 
 class SDOS_MPU9250: public AbstractAccellerometer
 {

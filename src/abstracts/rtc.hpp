@@ -1,3 +1,5 @@
+#ifndef ASBTRACT_SERVICE_H
+#define ASBTRACT_SERVICE_H
 #include "kern_inc.h"
 #include "driver.hpp"
 
@@ -9,3 +11,4 @@ class AbstractRTC  : public sDOS_Abstract_Driver
     virtual void setAlarmInSeconds(int seconds);
     virtual DateTime getTime();
 };
+#endif

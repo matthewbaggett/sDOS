@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include "abstracts/driver.hpp"
 
 class SDOS_TTP223 : public sDOS_Abstract_Driver
 {

@@ -1,9 +1,12 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
+
 using namespace std;
+
 #ifndef WIFI_POWER_SAVING
 #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM
 #endif
+
 enum WifiState
 {
   WIFI_DISCONNECTED,

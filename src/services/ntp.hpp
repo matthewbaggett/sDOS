@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include "abstracts/service.hpp"
 
 #ifndef NTP_UPDATE_INTERVAL_SECONDS
 #define NTP_UPDATE_INTERVAL_SECONDS 60 * 60 * 12

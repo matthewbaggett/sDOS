@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include "abstracts/driver.hpp"
 
 class SDOS_POWER : public sDOS_Abstract_Driver
 {

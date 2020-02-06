@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include "abstracts/service.hpp"
 
 #ifndef SLEEPTUNE_LOOPS_PER_SECOND
 #define SLEEPTUNE_LOOPS_PER_SECOND 5
