@@ -236,8 +236,9 @@ void WiFiManager::powerOff()
   WiFi.setAutoReconnect(false);
   if(!WiFi.disconnect()){
     _debugger.Debug(_component, "Failed calling WiFi.disconnect()");
+  }else{
+    _events.trigger("wifi_off");
   }
-
   return;
 }
 
