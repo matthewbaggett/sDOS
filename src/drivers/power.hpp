@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "kern_inc.h"
 
 class SDOS_POWER : public sDOS_Abstract_Driver
 {

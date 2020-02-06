@@ -34,7 +34,6 @@ ESP8266WiFiMulti wifiMulti;
 
 #include "esp32-hal-gpio.h"
 
-
 #include <NTPClient.h>
 
 #include <SparkFunMPU9250-DMP.h>

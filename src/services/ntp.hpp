@@ -1,4 +1,5 @@
-#include "includes.h"
+#include "kern_inc.h"
+
 #ifndef NTP_UPDATE_INTERVAL_SECONDS
 #define NTP_UPDATE_INTERVAL_SECONDS 60 * 60 * 12
 #endif

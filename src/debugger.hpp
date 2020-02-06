@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "kern_inc.h"
 #define COL_YELLOW "\033[1;33m"
 #define COL_GREEN "\033[1;32m"
 #define COL_RED   "\033[1;31m"

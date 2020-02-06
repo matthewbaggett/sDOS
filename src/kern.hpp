@@ -1,40 +1,40 @@
 #ifndef sdos_cpp
 #define sdos_cpp
-#include "includes.h"
+#include "kern_inc.h"
 
-#include "debugger.h"
-#include "events.h"
-#include "filesystem.h"
-#include "wifi.h"
+#include "debugger.hpp"
+#include "events.hpp"
+#include "filesystem.hpp"
+#include "wifi.hpp"
 
-#include "abstracts/abstract_accellerometer.h"
-#include "abstracts/abstract_rtc.h"
+#include "abstracts/accellerometer.hpp"
+#include "abstracts/rtc.hpp"
 
-#include "abstracts/abstract_sdos_driver.h"
-#include "abstracts/abstract_sdos_service.h"
+#include "abstracts/driver.hpp"
+#include "abstracts/service.hpp"
 
 #ifdef ENABLE_POWER
-#include "drivers/power.h"
+#include "drivers/power.hpp"
 #endif
 #ifdef ENABLE_I2C
-#include "drivers/i2c.h"
+#include "drivers/i2c.hpp"
 #endif
 #ifdef ENABLE_TTP223
-#include "drivers/touch/ttp223.h"
+#include "drivers/touch/ttp223.hpp"
 #endif
 #ifdef ENABLE_PCF8563
-#include "drivers/rtc/pcf8563.h"
+#include "drivers/rtc/pcf8563.hpp"
 #endif
 #ifdef ENABLE_MPU9250
-#include "drivers/accellerometer/mpu9250.h"
+#include "drivers/accellerometer/mpu9250.hpp"
 #endif
 
 // System Services
 #ifdef ENABLE_SERVICE_NTP
-#include "services/ntp.h"
+#include "services/ntp.hpp"
 #endif
 #ifdef ENABLE_SERVICE_SLEEPTUNE
-#include "services/sleeptune.h"
+#include "services/sleeptune.hpp"
 #endif
 
 using namespace std;

@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "kern_inc.h"
 
 #ifndef SLEEPTUNE_LOOPS_PER_SECOND
 #define SLEEPTUNE_LOOPS_PER_SECOND 5

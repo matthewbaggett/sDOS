@@ -1,5 +1,5 @@
-#include "includes.h"
-#include "abstracts/abstract_sdos_driver.h"
+#include "kern_inc.h"
+#include "abstracts/driver.hpp"
 using namespace std;
 #ifndef WIFI_POWER_SAVING
 #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM

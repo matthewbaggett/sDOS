@@ -1,4 +1,4 @@
-#include "sdos.h"
+#include "kern.hpp"
 
 sDOS instance;
 
