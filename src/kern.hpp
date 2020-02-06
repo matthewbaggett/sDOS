@@ -6,6 +6,7 @@
 #include "events.hpp"
 #include "filesystem.hpp"
 #include "wifi.hpp"
+#include "bluetooth.hpp"
 
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
@@ -53,6 +54,7 @@ private:
     FileSystem _fileSystem = FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
     WiFiManager * driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+    BluetoothManager * driver_BT = new BluetoothManager(_debugger, _events);
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
     uint64_t _loopCount = 0;
@@ -79,15 +81,18 @@ void sDOS::Setup()
     Serial.begin(SERIAL_BAUD);
     Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
     delay(300);
-    _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
-    _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
-    
-    _drivers.insert(std::make_pair(getDriverID(F("wifi")), driver_WiFi));
-    _cpuFrequencyUpdate();
 
 #ifdef ENABLE_POWER
     _drivers.insert(std::make_pair(getDriverID(F("power")), new SDOS_POWER(_debugger, _events)));
 #endif
+
+    _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
+    _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
+
+    _drivers.insert(std::make_pair(getDriverID(F("wifi")), driver_WiFi));
+    _drivers.insert(std::make_pair(getDriverID(F("Bluetooth")), driver_BT));
+    _cpuFrequencyUpdate();
+
 #ifdef ENABLE_I2C
     SDOS_I2C * driver_I2C = new SDOS_I2C(_debugger, _events);
     _drivers.insert(std::make_pair(getDriverID(F("i2c")), driver_I2C));
@@ -104,7 +109,7 @@ void sDOS::Setup()
 #endif
 
 #ifdef ENABLE_SERVICE_SLEEPTUNE
-    _services.insert(std::make_pair(getDriverID(F("sleeptune")), new SDOS_SLEEPTUNE(_debugger, _events, driver_WiFi)));
+    _services.insert(std::make_pair(getDriverID(F("sleeptune")), new SDOS_SLEEPTUNE(_debugger, _events, driver_WiFi, driver_BT)));
 #endif
 #ifdef ENABLE_SERVICE_NTP
     _services.insert(std::make_pair(getDriverID(F("ntp")), new SDOS_NTP(_debugger, _events, driver_RTC, driver_WiFi)));
@@ -142,7 +147,7 @@ uint32_t sDOS::_cpuFrequencyUpdate()
     );
     */
 #ifdef CPU_FREQ_MHZ_NORADIO
-    if (driver_WiFi->canSleep())
+    if (driver_WiFi->canSleep() && driver_BT->canSleep())
     {
         targetFreq = CPU_FREQ_MHZ_NORADIO;
     }
@@ -211,5 +216,57 @@ void sDOS::Loop()
     _events.loop();
     yield();
 }
+
+void Debugger::Debug(String component, String format, ...)
+{
+    char buff[128];
+    va_list args;
+    va_start(args, format.c_str());
+    vsprintf(buff, format.c_str(), args);
+
+    if (Debugger::lastComponent.equals(component) && strcmp(buff, Debugger::lastBuff) == 0)
+    {
+        Debugger::duplicates++;
+        _serial.printf("\t\t(repeated %d times)\r", Debugger::duplicates);
+        return;
+    }
+
+    component.toUpperCase();
+
+    char outputBuffer[sizeof(buff)];
+    snprintf(
+        outputBuffer, 
+        sizeof(outputBuffer), 
+        "%s[%s%.7-7s%s %s%dMhz%s %s%s%s %s%s%s %s%dmV%s] %s\n", 
+        Debugger::duplicates > 0 ? "\n":"", 
+            COL_YELLOW,
+            component.c_str(), 
+            COL_RESET,
+            getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN,
+            getCpuFrequencyMhz(),
+            COL_RESET,
+            WiFi.isConnected() ? COL_RED : COL_GREEN,
+            WiFi.isConnected() ? "W+" : "W-",
+            COL_RESET, 
+            sdos_is_bluetooth_active() ? COL_RED : COL_GREEN,
+            sdos_is_bluetooth_active() ? "B+" : "B-",
+            COL_RESET,
+            SDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
+            SDOS_POWER::getVbattMv(),
+            COL_RESET,
+            buff
+    );
+
+    _serial.print(outputBuffer);
+
+    for (auto const& it : Debugger::_handlers) {
+        it(outputBuffer);
+    }
+
+    memcpy(Debugger::lastBuff, buff, sizeof(buff));
+    Debugger::lastComponent = component;
+    Debugger::duplicates = 0;
+    return;
+};
 
 #endif

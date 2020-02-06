@@ -9,6 +9,12 @@ public:
     void loop();
     //static TwoWire wire;
     static bool isCharging();
+    #ifdef POWER_MONITOR_VBATT
+    static int getVbattMv();
+    #endif
+    #ifdef POWER_MONITOR_VBUS
+    static int getVbusMv();
+    #endif
 
 private:
 #ifdef POWER_MONITOR_CHARGE_STATE
@@ -58,6 +64,7 @@ void SDOS_POWER::setup()
 #ifdef POWER_MONITOR_CHARGE_STATE
     pinMode(POWER_MONITOR_CHARGE_STATE, INPUT);
     attachInterrupt(POWER_MONITOR_CHARGE_STATE, SDOS_POWER::interrupt, CHANGE);
+    _isCharging = digitalRead(POWER_MONITOR_CHARGE_STATE);
 #endif
     _events.trigger("POWER_ready");
 };
@@ -100,3 +107,17 @@ bool SDOS_POWER::isCharging()
 {
     return SDOS_POWER::_isCharging;
 };
+
+#ifdef POWER_MONITOR_VBATT
+int SDOS_POWER::getVbattMv()
+{
+    return SDOS_POWER::_mon_mv_vbatt;
+}
+#endif
+
+#ifdef POWER_MONITOR_VBUS
+int SDOS_POWER::getVbusMv()
+{
+    return SDOS_POWER::_mon_mv_vbus;
+}
+#endif

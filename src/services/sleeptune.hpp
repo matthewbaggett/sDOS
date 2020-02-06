@@ -12,7 +12,7 @@ class SDOS_SLEEPTUNE : public sDOS_Abstract_Service
 {
 
 public:
-    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi);
+    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
     void oncePerSecond();
@@ -24,6 +24,7 @@ private:
     Debugger _debugger;
     EventsManager _events;
     WiFiManager * _wifi;
+    BluetoothManager * _bluetooth;
 
     int _loopPerSecondCount = 0;
     int _tuningStep = SLEEPTUNE_TUNING_STEP_MS;
@@ -33,8 +34,8 @@ private:
 
 unsigned long SDOS_SLEEPTUNE::_micros = 0;
 
-SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi)
-    : _debugger(debugger), _events(events), _wifi(wifi)
+SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
+    : _debugger(debugger), _events(events), _wifi(wifi), _bluetooth(bluetooth)
     {};
 
 void SDOS_SLEEPTUNE::setup()
@@ -52,7 +53,7 @@ boolean SDOS_SLEEPTUNE::isActive()
 
 boolean SDOS_SLEEPTUNE::isSleepPossible()
 {
-    return _wifi->canSleep();
+    return _wifi->canSleep() && _bluetooth->canSleep();
 }
 
 void SDOS_SLEEPTUNE::loop()
