@@ -1,8 +1,4 @@
-#ifndef DEBUGGER_HPP
-#define DEBUGGER_HPP
-#include "kernel_inc.h"
-#include "wifi.hpp"
-
+#include "includes.h"
 #define COL_YELLOW "\033[1;33m"
 #define COL_GREEN "\033[1;32m"
 #define COL_RED   "\033[1;31m"
@@ -16,10 +12,9 @@ public:
         _serial = Serial;
         _serial.begin(SERIAL_BAUD);
         _serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
-
-        Debugger::duplicates = 0;
     }
 
+    //void Debug(String component, String message);
     void Debug(String component, String message, ...);
 
 private:
@@ -29,12 +24,16 @@ private:
     static int duplicates;
 };
 
-void Debugger::Debug(String component, String message, ...)
+String Debugger::lastComponent;
+char Debugger::lastBuff[128];
+int Debugger::duplicates = 0;
+
+void Debugger::Debug(String component, String format, ...)
 {
     char buff[128];
     va_list args;
-    va_start(args, message.c_str());
-    vsprintf(buff, message.c_str(), args);
+    va_start(args, format.c_str());
+    vsprintf(buff, format.c_str(), args);
 
     /*Serial.printf(
         "\n  Component     : %s\n  LastComponent : %s\n  Buff          : %s\n  LastBuff      : %s\n",
@@ -71,6 +70,5 @@ void Debugger::Debug(String component, String message, ...)
     Debugger::lastComponent = component;
     Debugger::duplicates = 0;
     return;
-}
+};
 
-#endif

@@ -1,5 +1,7 @@
 #include "sdos.h"
 
+sDOS instance;
+
 void setup()
 {
     instance.Setup();

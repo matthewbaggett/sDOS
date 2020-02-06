@@ -1,32 +1,9 @@
-#ifndef WIFI_HPP
-#define WIFI_HPP
-#include "kernel_inc.h"
-
-#ifdef ESP32
-#include <WiFi.h>
-//#include <ESPmDNS.h>
-#include <WiFiMulti.h>
-#include <esp_wifi.h>
-WiFiMulti wifiMulti;
-#endif
-
-#ifdef ESP8266
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266NetBIOS.h>
-#include <ESP8266WiFiMulti.h>
-ESP8266WiFiMulti wifiMulti;
-#endif
-
-#include <WiFiUdp.h>
-
-#include "abstracts/driver.h"
-#include "debugger.hpp"
-#include "filesystem/filesystem.hpp"
-#include "events.hpp"
-
+#include "includes.h"
+#include "abstracts/abstract_sdos_driver.h"
 using namespace std;
-
+#ifndef WIFI_POWER_SAVING
+#define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM
+#endif
 enum WifiState
 {
   WIFI_DISCONNECTED,
@@ -46,11 +23,7 @@ class WiFiManager : public sDOS_Abstract_Driver
   const unsigned int MAX_WIFI_CREDENTIALS = 10;
 
 public:
-  WiFiManager(Debugger& debugger, FileSystem& fileSystem, EventsManager& events) {
-    _debugger = debugger;
-    _fileSystem = fileSystem;
-    _events = events;
-  }
+  WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events);
   void setup();
   void loop();
   boolean hasRequests();
@@ -94,6 +67,11 @@ boolean WiFiManager::_powerOnState = false;
 boolean WiFiManager::hasRequests()
 {
   return WiFiManager::_requestsActive > 0;
+}
+
+WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events)
+    : _debugger(debugger), _fileSystem(fileSystem), _events(events)
+{
 }
 
 void WiFiManager::setup()
@@ -326,5 +304,3 @@ boolean WiFiManager::canSleep()
   }
   return true;
 }
-
-#endif

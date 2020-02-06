@@ -1,6 +1,3 @@
-#ifndef SDOS_TTGO_WATCH_H
-#define SDOS_TTGO_WATCH_H
-
 #include "driver/gpio.h"
 
 #if TTGO_WATCH == HARDWARE
@@ -47,7 +44,5 @@
     #define SLEEPTUNE_LOOPS_PER_SECOND 10
 
     #define DEBUG_EVENTS
-
-#endif
 
 #endif

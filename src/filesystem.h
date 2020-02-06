@@ -1,33 +1,40 @@
-#ifndef FILESYSTEM_CPP
-#define FILESYSTEM_CPP
-#include "../kernel_inc.h"
-#include "FS.h"
-#include "SPIFFS.h"
+#include "includes.h"
 #include "ArduinoJson.h"
 #include <iostream>
 #include <map>
 #include <string>
-#include "json_config_file.h"
-#include "debugger.hpp"
+using namespace std;
+
+struct JsonConfigFile
+{
+    std::map<std::string, std::string> data;
+};
 
 class FileSystem
 {
+    const int MAX_PROBABLE_CONFIGURED_WIFIS = 20;
+
 public:
-    FileSystem(Debugger& debugger) : _debugger(&debugger) {};
+    FileSystem(Debugger &debugger)
+    {
+        _debugger = debugger;
+    }
     JsonConfigFile * loadJsonArray(JsonConfigFile * config, String fileName);
 
 private:
-    Debugger * _debugger;
+    Debugger _debugger;
     const String _component = "FS";
 };
 
 JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileName)
 {
-    if (!SPIFFS.begin()) {
+    if (!SPIFFS.begin())
+    {
         _debugger.Debug(_component, "loadJsonArray _spiffs.begin() for %s did not succeed\n", fileName.c_str());
     }
     File f = SPIFFS.open(fileName.c_str(), "r");
-    if (!f) {
+    if (!f)
+    {
         _debugger.Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed\n", fileName.c_str());
     }
 
@@ -39,9 +46,9 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
 
     DynamicJsonDocument doc(documentSize);
     DeserializationError error = deserializeJson(doc, temp);
-
     // Test if parsing succeeds.
-    if (error) {
+    if (error)
+    {
         _debugger.Debug(F("deserializeJson() failed: %s"), error.c_str());
         return config;
     }
@@ -62,4 +69,3 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
 
     return config;
 }
-#endif

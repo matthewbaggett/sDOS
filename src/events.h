@@ -1,15 +1,9 @@
-#ifndef EVENTS_HPP
-#define EVENTS_HPP
-#include "kernel_inc.h"
-#include "RTClib.h"
-#include "debugger.hpp"
+#include "includes.h"
 
 class EventsManager
 {
 public:
-    EventsManager(Debugger & debugger){
-        _debugger = debugger;
-    };
+    EventsManager(Debugger &debugger);
     void trigger(String event, DateTime &payload);
     void trigger(String event, const __FlashStringHelper *payload);
     void trigger(String event, String payload);
@@ -24,9 +18,14 @@ public:
     void loop();
 
 private:
-    String _component = "Events";
     Debugger _debugger;
+    String _component = "Events";
 };
+
+EventsManager::EventsManager(Debugger &debugger)
+    : _debugger(debugger)
+{
+}
 
 void EventsManager::loop()
 {
@@ -108,5 +107,3 @@ void EventsManager::trigger(String event)
     _debugger.Debug(_component, "%s", event.c_str());
 #endif
 };
-
-#endif
