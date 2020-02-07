@@ -13,8 +13,10 @@ public:
     TwoWire getWire();
     void scan();
     bool i2cDeviceExists(byte address);
+    String getName(){ return _component; };
     
 private:
+    String _component = "i2c";
     Debugger _debugger;
     EventsManager _events;
     static bool _isConnected;

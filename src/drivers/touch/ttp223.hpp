@@ -9,6 +9,7 @@ public:
     void loop();
     void enable();
     void disable();
+    String getName(){ return _component; };
 
 private:
     static void interrupt();
@@ -16,6 +17,7 @@ private:
     static bool hasInterruptOccuredButtonUp();
     static bool interruptTriggeredButtonDown;
     static bool interruptTriggeredButtonUp;
+    String _component = "ttp223";
     Debugger _debugger;
     EventsManager _events;
 };

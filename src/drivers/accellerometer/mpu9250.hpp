@@ -1,5 +1,6 @@
 #include "kern_inc.h"
 #include "abstracts/accellerometer.hpp"
+#include <SparkFunMPU9250-DMP.h>
 
 class SDOS_MPU9250: public AbstractAccellerometer
 {
@@ -9,8 +10,10 @@ public:
     void loop();
     void enable();
     void disable();
+    String getName(){ return _component; };
 
 private:
+    String _component = "MPU9250";
     static void interrupt();
     static bool hasInterruptOccured();
     static bool interruptTriggered;

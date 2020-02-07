@@ -18,6 +18,7 @@ public:
     void oncePerSecond();
     boolean isActive() override;
     boolean isSleepPossible();
+    String getName(){ return _component; };
 
 private:
     String _component = "SLPTUNE";

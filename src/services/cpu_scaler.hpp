@@ -10,6 +10,7 @@ public:
     void loop();
     void oncePerSecond();
     uint32_t updateFrequency();
+    String getName(){ return _component; };
 
 private:
     String _component = "SCALER";
@@ -31,6 +32,13 @@ void SDOS_CPU_SCALER::setup()
 
 boolean SDOS_CPU_SCALER::isSlowPossible()
 {
+    /*_debugger.Debug(
+        _component, 
+        "is slow possible? wifi: %s req: %d. bluetooth: %s",
+        _wifi->canSleep() ? "yes" : "no", 
+        _wifi->getRequestCount(),
+        _bluetooth->canSleep() ? "yes" : "no"
+     );*/
     return _wifi->canSleep() && _bluetooth->canSleep();
 }
 

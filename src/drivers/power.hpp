@@ -15,6 +15,7 @@ public:
     #ifdef POWER_MONITOR_VBUS
     static int getVbusMv();
     #endif
+    String getName(){ return _component; };
 
 private:
 #ifdef POWER_MONITOR_CHARGE_STATE

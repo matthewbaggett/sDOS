@@ -44,11 +44,12 @@ class BluetoothManager : public sDOS_Abstract_Driver
     void addRequested();
     void removeRequested();
     static void sendMessage(String message);
+    String getName() { return _component; };
 
   private:
     Debugger _debugger;
     EventsManager _events;
-    const String _component = "Bluetoof";
+    String _component = "Bluetoof";
     void powerOn();
     void powerOff();
     String bleHostname = "sDOS device";

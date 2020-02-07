@@ -9,10 +9,11 @@
 #define COL_YELLOW "\033[1;33m"
 #define COL_BLUE  "\033[1;34m"
 #define COL_PINK  "\033[1;35m"
-
+#define DEBUG_SERIAL_BUFFER_SIZE 255
 
 boolean sdos_is_wifi_active();
 boolean sdos_is_bluetooth_active();
+
 using namespace std;
 using handlersList = std::list<void(*)(String message)>;
 
@@ -27,13 +28,13 @@ class Debugger
     private:
         HardwareSerial _serial = Serial;
         static String lastComponent;
-        static char lastBuff[128];
+        static char lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
         static int duplicates;
         static handlersList  _handlers;
 };
 
 String Debugger::lastComponent;
-char Debugger::lastBuff[128];
+char Debugger::lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
 int Debugger::duplicates = 0;
 handlersList Debugger::_handlers;
 

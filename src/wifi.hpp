@@ -28,6 +28,8 @@ public:
   static unsigned int getRequestCount();
   boolean canSleep();
   boolean isConnected();
+  boolean isActive();
+  String getName() { return _component; };
 
 private:
   Debugger _debugger;
@@ -70,18 +72,17 @@ WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManag
 
 void WiFiManager::setup()
 {
+  esp_wifi_deinit();
   powerOff();
   loadWifiConfigs();
 }
 
 void WiFiManager::loop()
 {
-  if(WiFiManager::getRequestCount() > 0){
-    updateState();
-    yield();
-  }
+  updateState();
 
   if (WiFi.isConnected()){
+    
     _wifiSignalStrength = getSignalStrength();
   }else{
     _wifiSignalStrength = 0;
@@ -98,7 +99,11 @@ boolean WiFiManager::isConnected(){
 
 void WiFiManager::updateState()
 {
-  _wifiClientState = (wifiMulti.run() == WL_CONNECTED) ? WIFI_CONNECTED : WIFI_DISCONNECTED;
+  if(WiFiManager::_powerOnState){
+    _wifiClientState = (wifiMulti.run() == WL_CONNECTED) ? WIFI_CONNECTED : WIFI_DISCONNECTED;
+  }else{
+    _wifiClientState = WIFI_DISCONNECTED;
+  }
 }
 
 void WiFiManager::loadWifiConfigs()
@@ -190,11 +195,10 @@ void WiFiManager::powerOn()
   }
   WiFiManager::_powerOnState = true;
 
-  //_debugger.Debug(_component, "powerOn()");
+  _debugger.Debug(_component, "powerOn()");
   WiFi.mode(WIFI_MODE_STA);
 
   WiFi.persistent(false);
-  //WiFi.disconnect();
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(true);
   
@@ -224,11 +228,9 @@ void WiFiManager::powerOff()
     return;
   }
 
-  //_debugger.Debug(_component, "powerOff()");
+  _debugger.Debug(_component, "powerOff()");
 
   WiFiManager::_powerOnState = false;
-
-  //WiFi.mode(WIFI_MODE_NULL);
 
   WiFi.persistent(false);
   WiFi.setAutoConnect(false);
@@ -253,7 +255,6 @@ void WiFiManager::addRequestActive()
   {
     WiFiManager::_requestsActive++;
   }
-  WiFiManager::getRequestCount();
 }
 
 void WiFiManager::removeRequestActive()
@@ -262,12 +263,22 @@ void WiFiManager::removeRequestActive()
   {
     WiFiManager::_requestsActive--;
   }
-  WiFiManager::getRequestCount();
 }
 
 void WiFiManager::updateRequestedActivity()
 {
-  WiFiManager::getRequestCount() > 0 ? powerOn() : powerOff();
+  if(WiFiManager::getRequestCount() > 0){
+    if(getCpuFrequencyMhz() >= 80) {
+      powerOn();
+      return;
+    }
+  }
+  powerOff();
+}
+
+boolean WiFiManager::isActive()
+{
+  return true;
 }
 
 boolean WiFiManager::canSleep()

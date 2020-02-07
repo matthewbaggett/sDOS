@@ -13,7 +13,8 @@ public:
     void setup();
     void loop();
     void update();
-
+    String getName(){ return _component; };
+    
 private:
     String _component = "NTP";
     Debugger _debugger;
@@ -59,7 +60,7 @@ void SDOS_NTP::update()
     {
         _wifi->addRequestActive();
         SDOS_NTP::_hasRequestedWifi = true;
-        //_debugger.Debug(_component, "Requested wifi on.");
+        _debugger.Debug(_component, "Requested wifi on.");
         return;
     }
     
@@ -68,7 +69,7 @@ void SDOS_NTP::update()
         boolean successfulUpdate = talkNTP();
         if (successfulUpdate)
         {
-            //_debugger.Debug(_component, "Requested wifi off.");
+            _debugger.Debug(_component, "Requested wifi off.");
             _wifi->removeRequestActive();
             SDOS_NTP::_hasRequestedWifi = false;
         }
