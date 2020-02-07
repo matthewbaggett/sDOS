@@ -40,7 +40,6 @@ SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiMa
 
 void SDOS_SLEEPTUNE::setup()
 {
-    _debugger.Debug(_component, "setup");
     _loopPerSecondCount = 0;
 };
 
