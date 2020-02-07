@@ -23,6 +23,9 @@
 #ifdef ENABLE_MPU9250
 #include "drivers/accellerometer/mpu9250.hpp"
 #endif
+#ifdef ENABLE_ST7735
+#include "drivers/display/st7735.hpp"
+#endif
 
 // System Services
 #ifdef ENABLE_SERVICE_NTP
@@ -111,6 +114,9 @@ void sDOS::Setup()
 #endif
 #ifdef ENABLE_MPU9250
     _drivers.insert(std::make_pair(getDriverID(F("accellerometer")), new SDOS_MPU9250(_debugger, _events)));
+#endif
+#ifdef ENABLE_ST7735
+    _drivers.insert(std::make_pair(getDriverID(F("display")), new SDOS_DISPLAY_ST7735(_debugger, _events)));
 #endif
 
 #ifdef ENABLE_SERVICE_SLEEPTUNE

@@ -35,6 +35,17 @@
     #define ENABLE_ACTIVITY_LIGHT 
     #define ACTIVITY_LIGHT_ONECOLOUR GPIO_NUM_4
 
+    // Enable display
+    #define ENABLE_ST7735
+    #define DISPLAY_WIDTH
+    #define DISPLAY_HEIGHT
+    #define ST7735_SPI_MOSI GPIO_NUM_19
+    #define ST7735_SPI_SCLK GPIO_NUM_18
+    #define ST7735_SPI_CS GPIO_NUM_5
+    #define ST7735_SPI_DC GPIO_NUM_23
+    #define ST7735_SPI_RST GPIO_NUM_26
+    #define ST7735_BL GPIO_NUM_27
+
     // Services to enable:
     // NTP service
     #define ENABLE_SERVICE_NTP
