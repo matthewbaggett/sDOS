@@ -32,4 +32,4 @@
 #define SLEEPTUNE_TUNING_STEP_MS 2
 
 #define BT_BLE_UART_MAX_PACKET 20
-#define BT_BLE_UART_DEBUG true
+#define BT_BLE_UART_DEBUG false
