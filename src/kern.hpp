@@ -6,7 +6,7 @@
 #include "events.hpp"
 #include "filesystem.hpp"
 #include "wifi.hpp"
-#include "bluetooth.hpp"
+#include "bluetooth/bluetooth.hpp"
 
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
