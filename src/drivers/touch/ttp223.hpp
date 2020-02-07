@@ -4,7 +4,7 @@
 class SDOS_TTP223 : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_TTP223(EventsManager &eventsManager);
+    SDOS_TTP223(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     void enable();
@@ -12,14 +12,18 @@ public:
 
 private:
     static void interrupt();
-    static bool hasInterruptOccured();
-    static bool interruptTriggered;
+    static bool hasInterruptOccuredButtonDown();
+    static bool hasInterruptOccuredButtonUp();
+    static bool interruptTriggeredButtonDown;
+    static bool interruptTriggeredButtonUp;
+    Debugger _debugger;
     EventsManager _events;
 };
 
-bool SDOS_TTP223::interruptTriggered = false;
+bool SDOS_TTP223::interruptTriggeredButtonDown = false;
+bool SDOS_TTP223::interruptTriggeredButtonUp = false;
 
-SDOS_TTP223::SDOS_TTP223(EventsManager &eventsManager) : _events(eventsManager)
+SDOS_TTP223::SDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
 {}
 
 void SDOS_TTP223::setup(){
@@ -29,21 +33,35 @@ void SDOS_TTP223::setup(){
     enable();
 #endif
     pinMode(PIN_INTERRUPT_TTP223, INPUT);
-    attachInterrupt(PIN_INTERRUPT_TTP223, SDOS_TTP223::interrupt, RISING);
+    attachInterrupt(PIN_INTERRUPT_TTP223, SDOS_TTP223::interrupt, CHANGE);
     gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
     _events.trigger("TTP223_ready");
 };
 
 void SDOS_TTP223::interrupt()
 {
-    interruptTriggered = true;
+    if(digitalRead(PIN_INTERRUPT_TTP223)){
+        interruptTriggeredButtonDown = true;
+    }else{
+        interruptTriggeredButtonUp = true;
+    }
 };
 
-bool SDOS_TTP223::hasInterruptOccured()
+bool SDOS_TTP223::hasInterruptOccuredButtonDown()
 {
-    if (interruptTriggered)
+    if (interruptTriggeredButtonDown)
     {
-        interruptTriggered = false;
+        interruptTriggeredButtonDown = false;
+        return true;
+    }
+    return false;
+}
+
+bool SDOS_TTP223::hasInterruptOccuredButtonUp()
+{
+    if (interruptTriggeredButtonUp)
+    {
+        interruptTriggeredButtonUp = false;
         return true;
     }
     return false;
@@ -51,9 +69,13 @@ bool SDOS_TTP223::hasInterruptOccured()
 
 void SDOS_TTP223::loop()
 {
-    if (SDOS_TTP223::hasInterruptOccured())
+    if (SDOS_TTP223::hasInterruptOccuredButtonDown())
     {
-        _events.trigger("TTP223_interrupt");
+        _events.trigger("TTP223_down");
+    }
+    if (SDOS_TTP223::hasInterruptOccuredButtonUp())
+    {
+        _events.trigger("TTP223_up");
     }
 };
 

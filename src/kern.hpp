@@ -103,7 +103,7 @@ void sDOS::Setup()
     _drivers.insert(std::make_pair(getDriverID(F("i2c")), driver_I2C));
 #endif
 #ifdef ENABLE_TTP223
-    _drivers.insert(std::make_pair(getDriverID(F("touch")), new SDOS_TTP223(_events)));
+    _drivers.insert(std::make_pair(getDriverID(F("touch")), new SDOS_TTP223(_debugger, _events)));
 #endif
 #ifdef ENABLE_PCF8563
     SDOS_PCF8563 * driver_RTC = new SDOS_PCF8563(_debugger, _events, driver_I2C);
