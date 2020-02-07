@@ -32,8 +32,6 @@ ESP8266WiFiMulti wifiMulti;
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
 
-#include "esp32-hal-gpio.h"
-
 #include <NTPClient.h>
 
 #include <SparkFunMPU9250-DMP.h>
