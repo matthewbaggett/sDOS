@@ -87,12 +87,9 @@ void BluetoothManager::debugMessage(String message)
 
 void BluetoothManager::setup()
 {
-  Serial.println("BT setup()");
   powerOff();
-  Serial.println("BT addHandler()");
   _debugger.addHandler(&bluetooth_send_debug_message);
 #if defined(BT_BLE_UART_DEBUG) && BT_BLE_UART_DEBUG == true
-Serial.println("BT addrequested()");
   addRequested();
 #endif
 }
