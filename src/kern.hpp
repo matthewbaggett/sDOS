@@ -31,6 +31,9 @@
 #ifdef ENABLE_SERVICE_SLEEPTUNE
 #include "services/sleeptune.hpp"
 #endif
+#ifdef ENABLE_CPU_SCALER
+#include "services/cpu_scaler.hpp"
+#endif
 
 using namespace std;
 using driverMap = std::map<String, sDOS_Abstract_Driver *>;
@@ -48,13 +51,15 @@ private:
     driverMap _drivers;
     serviceMap _services;
     void _configure();
-    uint32_t _cpuFrequencyUpdate();
     Preferences _preferences;
     Debugger _debugger = Debugger();
     FileSystem _fileSystem = FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
-    WiFiManager * driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
-    BluetoothManager * driver_BT = new BluetoothManager(_debugger, _events);
+    WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+    BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
+    #ifdef ENABLE_CPU_SCALER
+    SDOS_CPU_SCALER *_cpuScaler = new SDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
+    #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
     uint64_t _loopCount = 0;
@@ -89,9 +94,8 @@ void sDOS::Setup()
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
 
-    _drivers.insert(std::make_pair(getDriverID(F("wifi")), driver_WiFi));
-    _drivers.insert(std::make_pair(getDriverID(F("Bluetooth")), driver_BT));
-    _cpuFrequencyUpdate();
+    _drivers.insert(std::make_pair(getDriverID(F("wifi")), _driver_WiFi));
+    _drivers.insert(std::make_pair(getDriverID(F("Bluetooth")), _driver_BT));
 
 #ifdef ENABLE_I2C
     SDOS_I2C * driver_I2C = new SDOS_I2C(_debugger, _events);
@@ -109,10 +113,13 @@ void sDOS::Setup()
 #endif
 
 #ifdef ENABLE_SERVICE_SLEEPTUNE
-    _services.insert(std::make_pair(getDriverID(F("sleeptune")), new SDOS_SLEEPTUNE(_debugger, _events, driver_WiFi, driver_BT)));
+    _services.insert(std::make_pair(getDriverID(F("sleeptune")), new SDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT)));
 #endif
 #ifdef ENABLE_SERVICE_NTP
-    _services.insert(std::make_pair(getDriverID(F("ntp")), new SDOS_NTP(_debugger, _events, driver_RTC, driver_WiFi)));
+    _services.insert(std::make_pair(getDriverID(F("ntp")), new SDOS_NTP(_debugger, _events, driver_RTC, _driver_WiFi)));
+#endif
+#ifdef ENABLE_CPU_SCALER
+    _services.insert(std::make_pair(getDriverID(F("scaler")), _cpuScaler));
 #endif
 
     for (driverMap::iterator it = _drivers.begin(); it != _drivers.end(); ++it)
@@ -130,45 +137,12 @@ void sDOS::Setup()
         //_debugger.Debug(_component, "Service::Setup::%s", name.c_str());
         service->setup();
     }
-};
 
-uint32_t sDOS::_cpuFrequencyUpdate()
-{
-#ifdef CPU_FREQ_MHZ
-    uint32_t targetFreq = CPU_FREQ_MHZ;
-    /*
-    _debugger.Debug(
-        _component,
-        "_wifi.isActive = %s, _wifi.getRequestCount = %d, WiFi.isConnected = %s, cansleep? %s",
-        driver_WiFi->isActive() ? "yes" : "no",
-        driver_WiFi->getRequestCount(), 
-        WiFi.isConnected() ? "yes" : "no",
-        driver_WiFi->canSleep() ? "yes" : "no"
-    );
-    */
-#ifdef CPU_FREQ_MHZ_NORADIO
-    if (driver_WiFi->canSleep() && driver_BT->canSleep())
-    {
-        targetFreq = CPU_FREQ_MHZ_NORADIO;
-    }
+#ifdef ENABLE_CPU_SCALER
+    // To slow down the clock sooner rather than later, we call CPU_SCALERS loop here as an extra.
+    _cpuScaler->loop();
 #endif
-    uint32_t currentFreq = getCpuFrequencyMhz();
-    if (currentFreq != targetFreq)
-    {
-        setCpuFrequencyMhz(targetFreq);
-        _debugger.Debug("core", "CPU frequency changed from %dMhz to %dMhz", currentFreq, getCpuFrequencyMhz());
-        _events.trigger("cpu_freq_mhz", getCpuFrequencyMhz());
-    }
-#endif
-    currentFreq = getCpuFrequencyMhz();
-    if (currentFreq <= 20)
-    {
-        TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
-        TIMERG0.wdt_feed = 1;
-        TIMERG0.wdt_wprotect = 0;
-    }
-    return currentFreq;
-}
+};
 
 void sDOS::Loop()
 {
@@ -179,14 +153,6 @@ void sDOS::Loop()
 
     _lastTimeStampUS = microseconds;
     _loopCount++;
-
-    // Check CPU frequency is correct.
-    uint32_t cpuFreq = _cpuFrequencyUpdate();
-    yield();
-    if (_loopCount % SLEEPTUNE_LOOPS_PER_TIMING_REPORT == 0)
-    {
-        //_debugger.Debug(_component, F("Loops (%d) are executing in %dms at %d Mhz."), SLEEPTUNE_LOOPS_PER_TIMING_REPORT, _lastCycleTimeMS, cpuFreq);
-    }
 
     // Loop over Drivers
     for (driverMap::iterator it = _drivers.begin(); it != _drivers.end(); ++it)

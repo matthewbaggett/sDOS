@@ -43,6 +43,9 @@
     #define ENABLE_SERVICE_SLEEPTUNE
     #define SLEEPTUNE_LOOPS_PER_SECOND 10
 
+    // Enable CPU frequency scaling
+    #define ENABLE_CPU_SCALER
+
     #define DEBUG_EVENTS
 
 #endif
