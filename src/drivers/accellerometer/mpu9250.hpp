@@ -4,7 +4,7 @@
 class SDOS_MPU9250: public AbstractAccellerometer
 {
 public:
-    SDOS_MPU9250(EventsManager &eventsManager);
+    SDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     void enable();
@@ -14,6 +14,7 @@ private:
     static void interrupt();
     static bool hasInterruptOccured();
     static bool interruptTriggered;
+    Debugger _debugger;
     EventsManager _events;
     MPU9250_DMP _imu;
     void printIMUData();
@@ -28,7 +29,7 @@ private:
 
 bool SDOS_MPU9250::interruptTriggered = false;
 
-SDOS_MPU9250::SDOS_MPU9250(EventsManager &eventsManager) : _events(eventsManager)
+SDOS_MPU9250::SDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
 {
 }
 

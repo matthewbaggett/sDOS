@@ -110,7 +110,7 @@ void sDOS::Setup()
     _drivers.insert(std::make_pair(getDriverID(F("rtc")), driver_RTC));
 #endif
 #ifdef ENABLE_MPU9250
-    _drivers.insert(std::make_pair(getDriverID(F("accellerometer")), new SDOS_MPU9250(_events)));
+    _drivers.insert(std::make_pair(getDriverID(F("accellerometer")), new SDOS_MPU9250(_debugger, _events)));
 #endif
 
 #ifdef ENABLE_SERVICE_SLEEPTUNE
