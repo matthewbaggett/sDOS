@@ -15,7 +15,6 @@ public:
     SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
-    void oncePerSecond();
     boolean isActive() override;
     boolean isSleepPossible();
     String getName(){ return _component; };
@@ -26,6 +25,8 @@ private:
     EventsManager _events;
     WiFiManager * _wifi;
     BluetoothManager * _bluetooth;
+
+    void oncePerSecond();
 
     int _loopPerSecondCount = 0;
     int _tuningStep = SLEEPTUNE_TUNING_STEP_MS;

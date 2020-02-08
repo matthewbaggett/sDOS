@@ -22,6 +22,9 @@ unsigned int _loopCount = 0;
 #ifdef ENABLE_MONOCOLOUR_LED
 #include "drivers/led/monocolour.hpp"
 #endif
+#ifdef ENABLE_BUTTON
+#include "drivers/touch/button.hpp"
+#endif
 #ifdef ENABLE_TTP223
 #include "drivers/touch/ttp223.hpp"
 #endif
@@ -70,7 +73,6 @@ private:
     driverList _drivers;
     serviceList _services;
     void _configure();
-    Preferences _preferences;
     Debugger _debugger = Debugger();
     FileSystem _fileSystem = FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
@@ -102,10 +104,7 @@ void sDOS::Setup()
 #endif
 
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
-    _debugger.Debug(_component, F("Built with love on %s at %s."), __DATE__, __TIME__);
-
-    _drivers.push_back(_driver_WiFi);
-    _drivers.push_back(_driver_BT);
+    _debugger.Debug(_component, F("Built with love on %s at %s."), F(__DATE__), F(__TIME__));
 
 #if defined(ENABLE_I2C)
     SDOS_I2C * _driver_I2C = new SDOS_I2C(_debugger, _events);
@@ -115,8 +114,19 @@ void sDOS::Setup()
     SDOS_SPI * _driver_SPI = new SDOS_SPI(_debugger, _events);
     _drivers.push_back(_driver_SPI);
 #endif
+#if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
+#define ENABLE_DISPLAY
+    _drivers.push_back(new SDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI));
+#endif
+#if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
+#define ENABLE_DISPLAY
+    _drivers.push_back(new SDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI));
+#endif
 #if defined(ENABLE_MONOCOLOUR_LED)
     _drivers.push_back(new SDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED));
+#endif
+#ifdef ENABLE_BUTTON
+    _drivers.push_back(new SDOS_BUTTON(_debugger, _events));
 #endif
 #if defined(ENABLE_TTP223)
     _drivers.push_back(new SDOS_TTP223(_debugger, _events));
@@ -129,18 +139,14 @@ void sDOS::Setup()
 #if defined(ENABLE_FAKE_RTC)
 #define ENABLE_RTC
     SDOS_FAKE_RTC * _driver_RTC = new SDOS_FAKE_RTC(_debugger, _events);
+    _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
     _drivers.push_back(new SDOS_MPU9250(_debugger, _events));
 #endif
-#if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
-#define ENABLE_DISPLAY
-    _drivers.push_back(new SDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI));
-#endif
-#if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
-#define ENABLE_DISPLAY
-    _drivers.push_back(new SDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI));
-#endif
+
+    _drivers.push_back(_driver_WiFi);
+    _drivers.push_back(_driver_BT);
 
 #if defined(ENABLE_CPU_SCALER)
     _services.push_back(_cpuScaler);

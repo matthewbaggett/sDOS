@@ -20,14 +20,13 @@
 
     // Enable voltage monitoring
     #define ENABLE_POWER
-    #define POWER_MONITOR_CHARGE_STATE GPIO_NUM_32
     #define POWER_MONITOR_VBATT GPIO_NUM_34
     #define POWER_MONITOR_DIVISOR 2
 
     // Enable standard buttons
     #define ENABLE_BUTTON
-    #define BUTTON0 GPIO_NUM_0
-    #define BUTTON1 GPIO_NUM_35
+    #define BUTTON_0 GPIO_NUM_0
+    #define BUTTON_1 GPIO_NUM_35
 
     // Enable display
     #define ENABLE_ST7789
@@ -38,7 +37,6 @@
     #define ST77XX_RST GPIO_NUM_23
     #define ST77XX_CS SPI_SS
     #define ST77XX_BL GPIO_NUM_4
-
 
     // Enable fake RTC device
     #define ENABLE_FAKE_RTC

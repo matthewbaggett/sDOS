@@ -2,13 +2,8 @@
 #define includes_h
 
 #include "Arduino.h"
-#include <ArduinoJson.h>
 #include "defaults.h"
 #include "integer.h"
-#include "FS.h"
-#include "Preferences.h"
-#include "RTClib.h"
-#include "SPIFFS.h"
 #include "Wire.h"
 
 #ifdef ESP32
@@ -31,8 +26,6 @@ ESP8266WiFiMulti wifiMulti;
 
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
-
-#include <NTPClient.h>
 
 #include <SparkFunMPU9250-DMP.h>
 

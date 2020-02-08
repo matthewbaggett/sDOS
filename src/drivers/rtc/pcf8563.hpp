@@ -1,5 +1,6 @@
 #include "kern_inc.h"
 #include "abstracts/rtc.hpp"
+#include <RTClib.h>
 
 class SDOS_PCF8563: public AbstractRTC
 {

@@ -1,4 +1,5 @@
 #include "kern_inc.h"
+#include <RTClib.h> // Required for DateTime class
 
 class EventsManager
 {

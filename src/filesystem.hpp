@@ -1,8 +1,11 @@
 #include "kern_inc.h"
-#include "ArduinoJson.h"
+#include <ArduinoJson.h>
+#include "FS.h"
+#include "SPIFFS.h"
 #include <iostream>
 #include <map>
 #include <string>
+
 using namespace std;
 
 struct JsonConfigFile

@@ -8,7 +8,6 @@ public:
     SDOS_CPU_SCALER(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
-    void oncePerSecond();
     uint32_t updateFrequency();
     String getName(){ return _component; };
 

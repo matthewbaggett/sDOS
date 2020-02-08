@@ -15,6 +15,7 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
             _debugger.Debug(_component, "setup()");
             setupBacklight();
             setupScreen();
+            setupBuffer();
             demo();
         };
         void setupBacklight(){
@@ -28,15 +29,13 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
             _tft.setRotation(ST77XX_ROTATION);
             #endif
         };
-        void demo(){
+        void setupBuffer(){
             _tft.setFont();
             _tft.fillScreen(ST77XX_BLACK);
             _tft.setTextColor(ST77XX_WHITE);
             _tft.setTextSize(3);
         };
-
-        void loop() {
-            updateBacklight();
+        void demo(){
             //SDOS_DISPLAY_ST7789::_backlightBrightness = (SDOS_DISPLAY_ST7789::_backlightBrightness == 255) ? 0 : 255;
             _tft.setCursor(DISPLAY_WIDTH/2,DISPLAY_HEIGHT/2);
             _tft.setTextColor(ST77XX_RED);
@@ -49,7 +48,11 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
             _tft.print("ST7789");
             
             _tft.enableDisplay(SDOS_DISPLAY_ST7789::_displayOn);
-            _debugger.Debug(_component, "tried to render. Enabled? %s", SDOS_DISPLAY_ST7789::_displayOn ? "yes" : "no");
+        }
+
+        void loop() {
+            updateBacklight();
+            demo();
 
         };
 
@@ -80,5 +83,5 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
         int _pwmChannel = SDOS_DISPLAY_ST7789::getUnusedPWMChannel();
 };
 
-unsigned int SDOS_DISPLAY_ST7789::_backlightBrightness = 250;
+unsigned int SDOS_DISPLAY_ST7789::_backlightBrightness = 255;
 boolean SDOS_DISPLAY_ST7789::_displayOn = true;
