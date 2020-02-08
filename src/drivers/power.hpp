@@ -81,7 +81,7 @@ void SDOS_POWER::loop()
 #ifdef POWER_MONITOR_CHARGE_STATE
     if (SDOS_POWER::_chargingInterruptTriggered)
     {
-        SDOS_POWER::_chargingInterruptTriggered = true;
+        SDOS_POWER::_chargingInterruptTriggered = false;
         _debugger.Debug(_component, "Charging status changed to %s", digitalRead(POWER_MONITOR_CHARGE_STATE) ? "charging" : "discharging");
         // @todo trigger event
     }
