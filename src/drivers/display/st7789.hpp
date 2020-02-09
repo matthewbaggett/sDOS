@@ -49,13 +49,13 @@ class sDOS_DISPLAY_ST7789 : public AbstractDisplay
             
             _tft.enableDisplay(sDOS_DISPLAY_ST7789::_displayOn);
         }
-
+        void writePixel(uint16_t x, uint16_t y, uint16_t updatedValue){
+            _tft.writePixel(x,y,updatedValue);
+        };
         void loop() {
             updateBacklight();
             demo();
-
         };
-
         void updateBacklight(){
             ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7789::_displayOn ? sDOS_DISPLAY_ST7789::_backlightBrightness : 0);
             //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);

@@ -39,9 +39,11 @@ unsigned int _loopCount = 0;
 #endif
 #ifdef ENABLE_ST7735
 #include "drivers/display/st7735.hpp"
+#include "drivers/display/frame_buffer.hpp"
 #endif
 #ifdef ENABLE_ST7789
 #include "drivers/display/st7789.hpp"
+#include "drivers/display/frame_buffer.hpp"
 #endif
 
 // System Services
@@ -116,11 +118,13 @@ void sDOS::Setup()
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    _drivers.push_back(new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI));
+    sDOS_DISPLAY_ST7735 * _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
+    _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    _drivers.push_back(new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI));
+    sDOS_DISPLAY_ST7789 * _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
+    _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
     _drivers.push_back(new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED));
@@ -143,6 +147,11 @@ void sDOS::Setup()
 #endif
 #if defined(ENABLE_MPU9250)
     _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
+#endif
+#if defined(ENABLE_DISPLAY)
+    sDOS_FrameBuffer * _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display);
+    _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    _drivers.push_back(_driver_FrameBuffer);
 #endif
 
     _drivers.push_back(_driver_WiFi);
