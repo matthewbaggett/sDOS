@@ -1,11 +1,11 @@
 #include "kern_inc.h"
 #include "abstracts/service.hpp"
 
-class SDOS_CPU_SCALER : public sDOS_Abstract_Service
+class sDOS_CPU_SCALER : public sDOS_Abstract_Service
 {
 
 public:
-    SDOS_CPU_SCALER(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
+    sDOS_CPU_SCALER(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
     uint32_t updateFrequency();
@@ -21,15 +21,15 @@ private:
 
 };
 
-SDOS_CPU_SCALER::SDOS_CPU_SCALER(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
+sDOS_CPU_SCALER::sDOS_CPU_SCALER(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
     : _debugger(debugger), _events(events), _wifi(wifi), _bluetooth(bluetooth)
     {};
 
-void SDOS_CPU_SCALER::setup()
+void sDOS_CPU_SCALER::setup()
 {
 };
 
-boolean SDOS_CPU_SCALER::isSlowPossible()
+boolean sDOS_CPU_SCALER::isSlowPossible()
 {
     /*_debugger.Debug(
         _component, 
@@ -41,12 +41,12 @@ boolean SDOS_CPU_SCALER::isSlowPossible()
     return _wifi->canSleep() && _bluetooth->canSleep();
 }
 
-void SDOS_CPU_SCALER::loop()
+void sDOS_CPU_SCALER::loop()
 {
-    SDOS_CPU_SCALER::updateFrequency();
+    sDOS_CPU_SCALER::updateFrequency();
 }
 
-uint32_t SDOS_CPU_SCALER::updateFrequency() {
+uint32_t sDOS_CPU_SCALER::updateFrequency() {
     uint32_t currentFreq;
 #ifdef CPU_FREQ_MHZ
     uint32_t targetFreq = CPU_FREQ_MHZ;

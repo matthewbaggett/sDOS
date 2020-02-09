@@ -1,10 +1,10 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
-class SDOS_LED_MONO : public sDOS_Abstract_Driver
+class sDOS_LED_MONO : public sDOS_Abstract_Driver
 {
     public:
-        SDOS_LED_MONO(Debugger &debugger, EventsManager &eventsManager, gpio_num_t gpio) 
+        sDOS_LED_MONO(Debugger &debugger, EventsManager &eventsManager, gpio_num_t gpio) 
             : _debugger(debugger), _eventsManager(eventsManager), _gpio(gpio){};
 
         void setup() {
@@ -15,7 +15,7 @@ class SDOS_LED_MONO : public sDOS_Abstract_Driver
         };
 
         boolean isActive(){
-            return SDOS_LED_MONO::_brightness != SDOS_LED_MONO::_brightnessPrev;
+            return sDOS_LED_MONO::_brightness != sDOS_LED_MONO::_brightnessPrev;
         };
 
         void loop() {
@@ -23,13 +23,13 @@ class SDOS_LED_MONO : public sDOS_Abstract_Driver
         };
 
         void updateBrightness(){
-            _debugger.Debug(_component, "Mono LED (gpio %d) brightness: %d/255", SDOS_LED_MONO::_gpio, SDOS_LED_MONO::_brightness);
-            ledcWrite(_pwmChannel, SDOS_LED_MONO::_brightness);
-            SDOS_LED_MONO::_brightnessPrev = SDOS_LED_MONO::_brightness;
+            _debugger.Debug(_component, "Mono LED (gpio %d) brightness: %d/255", sDOS_LED_MONO::_gpio, sDOS_LED_MONO::_brightness);
+            ledcWrite(_pwmChannel, sDOS_LED_MONO::_brightness);
+            sDOS_LED_MONO::_brightnessPrev = sDOS_LED_MONO::_brightness;
         };
 
         void setBrightness(unsigned int brightness){
-            SDOS_LED_MONO::_brightness = brightness;
+            sDOS_LED_MONO::_brightness = brightness;
             updateBrightness();
         }
 
@@ -40,11 +40,11 @@ class SDOS_LED_MONO : public sDOS_Abstract_Driver
         Debugger _debugger;
         EventsManager _eventsManager;
         gpio_num_t _gpio;
-        int _pwmChannel = SDOS_LED_MONO::getUnusedPWMChannel();
+        int _pwmChannel = sDOS_LED_MONO::getUnusedPWMChannel();
         static unsigned int _brightness;   // 0-255 brightness
         static unsigned int _brightnessPrev;   // 0-255 brightness
         
 };
 
-unsigned int SDOS_LED_MONO::_brightness = 255;
-unsigned int SDOS_LED_MONO::_brightnessPrev = 0;
+unsigned int sDOS_LED_MONO::_brightness = 255;
+unsigned int sDOS_LED_MONO::_brightnessPrev = 0;

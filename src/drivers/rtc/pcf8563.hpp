@@ -2,10 +2,10 @@
 #include "abstracts/rtc.hpp"
 #include <RTClib.h>
 
-class SDOS_PCF8563: public AbstractRTC
+class sDOS_PCF8563: public AbstractRTC
 {
 public:
-    SDOS_PCF8563(Debugger &debugger, EventsManager &eventsManager, SDOS_I2C *i2c);
+    sDOS_PCF8563(Debugger &debugger, EventsManager &eventsManager, sDOS_I2C *i2c);
     void setup();
     void loop();
     void setAlarmInMinutes(int minutes);
@@ -21,29 +21,29 @@ private:
     static bool interruptTriggered;
     Debugger _debugger;
     EventsManager _events;
-    SDOS_I2C * _i2c;
+    sDOS_I2C * _i2c;
     PCF8563 _rtc;
 };
 
-bool SDOS_PCF8563::interruptTriggered = false;
+bool sDOS_PCF8563::interruptTriggered = false;
 
-SDOS_PCF8563::SDOS_PCF8563(Debugger &debugger, EventsManager & eventsManager, SDOS_I2C * i2c) 
+sDOS_PCF8563::sDOS_PCF8563(Debugger &debugger, EventsManager & eventsManager, sDOS_I2C * i2c) 
     : _debugger(debugger), _events(eventsManager), _i2c(i2c)
     {}
 
-void SDOS_PCF8563::setTime(DateTime & newTime){
+void sDOS_PCF8563::setTime(DateTime & newTime){
     _rtc.adjust(newTime);
     _events.trigger("rtc_set", String(newTime.toStr()));
 }
 
-DateTime SDOS_PCF8563::getTime(){
+DateTime sDOS_PCF8563::getTime(){
     return _rtc.now();
 }
 
-void SDOS_PCF8563::setup(){
+void sDOS_PCF8563::setup(){
     _events.trigger(F("rtc_enable"));
     pinMode(PIN_INTERRUPT_PCF8563, INPUT);
-    attachInterrupt(PIN_INTERRUPT_PCF8563, SDOS_PCF8563::interrupt, FALLING);
+    attachInterrupt(PIN_INTERRUPT_PCF8563, sDOS_PCF8563::interrupt, FALLING);
     gpio_wakeup_enable(PIN_INTERRUPT_PCF8563, GPIO_INTR_LOW_LEVEL);
     TwoWire wire = _i2c->getWire();
     // rtc lib can't take _wire as an argument, sadly.
@@ -59,7 +59,7 @@ void SDOS_PCF8563::setup(){
     setAlarmInMinutes(1);
 };
 
-void SDOS_PCF8563::setAlarmInMinutes(int minutes){
+void sDOS_PCF8563::setAlarmInMinutes(int minutes){
     DateTime alarm = _rtc.now();
     alarm.setminute(alarm.minute() + minutes);
     _events.trigger(F("rtc_alarm_set"), alarm);
@@ -67,7 +67,7 @@ void SDOS_PCF8563::setAlarmInMinutes(int minutes){
     _rtc.on_alarm();
 }
 
-void SDOS_PCF8563::setAlarmInSeconds(int seconds){
+void sDOS_PCF8563::setAlarmInSeconds(int seconds){
     DateTime alarm = _rtc.now();
     alarm.setsecond(alarm.second() + seconds);
     _events.trigger(F("rtc_alarm_set"), alarm);
@@ -75,12 +75,12 @@ void SDOS_PCF8563::setAlarmInSeconds(int seconds){
     _rtc.on_alarm();
 }
 
-void SDOS_PCF8563::interrupt()
+void sDOS_PCF8563::interrupt()
 {
     interruptTriggered = true;
 };
 
-bool SDOS_PCF8563::hasInterruptOccured()
+bool sDOS_PCF8563::hasInterruptOccured()
 {
     if (interruptTriggered)
     {
@@ -90,9 +90,9 @@ bool SDOS_PCF8563::hasInterruptOccured()
     return false;
 }
 
-void SDOS_PCF8563::loop()
+void sDOS_PCF8563::loop()
 {
-    if (SDOS_PCF8563::hasInterruptOccured())
+    if (sDOS_PCF8563::hasInterruptOccured())
     {
         _events.trigger(F("rtc_interrupt"));
         setAlarmInMinutes(1);

@@ -1,10 +1,10 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
-class SDOS_I2C : public sDOS_Abstract_Driver
+class sDOS_I2C : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_I2C(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_I2C(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     //static TwoWire wire;
@@ -22,40 +22,40 @@ private:
     static bool _isConnected;
 };
 
-//TwoWire SDOS_I2C::wire = Wire;
-bool SDOS_I2C::_isConnected = false;
+//TwoWire sDOS_I2C::wire = Wire;
+bool sDOS_I2C::_isConnected = false;
 
-SDOS_I2C::SDOS_I2C(Debugger &debugger, EventsManager &eventsManager) :  _debugger(debugger), _events(eventsManager)
+sDOS_I2C::sDOS_I2C(Debugger &debugger, EventsManager &eventsManager) :  _debugger(debugger), _events(eventsManager)
 {
 };
 
-void SDOS_I2C::setup(){
+void sDOS_I2C::setup(){
     connect();
     scan();
 };
 
-bool SDOS_I2C::isConnected(){
-    return SDOS_I2C::_isConnected;
+bool sDOS_I2C::isConnected(){
+    return sDOS_I2C::_isConnected;
 }
 
-void SDOS_I2C::connect(){
+void sDOS_I2C::connect(){
     if(Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)){
         _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
         _events.trigger("i2c_ready");
-        SDOS_I2C::_isConnected = true;
+        sDOS_I2C::_isConnected = true;
     }else{
         _events.trigger("i2c_fail");
     }   
 }
 
-TwoWire SDOS_I2C::getWire(){
-    if(!SDOS_I2C::isConnected()){
+TwoWire sDOS_I2C::getWire(){
+    if(!sDOS_I2C::isConnected()){
         connect();
     }
     return Wire;
 }
 
-void SDOS_I2C::scan(){
+void sDOS_I2C::scan(){
     _events.trigger("i2c_scan_begin");
 
     byte error, address;
@@ -84,12 +84,12 @@ void SDOS_I2C::scan(){
     _events.trigger("i2c_scan_end");
 }
 
-bool SDOS_I2C::i2cDeviceExists(byte address){
+bool sDOS_I2C::i2cDeviceExists(byte address){
     Wire.beginTransmission(address);
     return Wire.endTransmission() == 0;
 }
 
-void SDOS_I2C::loop()
+void sDOS_I2C::loop()
 {
 };
 

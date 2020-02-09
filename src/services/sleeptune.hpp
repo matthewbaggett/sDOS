@@ -8,11 +8,11 @@
 #define SLEEPTUNE_LOOPS_PER_SECOND_VARIATION 1
 #endif
 
-class SDOS_SLEEPTUNE : public sDOS_Abstract_Service
+class sDOS_SLEEPTUNE : public sDOS_Abstract_Service
 {
 
 public:
-    SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
+    sDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
     boolean isActive() override;
@@ -34,40 +34,40 @@ private:
     static unsigned long _micros;  
 };
 
-unsigned long SDOS_SLEEPTUNE::_micros = 0;
+unsigned long sDOS_SLEEPTUNE::_micros = 0;
 
-SDOS_SLEEPTUNE::SDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
+sDOS_SLEEPTUNE::sDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
     : _debugger(debugger), _events(events), _wifi(wifi), _bluetooth(bluetooth)
     {};
 
-void SDOS_SLEEPTUNE::setup()
+void sDOS_SLEEPTUNE::setup()
 {
     _loopPerSecondCount = 0;
 };
 
-boolean SDOS_SLEEPTUNE::isActive() 
+boolean sDOS_SLEEPTUNE::isActive() 
 {
     boolean possible = isSleepPossible();
     //_debugger.Debug(_component, "is Sleep possible? %s", possible ? "yes" : "no");
     return possible;
 }
 
-boolean SDOS_SLEEPTUNE::isSleepPossible()
+boolean sDOS_SLEEPTUNE::isSleepPossible()
 {
     return _wifi->canSleep() && _bluetooth->canSleep();
 }
 
-void SDOS_SLEEPTUNE::loop()
+void sDOS_SLEEPTUNE::loop()
 {
     /*Serial.printf(
         "_micros: %d\nmicros(): %d\ncheck? %s\n", 
-        SDOS_SLEEPTUNE::_micros, 
+        sDOS_SLEEPTUNE::_micros, 
         micros(), 
-        SDOS_SLEEPTUNE::_micros + 1000000 <= micros() ? "yes" : "no"
+        sDOS_SLEEPTUNE::_micros + 1000000 <= micros() ? "yes" : "no"
     );*/
 
-    if(SDOS_SLEEPTUNE::_micros == 0 || SDOS_SLEEPTUNE::_micros > micros() || SDOS_SLEEPTUNE::_micros + 1000000 <= micros()){
-        SDOS_SLEEPTUNE::_micros = micros();
+    if(sDOS_SLEEPTUNE::_micros == 0 || sDOS_SLEEPTUNE::_micros > micros() || sDOS_SLEEPTUNE::_micros + 1000000 <= micros()){
+        sDOS_SLEEPTUNE::_micros = micros();
         oncePerSecond();
     }
     _loopPerSecondCount++;
@@ -114,7 +114,7 @@ void SDOS_SLEEPTUNE::loop()
     }
 }
 
-void SDOS_SLEEPTUNE::oncePerSecond(){
+void sDOS_SLEEPTUNE::oncePerSecond(){
     // Ignore when the processor shits itself and gets 1 loop out in a second.
     if (_loopPerSecondCount > 1)
     {

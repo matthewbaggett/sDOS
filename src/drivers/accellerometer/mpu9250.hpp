@@ -2,10 +2,10 @@
 #include "abstracts/accellerometer.hpp"
 #include <SparkFunMPU9250-DMP.h>
 
-class SDOS_MPU9250: public AbstractAccellerometer
+class sDOS_MPU9250: public AbstractAccellerometer
 {
 public:
-    SDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     void enable();
@@ -30,13 +30,13 @@ private:
     unsigned long _lastStepCount = 0;
 };
 
-bool SDOS_MPU9250::interruptTriggered = false;
+bool sDOS_MPU9250::interruptTriggered = false;
 
-SDOS_MPU9250::SDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
+sDOS_MPU9250::sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
 {
 }
 
-void SDOS_MPU9250::setup()
+void sDOS_MPU9250::setup()
 {
     _events.trigger("MPU9250_enable");
 
@@ -79,7 +79,7 @@ void SDOS_MPU9250::setup()
 
     // Setup DMP interrupt
     pinMode(PIN_INTERRUPT_MPU9250, INPUT);
-    attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MPU9250), SDOS_MPU9250::interrupt, FALLING);
+    attachInterrupt(digitalPinToInterrupt(PIN_INTERRUPT_MPU9250), sDOS_MPU9250::interrupt, FALLING);
     //gpio_wakeup_enable(PIN_INTERRUPT_MPU9250, GPIO_INTR_LOW_LEVEL);
     _imu.enableInterrupt();
     _imu.setIntLevel(INT_ACTIVE_LOW);
@@ -90,12 +90,12 @@ void SDOS_MPU9250::setup()
     _events.trigger("MPU9250_ready");
 };
 
-void SDOS_MPU9250::interrupt()
+void sDOS_MPU9250::interrupt()
 {
     interruptTriggered = true;
 };
 
-bool SDOS_MPU9250::hasInterruptOccured()
+bool sDOS_MPU9250::hasInterruptOccured()
 {
     if (interruptTriggered)
     {
@@ -105,22 +105,22 @@ bool SDOS_MPU9250::hasInterruptOccured()
     return false;
 }
 
-void SDOS_MPU9250::loop()
+void sDOS_MPU9250::loop()
 {
     checkInterrupt();
     //checkFIFO();
 };
 
-void SDOS_MPU9250::checkInterrupt()
+void sDOS_MPU9250::checkInterrupt()
 {
-    if (SDOS_MPU9250::hasInterruptOccured())
+    if (sDOS_MPU9250::hasInterruptOccured())
     {
         //_events.trigger("MPU9250_interrupt");
         checkFIFO();
     }
 }
 
-void SDOS_MPU9250::checkFIFO()
+void sDOS_MPU9250::checkFIFO()
 {
     handleSteps();
     //Serial.printf("Fifo length: %d\n", _imu.fifoAvailable());
@@ -146,7 +146,7 @@ void SDOS_MPU9250::checkFIFO()
     }
 }
 
-void SDOS_MPU9250::handleSteps()
+void sDOS_MPU9250::handleSteps()
 {
     _stepCount = _imu.dmpGetPedometerSteps();
     _stepTime = _imu.dmpGetPedometerTime();
@@ -163,7 +163,7 @@ void SDOS_MPU9250::handleSteps()
     }
 }
 
-void SDOS_MPU9250::handleTap()
+void sDOS_MPU9250::handleTap()
 {
     // If a new tap happened, get the direction and count
     // by reading getTapDir and getTapCount
@@ -192,19 +192,19 @@ void SDOS_MPU9250::handleTap()
     }
 }
 
-void SDOS_MPU9250::enable()
+void sDOS_MPU9250::enable()
 {
     _events.trigger("MPU9250_enable");
     //@todo power management code
 }
 
-void SDOS_MPU9250::disable()
+void sDOS_MPU9250::disable()
 {
     _events.trigger("MPU9250_disable");
     //@todo power management code
 }
 
-void SDOS_MPU9250::printIMUData(void)
+void sDOS_MPU9250::printIMUData(void)
 {
     // After calling update() the ax, ay, az, gx, gy, gz, mx,
     // my, mz, time, and/or temerature class variables are all

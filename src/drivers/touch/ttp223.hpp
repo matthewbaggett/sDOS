@@ -1,10 +1,10 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
-class SDOS_TTP223 : public sDOS_Abstract_Driver
+class sDOS_TTP223 : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_TTP223(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_TTP223(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     void enable();
@@ -22,25 +22,25 @@ private:
     EventsManager _events;
 };
 
-bool SDOS_TTP223::interruptTriggeredButtonDown = false;
-bool SDOS_TTP223::interruptTriggeredButtonUp = false;
+bool sDOS_TTP223::interruptTriggeredButtonDown = false;
+bool sDOS_TTP223::interruptTriggeredButtonUp = false;
 
-SDOS_TTP223::SDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
+sDOS_TTP223::sDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
 {}
 
-void SDOS_TTP223::setup(){
+void sDOS_TTP223::setup(){
 #ifdef PIN_POWER_TTP223
 // If we have a power pin to drive this sensor, enable it
     pinMode(PIN_POWER_TTP223, OUTPUT);
     enable();
 #endif
     pinMode(PIN_INTERRUPT_TTP223, INPUT);
-    attachInterrupt(PIN_INTERRUPT_TTP223, SDOS_TTP223::interrupt, CHANGE);
+    attachInterrupt(PIN_INTERRUPT_TTP223, sDOS_TTP223::interrupt, CHANGE);
     gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
     _events.trigger("TTP223_ready");
 };
 
-void SDOS_TTP223::interrupt()
+void sDOS_TTP223::interrupt()
 {
     if(digitalRead(PIN_INTERRUPT_TTP223)){
         interruptTriggeredButtonDown = true;
@@ -49,7 +49,7 @@ void SDOS_TTP223::interrupt()
     }
 };
 
-bool SDOS_TTP223::hasInterruptOccuredButtonDown()
+bool sDOS_TTP223::hasInterruptOccuredButtonDown()
 {
     if (interruptTriggeredButtonDown)
     {
@@ -59,7 +59,7 @@ bool SDOS_TTP223::hasInterruptOccuredButtonDown()
     return false;
 }
 
-bool SDOS_TTP223::hasInterruptOccuredButtonUp()
+bool sDOS_TTP223::hasInterruptOccuredButtonUp()
 {
     if (interruptTriggeredButtonUp)
     {
@@ -69,19 +69,19 @@ bool SDOS_TTP223::hasInterruptOccuredButtonUp()
     return false;
 }
 
-void SDOS_TTP223::loop()
+void sDOS_TTP223::loop()
 {
-    if (SDOS_TTP223::hasInterruptOccuredButtonDown())
+    if (sDOS_TTP223::hasInterruptOccuredButtonDown())
     {
         _events.trigger("TTP223_down");
     }
-    if (SDOS_TTP223::hasInterruptOccuredButtonUp())
+    if (sDOS_TTP223::hasInterruptOccuredButtonUp())
     {
         _events.trigger("TTP223_up");
     }
 };
 
-void SDOS_TTP223::enable()
+void sDOS_TTP223::enable()
 {
     _events.trigger("TTP223_enable");
 #ifdef PIN_POWER_TTP223
@@ -89,7 +89,7 @@ void SDOS_TTP223::enable()
 #endif
 }
 
-void SDOS_TTP223::disable()
+void sDOS_TTP223::disable()
 {
     _events.trigger("TTP223_disable");
 #ifdef PIN_POWER_TTP223

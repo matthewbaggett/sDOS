@@ -79,7 +79,7 @@ private:
     WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
     BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
     #ifdef ENABLE_CPU_SCALER
-    SDOS_CPU_SCALER *_cpuScaler = new SDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
+    sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
     #endif
     long _lastCycleTimeMS = 0;
     long _lastTimeStampUS = 0;
@@ -100,49 +100,49 @@ void sDOS::Setup()
     delay(300);
 
 #if defined(ENABLE_POWER)
-    _drivers.push_back(new SDOS_POWER(_debugger, _events));
+    _drivers.push_back(new sDOS_POWER(_debugger, _events));
 #endif
 
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, F("Built with love on %s at %s."), F(__DATE__), F(__TIME__));
 
 #if defined(ENABLE_I2C)
-    SDOS_I2C * _driver_I2C = new SDOS_I2C(_debugger, _events);
+    sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
     _drivers.push_back(_driver_I2C);
 #endif
 #if defined(ENABLE_SPI)
-    SDOS_SPI * _driver_SPI = new SDOS_SPI(_debugger, _events);
+    sDOS_SPI * _driver_SPI = new sDOS_SPI(_debugger, _events);
     _drivers.push_back(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    _drivers.push_back(new SDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI));
+    _drivers.push_back(new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI));
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    _drivers.push_back(new SDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI));
+    _drivers.push_back(new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI));
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    _drivers.push_back(new SDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED));
+    _drivers.push_back(new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED));
 #endif
 #ifdef ENABLE_BUTTON
-    _drivers.push_back(new SDOS_BUTTON(_debugger, _events));
+    _drivers.push_back(new sDOS_BUTTON(_debugger, _events));
 #endif
 #if defined(ENABLE_TTP223)
-    _drivers.push_back(new SDOS_TTP223(_debugger, _events));
+    _drivers.push_back(new sDOS_TTP223(_debugger, _events));
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
 #define ENABLE_RTC
-    SDOS_PCF8563 * _driver_RTC = new SDOS_PCF8563(_debugger, _events, _driver_I2C);
+    sDOS_PCF8563 * _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC)
 #define ENABLE_RTC
-    SDOS_FAKE_RTC * _driver_RTC = new SDOS_FAKE_RTC(_debugger, _events);
+    sDOS_FAKE_RTC * _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
-    _drivers.push_back(new SDOS_MPU9250(_debugger, _events));
+    _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
 #endif
 
     _drivers.push_back(_driver_WiFi);
@@ -152,10 +152,10 @@ void sDOS::Setup()
     _services.push_back(_cpuScaler);
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE)
-    _services.push_back(new SDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
+    _services.push_back(new sDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
-    _services.push_back(new SDOS_NTP(_debugger, _events, _driver_RTC, _driver_WiFi));
+    _services.push_back(new sDOS_NTP(_debugger, _events, _driver_RTC, _driver_WiFi));
 #endif
 
     // Setup Drivers
@@ -272,8 +272,8 @@ void Debugger::Debug(String component, String format, ...)
         WiFi.isConnected() ? "W+" : "W-",
         sdos_is_bluetooth_active() ? COL_RED : COL_GREEN,
         sdos_is_bluetooth_active() ? "B+" : "B-",
-        SDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
-        SDOS_POWER::getVbattMv(),
+        sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
+        sDOS_POWER::getVbattMv(),
         COL_RESET,
         buff
     );

@@ -1,10 +1,10 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
-class SDOS_POWER : public sDOS_Abstract_Driver
+class sDOS_POWER : public sDOS_Abstract_Driver
 {
 public:
-    SDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
     void setup();
     void loop();
     //static TwoWire wire;
@@ -36,21 +36,21 @@ private:
     String _component = "PWRMGMT";
 };
 
-//TwoWire SDOS_POWER::wire = Wire;
-bool SDOS_POWER::_isCharging = false;
-bool SDOS_POWER::_chargingInterruptTriggered = false;
+//TwoWire sDOS_POWER::wire = Wire;
+bool sDOS_POWER::_isCharging = false;
+bool sDOS_POWER::_chargingInterruptTriggered = false;
 #ifdef POWER_MONITOR_VBATT
-    int SDOS_POWER::_mon_mv_vbatt = 0;
-    int SDOS_POWER::_mon_mv_vbatt_previous = 0;
+    int sDOS_POWER::_mon_mv_vbatt = 0;
+    int sDOS_POWER::_mon_mv_vbatt_previous = 0;
 #endif
 #ifdef POWER_MONITOR_VBUS
-    int SDOS_POWER::_mon_mv_vbus = 0;
-    int SDOS_POWER::_mon_mv_vbus_previous = 0;
+    int sDOS_POWER::_mon_mv_vbus = 0;
+    int sDOS_POWER::_mon_mv_vbus_previous = 0;
 #endif
 
-SDOS_POWER::SDOS_POWER(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager){};
+sDOS_POWER::sDOS_POWER(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager){};
 
-void SDOS_POWER::setup()
+void sDOS_POWER::setup()
 {
 #ifdef POWER_MONITOR_VBATT
     pinMode(POWER_MONITOR_VBATT, INPUT);
@@ -64,61 +64,61 @@ void SDOS_POWER::setup()
 
 #ifdef POWER_MONITOR_CHARGE_STATE
     pinMode(POWER_MONITOR_CHARGE_STATE, INPUT);
-    attachInterrupt(POWER_MONITOR_CHARGE_STATE, SDOS_POWER::interrupt, CHANGE);
+    attachInterrupt(POWER_MONITOR_CHARGE_STATE, sDOS_POWER::interrupt, CHANGE);
     _isCharging = digitalRead(POWER_MONITOR_CHARGE_STATE);
 #endif
     _events.trigger("POWER_ready");
 };
 
 #ifdef POWER_MONITOR_CHARGE_STATE
-void SDOS_POWER::interrupt()
+void sDOS_POWER::interrupt()
 {
     _chargingInterruptTriggered = true;
 };
 #endif
-void SDOS_POWER::loop()
+void sDOS_POWER::loop()
 {
 #ifdef POWER_MONITOR_CHARGE_STATE
-    if (SDOS_POWER::_chargingInterruptTriggered)
+    if (sDOS_POWER::_chargingInterruptTriggered)
     {
-        SDOS_POWER::_chargingInterruptTriggered = false;
+        sDOS_POWER::_chargingInterruptTriggered = false;
         _debugger.Debug(_component, "Charging status changed to %s", digitalRead(POWER_MONITOR_CHARGE_STATE) ? "charging" : "discharging");
         // @todo trigger event
     }
 #endif
 #ifdef POWER_MONITOR_VBATT
-    SDOS_POWER::_mon_mv_vbatt = analogRead(POWER_MONITOR_VBATT) * BATTERY_MAGIC_MULTIPLIER;
-    if(!(round(SDOS_POWER::_mon_mv_vbatt_previous/100) == round(SDOS_POWER::_mon_mv_vbatt/100))){
-        _debugger.Debug(_component, "VBATT %dMv", SDOS_POWER::_mon_mv_vbatt);
-        SDOS_POWER::_mon_mv_vbatt_previous = SDOS_POWER::_mon_mv_vbatt;
-        _events.trigger(F("power_vbatt_mv"), SDOS_POWER::_mon_mv_vbatt);
+    sDOS_POWER::_mon_mv_vbatt = analogRead(POWER_MONITOR_VBATT) * BATTERY_MAGIC_MULTIPLIER;
+    if(!(round(sDOS_POWER::_mon_mv_vbatt_previous/100) == round(sDOS_POWER::_mon_mv_vbatt/100))){
+        _debugger.Debug(_component, "VBATT %dMv", sDOS_POWER::_mon_mv_vbatt);
+        sDOS_POWER::_mon_mv_vbatt_previous = sDOS_POWER::_mon_mv_vbatt;
+        _events.trigger(F("power_vbatt_mv"), sDOS_POWER::_mon_mv_vbatt);
     }
 #endif
 #ifdef POWER_MONITOR_VBUS
-    SDOS_POWER::_mon_mv_vbus = (float) analogRead(POWER_MONITOR_VBUS) * BATTERY_MAGIC_MULTIPLIER;
-    if(!(round(SDOS_POWER::_mon_mv_vbus_previous/100) == round(SDOS_POWER::_mon_mv_vbus/100))){
-        _debugger.Debug(_component, "VBUS %dMv", SDOS_POWER::_mon_mv_vbus);
-        SDOS_POWER::_mon_mv_vbus_previous = SDOS_POWER::_mon_mv_vbus;
-        _events.trigger(F("power_vbus_mv"), SDOS_POWER::_mon_mv_vbus);
+    sDOS_POWER::_mon_mv_vbus = (float) analogRead(POWER_MONITOR_VBUS) * BATTERY_MAGIC_MULTIPLIER;
+    if(!(round(sDOS_POWER::_mon_mv_vbus_previous/100) == round(sDOS_POWER::_mon_mv_vbus/100))){
+        _debugger.Debug(_component, "VBUS %dMv", sDOS_POWER::_mon_mv_vbus);
+        sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
+        _events.trigger(F("power_vbus_mv"), sDOS_POWER::_mon_mv_vbus);
     }
 #endif
 };
 
-bool SDOS_POWER::isCharging()
+bool sDOS_POWER::isCharging()
 {
-    return SDOS_POWER::_isCharging;
+    return sDOS_POWER::_isCharging;
 };
 
 #ifdef POWER_MONITOR_VBATT
-int SDOS_POWER::getVbattMv()
+int sDOS_POWER::getVbattMv()
 {
-    return SDOS_POWER::_mon_mv_vbatt;
+    return sDOS_POWER::_mon_mv_vbatt;
 }
 #endif
 
 #ifdef POWER_MONITOR_VBUS
-int SDOS_POWER::getVbusMv()
+int sDOS_POWER::getVbusMv()
 {
-    return SDOS_POWER::_mon_mv_vbus;
+    return sDOS_POWER::_mon_mv_vbus;
 }
 #endif

@@ -5,10 +5,10 @@
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 
-class SDOS_DISPLAY_ST7789 : public AbstractDisplay
+class sDOS_DISPLAY_ST7789 : public AbstractDisplay
 {
     public:
-        SDOS_DISPLAY_ST7789(Debugger &debugger, EventsManager &eventsManager, SDOS_SPI *sdos_spi) 
+        sDOS_DISPLAY_ST7789(Debugger &debugger, EventsManager &eventsManager, sDOS_SPI *sdos_spi) 
             : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
         void setup() {
@@ -36,7 +36,7 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
             _tft.setTextSize(3);
         };
         void demo(){
-            //SDOS_DISPLAY_ST7789::_backlightBrightness = (SDOS_DISPLAY_ST7789::_backlightBrightness == 255) ? 0 : 255;
+            //sDOS_DISPLAY_ST7789::_backlightBrightness = (sDOS_DISPLAY_ST7789::_backlightBrightness == 255) ? 0 : 255;
             _tft.setCursor(DISPLAY_WIDTH/2,DISPLAY_HEIGHT/2);
             _tft.setTextColor(ST77XX_RED);
             _tft.print("ST7789");
@@ -47,7 +47,7 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
             _tft.setTextColor(ST77XX_BLUE);
             _tft.print("ST7789");
             
-            _tft.enableDisplay(SDOS_DISPLAY_ST7789::_displayOn);
+            _tft.enableDisplay(sDOS_DISPLAY_ST7789::_displayOn);
         }
 
         void loop() {
@@ -57,8 +57,8 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
         };
 
         void updateBacklight(){
-            ledcWrite(_pwmChannel, SDOS_DISPLAY_ST7789::_displayOn ? SDOS_DISPLAY_ST7789::_backlightBrightness : 0);
-            //_debugger.Debug(_component, "Backlight %d%%", SDOS_DISPLAY_ST7789::_backlightBrightness);
+            ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7789::_displayOn ? sDOS_DISPLAY_ST7789::_backlightBrightness : 0);
+            //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);
         };
 
         String getName(){ return _component; };
@@ -68,7 +68,7 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
         String _component = "ST7789";
         Debugger _debugger;
         EventsManager _eventsManager;
-        SDOS_SPI *_sdos_spi;
+        sDOS_SPI *_sdos_spi;
         static boolean _displayOn;
         static unsigned int _backlightBrightness;   // 0-255 brightness
         Adafruit_ST7789 _tft = Adafruit_ST7789(ST77XX_CS, ST77XX_DC, SPI_MOSI, SPI_SCLK, ST77XX_RST);
@@ -80,8 +80,8 @@ class SDOS_DISPLAY_ST7789 : public AbstractDisplay
         const uint16_t  _Display_Color_Magenta      = 0xF81F;
         const uint16_t  _Display_Color_Yellow       = 0xFFE0;
         const uint16_t  _Display_Color_White        = 0xFFFF;
-        int _pwmChannel = SDOS_DISPLAY_ST7789::getUnusedPWMChannel();
+        int _pwmChannel = sDOS_DISPLAY_ST7789::getUnusedPWMChannel();
 };
 
-unsigned int SDOS_DISPLAY_ST7789::_backlightBrightness = 255;
-boolean SDOS_DISPLAY_ST7789::_displayOn = true;
+unsigned int sDOS_DISPLAY_ST7789::_backlightBrightness = 255;
+boolean sDOS_DISPLAY_ST7789::_displayOn = true;

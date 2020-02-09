@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_SDOS_DRIVER_H
-#define ABSTRACT_SDOS_DRIVER_H
+#ifndef ABSTRACT_sDOS_DRIVER_H
+#define ABSTRACT_sDOS_DRIVER_H
 #include "kern_inc.h"
 
 class sDOS_Abstract_Driver{
