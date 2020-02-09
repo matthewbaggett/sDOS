@@ -14,7 +14,7 @@ class sDOS_LED_MONO : public sDOS_Abstract_Driver
             ledcAttachPin(_gpio, _pwmChannel);
         };
 
-        boolean isActive(){
+        bool isActive(){
             return sDOS_LED_MONO::_brightness != sDOS_LED_MONO::_brightnessPrev;
         };
 

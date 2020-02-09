@@ -15,22 +15,22 @@ private:
     Debugger _debugger;
     EventsManager _events;
     #ifdef BUTTON_0
-    static boolean _button_0_state;
-    static boolean _button_0_interrupt_fired;
+    static bool _button_0_state;
+    static bool _button_0_interrupt_fired;
     #endif
     #ifdef BUTTON_1
-    static boolean _button_1_state;
-    static boolean _button_1_interrupt_fired;
+    static bool _button_1_state;
+    static bool _button_1_interrupt_fired;
     #endif
 };
 
 #ifdef BUTTON_0
-boolean sDOS_BUTTON::_button_0_state = false;
-boolean sDOS_BUTTON::_button_0_interrupt_fired = false;
+bool sDOS_BUTTON::_button_0_state = false;
+bool sDOS_BUTTON::_button_0_interrupt_fired = false;
 #endif
 #ifdef BUTTON_1
-boolean sDOS_BUTTON::_button_1_state = false;
-boolean sDOS_BUTTON::_button_1_interrupt_fired = false;
+bool sDOS_BUTTON::_button_1_state = false;
+bool sDOS_BUTTON::_button_1_interrupt_fired = false;
 #endif
 
 

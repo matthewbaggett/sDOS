@@ -22,13 +22,13 @@ public:
   WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events);
   void setup();
   void loop();
-  boolean hasRequests();
+  bool hasRequests();
   void addRequestActive();
   void removeRequestActive();
   static unsigned int getRequestCount();
-  boolean canSleep();
-  boolean isConnected();
-  boolean isActive();
+  bool canSleep();
+  bool isConnected();
+  bool isActive();
   String getName() { return _component; };
 
 private:
@@ -51,16 +51,16 @@ private:
   void updateState();
   static uint _numLoadedSSIDs;
   String getCurrentWifiMode();
-  static boolean _connectionDesired;
-  static boolean _powerOnState;
+  static bool _connectionDesired;
+  static bool _powerOnState;
 };
 
-boolean WiFiManager::_connectionDesired = false;
+bool WiFiManager::_connectionDesired = false;
 unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
-boolean WiFiManager::_powerOnState = false;
+bool WiFiManager::_powerOnState = false;
 
-boolean WiFiManager::hasRequests()
+bool WiFiManager::hasRequests()
 {
   return WiFiManager::_requestsActive > 0;
 }
@@ -93,7 +93,7 @@ void WiFiManager::loop()
   updateRequestedActivity();
 }
 
-boolean WiFiManager::isConnected(){
+bool WiFiManager::isConnected(){
   return WiFi.isConnected();
 }
 
@@ -276,12 +276,12 @@ void WiFiManager::updateRequestedActivity()
   powerOff();
 }
 
-boolean WiFiManager::isActive()
+bool WiFiManager::isActive()
 {
   return true;
 }
 
-boolean WiFiManager::canSleep()
+bool WiFiManager::canSleep()
 {
   if (WiFiManager::getRequestCount() > 0)
   {

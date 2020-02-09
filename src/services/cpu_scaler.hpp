@@ -17,7 +17,7 @@ private:
     EventsManager _events;
     WiFiManager * _wifi;
     BluetoothManager * _bluetooth;
-    boolean isSlowPossible();
+    bool isSlowPossible();
 
 };
 
@@ -29,7 +29,7 @@ void sDOS_CPU_SCALER::setup()
 {
 };
 
-boolean sDOS_CPU_SCALER::isSlowPossible()
+bool sDOS_CPU_SCALER::isSlowPossible()
 {
     /*_debugger.Debug(
         _component, 

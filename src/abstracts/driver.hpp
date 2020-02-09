@@ -6,7 +6,7 @@ class sDOS_Abstract_Driver{
     public: 
         virtual void setup();
         virtual void loop();
-        virtual boolean isActive() { return true; }
+        virtual bool isActive() { return true; }
         virtual String getName(){ return "bad driver"; };
         static int getUnusedPWMChannel() {
             sDOS_Abstract_Driver::_allocatedPWMCount++;

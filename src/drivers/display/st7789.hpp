@@ -69,7 +69,7 @@ class sDOS_DISPLAY_ST7789 : public AbstractDisplay
         Debugger _debugger;
         EventsManager _eventsManager;
         sDOS_SPI *_sdos_spi;
-        static boolean _displayOn;
+        static bool _displayOn;
         static unsigned int _backlightBrightness;   // 0-255 brightness
         Adafruit_ST7789 _tft = Adafruit_ST7789(ST77XX_CS, ST77XX_DC, SPI_MOSI, SPI_SCLK, ST77XX_RST);
         const uint16_t  _Display_Color_Black        = 0x0000;
@@ -84,4 +84,4 @@ class sDOS_DISPLAY_ST7789 : public AbstractDisplay
 };
 
 unsigned int sDOS_DISPLAY_ST7789::_backlightBrightness = 255;
-boolean sDOS_DISPLAY_ST7789::_displayOn = true;
+bool sDOS_DISPLAY_ST7789::_displayOn = true;

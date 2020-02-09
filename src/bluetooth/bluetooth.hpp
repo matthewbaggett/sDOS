@@ -37,8 +37,8 @@ class BluetoothManager : public sDOS_Abstract_Driver
     BluetoothManager(Debugger &debugger, EventsManager &events);
     void setup();
     void loop();
-    static boolean canSleep();
-    static boolean isPoweredOn();
+    static bool canSleep();
+    static bool isPoweredOn();
     void debugMessage(String message);
     void setHostname(String newHostname);
     void addRequested();
@@ -158,12 +158,12 @@ void BluetoothManager::powerOff()
   _events.trigger("bluetooth_off");
 }
 
-boolean BluetoothManager::isPoweredOn()
+bool BluetoothManager::isPoweredOn()
 {
   return (bluetoothState != BluetoothState::BT_DISABLED);
 }
 
-boolean BluetoothManager::canSleep()
+bool BluetoothManager::canSleep()
 {
   return ! BluetoothManager::isPoweredOn() && _requested == 0;
 }
@@ -196,7 +196,7 @@ void BluetoothManager::sendMessage(String message){
   }
 }
 
-boolean sdos_is_bluetooth_active()
+bool sdos_is_bluetooth_active()
 {
   return BluetoothManager::isPoweredOn();
 }

@@ -15,8 +15,8 @@ public:
     sDOS_SLEEPTUNE(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth);
     void setup();
     void loop();
-    boolean isActive() override;
-    boolean isSleepPossible();
+    bool isActive() override;
+    bool isSleepPossible();
     String getName(){ return _component; };
 
 private:
@@ -45,14 +45,14 @@ void sDOS_SLEEPTUNE::setup()
     _loopPerSecondCount = 0;
 };
 
-boolean sDOS_SLEEPTUNE::isActive() 
+bool sDOS_SLEEPTUNE::isActive() 
 {
-    boolean possible = isSleepPossible();
+    bool possible = isSleepPossible();
     //_debugger.Debug(_component, "is Sleep possible? %s", possible ? "yes" : "no");
     return possible;
 }
 
-boolean sDOS_SLEEPTUNE::isSleepPossible()
+bool sDOS_SLEEPTUNE::isSleepPossible()
 {
     return _wifi->canSleep() && _bluetooth->canSleep();
 }

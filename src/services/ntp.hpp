@@ -24,14 +24,14 @@ private:
     WiFiManager *_wifi;
     WiFiUDP _ntpUDP = WiFiUDP();
     NTPClient *_timeClient;
-    boolean talkNTP();
-    boolean needsUpdate();
+    bool talkNTP();
+    bool needsUpdate();
     static int _lastSuccessfulUpdateEpoch;
-    static boolean _hasRequestedWifi;
+    static bool _hasRequestedWifi;
 };
 
 int sDOS_NTP::_lastSuccessfulUpdateEpoch = 0;
-boolean sDOS_NTP::_hasRequestedWifi = false;
+bool sDOS_NTP::_hasRequestedWifi = false;
 
 sDOS_NTP::sDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, WiFiManager *wifi)
     : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi)
@@ -67,7 +67,7 @@ void sDOS_NTP::update()
     
     if (_wifi->isConnected())
     {
-        boolean successfulUpdate = talkNTP();
+        bool successfulUpdate = talkNTP();
         if (successfulUpdate)
         {
             _debugger.Debug(_component, "Requested wifi off.");
@@ -77,7 +77,7 @@ void sDOS_NTP::update()
     }
 };
 
-boolean sDOS_NTP::needsUpdate()
+bool sDOS_NTP::needsUpdate()
 {
     bool _needsToUpdate = _rtc->getTime().unixtime() - sDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
     /*_debugger.Debug(
@@ -91,7 +91,7 @@ boolean sDOS_NTP::needsUpdate()
     return _needsToUpdate;
 }
 
-boolean sDOS_NTP::talkNTP()
+bool sDOS_NTP::talkNTP()
 {
     _timeClient->begin();
     if (!_timeClient->update())

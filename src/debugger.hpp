@@ -11,8 +11,8 @@
 #define COL_PINK  "\033[1;35m"
 #define DEBUG_SERIAL_BUFFER_SIZE 255
 
-boolean sdos_is_wifi_active();
-boolean sdos_is_bluetooth_active();
+bool sdos_is_wifi_active();
+bool sdos_is_bluetooth_active();
 
 using namespace std;
 using handlersList = std::list<void(*)(String message)>;
