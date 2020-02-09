@@ -75,9 +75,9 @@ void sDOS_BUTTON::loop()
     #ifdef BUTTON_0
     if(sDOS_BUTTON::_button_0_interrupt_fired){
         if(sDOS_BUTTON::_button_0_state){
-            _events.trigger("button_0", "up");
+            _events.trigger("button_0", F("up"));
         }else{
-            _events.trigger("button_0", "down");
+            _events.trigger("button_0", F("down"));
         }
         sDOS_BUTTON::_button_0_interrupt_fired = false;
     }
@@ -85,9 +85,9 @@ void sDOS_BUTTON::loop()
     #ifdef BUTTON_1
     if(sDOS_BUTTON::_button_1_interrupt_fired){
         if(sDOS_BUTTON::_button_1_state){
-            _events.trigger("button_1", "up");
+            _events.trigger("button_1", F("up"));
         }else{
-            _events.trigger("button_1", "down");
+            _events.trigger("button_1", F("down"));
         }
         sDOS_BUTTON::_button_1_interrupt_fired = false;
 
