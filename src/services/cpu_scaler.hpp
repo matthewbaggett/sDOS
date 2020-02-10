@@ -1,3 +1,5 @@
+#ifndef SDOS_SERVICES_CPUSCALER_HPP
+#define SDOS_SERVICES_CPUSCALER_HPP
 #include "kern_inc.h"
 #include "abstracts/service.hpp"
 
@@ -10,6 +12,7 @@ public:
     void loop();
     uint32_t updateFrequency();
     String getName(){ return _component; };
+    void onDemand(bool onDemandStateDesired);
 
 private:
     String _component = "SCALER";
@@ -18,7 +21,8 @@ private:
     WiFiManager * _wifi;
     BluetoothManager * _bluetooth;
     bool isSlowPossible();
-
+    bool _isOnDemand = false;
+    uint32_t _onDemandPreviousFrequency = CPU_FREQ_MHZ;
 };
 
 sDOS_CPU_SCALER::sDOS_CPU_SCALER(Debugger &debugger, EventsManager &events, WiFiManager *wifi, BluetoothManager *bluetooth)
@@ -29,6 +33,17 @@ void sDOS_CPU_SCALER::setup()
 {
 };
 
+void sDOS_CPU_SCALER::onDemand(bool ondemandStateDesired){
+    _isOnDemand = ondemandStateDesired;
+    if(_isOnDemand){
+        _onDemandPreviousFrequency = getCpuFrequencyMhz();
+        setCpuFrequencyMhz(CPU_FREQ_ONDEMAND);
+    }else{
+        setCpuFrequencyMhz(_onDemandPreviousFrequency);
+    }
+};
+
+
 bool sDOS_CPU_SCALER::isSlowPossible()
 {
     /*_debugger.Debug(
@@ -38,7 +53,7 @@ bool sDOS_CPU_SCALER::isSlowPossible()
         _wifi->getRequestCount(),
         _bluetooth->canSleep() ? "yes" : "no"
      );*/
-    return _wifi->canSleep() && _bluetooth->canSleep();
+    return _wifi->canSleep() && _bluetooth->canSleep() && _isOnDemand == false;
 }
 
 void sDOS_CPU_SCALER::loop()
@@ -83,3 +98,4 @@ uint32_t sDOS_CPU_SCALER::updateFrequency() {
     }
     return currentFreq;   
 }
+#endif

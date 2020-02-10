@@ -8,6 +8,9 @@
 #ifndef CPU_FREQ_MHZ
 #define CPU_FREQ_MHZ 80
 #endif
+#ifndef CPU_FREQ_ONDEMAND
+#define CPU_FREQ_ONDEMAND 80
+#endif
 #define CPU_FREQ_MHZ_MIN_RADIO 80
 #ifndef CPU_FREQ_MHZ_NORADIO
 #define CPU_FREQ_MHZ_NORADIO 10
