@@ -22,7 +22,6 @@ class sDOS_DISPLAY_ST7789 : public AbstractDisplay
             setupBacklight();
             setupReset();
             setupScreen();
-            setupBuffer();
         };
 
         void setupBacklight(){
@@ -45,11 +44,8 @@ class sDOS_DISPLAY_ST7789 : public AbstractDisplay
         void setupScreen(){
             _tft.init(DISPLAY_WIDTH, DISPLAY_HEIGHT, SPI_MODE0, DISPLAY_OFFSET_ROWS, DISPLAY_OFFSET_COLS);
             #ifdef ST77XX_ROTATION
-            //_tft.setRotation(ST77XX_ROTATION);
+            _tft.setRotation(ST77XX_ROTATION);
             #endif
-        };
-
-        void setupBuffer(){
             _tft.fillScreen(ST77XX_BLACK);
         };
 

@@ -3,7 +3,6 @@
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include "../lib/Adafruit_ST7735_shim.hpp"
-//#include "../lib/Adafruit/ST7735/Adafruit_ST7789.h" // Hardware-specific library for ST7789
 #include <SPI.h>
 
 class sDOS_DISPLAY_ST7735 : public AbstractDisplay
@@ -13,42 +12,61 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
             : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
         void setup() {
+            _debugger.Debug(_component, "setup()");
             setupBacklight();
+            setupReset();
             setupScreen();
         };
 
         void setupBacklight(){
-            _debugger.Debug(_component, "setup()");
             pinMode(ST77XX_BL, OUTPUT);
             ledcSetup(_pwmChannel, 5000, 8);
             ledcAttachPin(ST77XX_BL, _pwmChannel);
         };
 
+        void setupReset(){
+            pinMode(ST77XX_RST, OUTPUT);
+            reset();
+        };
+
+        void reset(){
+            digitalWrite(ST77XX_RST, LOW);
+            delay(30);
+            digitalWrite(ST77XX_RST, HIGH);
+        };
+
         void setupScreen(){
-            _tft.initR(0x99);
+            _tft.init(DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, 0);
+            //_tft.initR(INITR_MINI160x80);
+            #ifdef ST77XX_PIXEL_ORDER
+            uint8_t madctl = ST77XX_PIXEL_ORDER;
+            //_tft.sendShimCommand(ST77XX_MADCTL, &madctl, 1);
+            #endif
             #ifdef ST77XX_ROTATION
-            _tft.setRotation(ST77XX_ROTATION);
-            #endif       
+            //_tft.setRotation(ST77XX_ROTATION);
+            #endif
+            _tft.fillScreen(ST77XX_BLACK);
+
         };
 
         void writePixel(uint16_t x, uint16_t y, uint16_t updatedValue){
-            _debugger.Debug(_component, "writePixel(%d, %d, %d)", x, y, updatedValue);
-            _tft.writePixel(x, y, updatedValue);
+            //_debugger.Debug(_component, "writePixel(%d,%d,%d)", x, y, updatedValue);
+            _tft.writePixel(x,y,updatedValue);
         };
 
         void loop() {
             updateBacklight();
         };
-
+        
         void beginRedraw(){
-            //_debugger.Debug(_component, "beginRedraw()");
+            _debugger.Debug(_component, "beginRedraw()");
             _tft.startWrite();
         };
 
         void commitRedraw(){
-            //_debugger.Debug(_component, "commitRedraw()");
+            _debugger.Debug(_component, "commitRedraw()");
             _tft.endWrite();
-        }
+        };
 
         void updateBacklight(){
             ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7735::_displayOn ? sDOS_DISPLAY_ST7735::_backlightBrightness : 0);
@@ -57,8 +75,6 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
 
         String getName(){ return _component; };
         
-        bool isActive(){ return true; };
-
     protected:
         String _component = "ST7735";
         Debugger _debugger;
@@ -78,5 +94,5 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
         int _pwmChannel = sDOS_DISPLAY_ST7735::getUnusedPWMChannel();
 };
 
-unsigned int sDOS_DISPLAY_ST7735::_backlightBrightness = 250;
+unsigned int sDOS_DISPLAY_ST7735::_backlightBrightness = 255;
 bool sDOS_DISPLAY_ST7735::_displayOn = true;
