@@ -2,6 +2,7 @@
 #define includes_h
 
 #include "Arduino.h"
+#include "hardware/all.h"
 #include "defaults.h"
 #include "integer.h"
 #include "Wire.h"
@@ -29,6 +30,5 @@ ESP8266WiFiMulti wifiMulti;
 
 #include <SparkFunMPU9250-DMP.h>
 
-#include "hardware/all.h"
 
 #endif

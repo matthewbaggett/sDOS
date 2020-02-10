@@ -149,7 +149,7 @@ void sDOS::Setup()
     _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
 #endif
 #if defined(ENABLE_DISPLAY)
-    sDOS_FrameBuffer * _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display);
+    sDOS_FrameBuffer * _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _drivers.push_back(_driver_FrameBuffer);
 #endif
@@ -269,7 +269,7 @@ void Debugger::Debug(String component, String format, ...)
     snprintf(
         outputBuffer, 
         sizeof(outputBuffer), 
-        "%s[%s%04d %s%.7-7s %s%dMhz %s%s %s%s %s%dmV%s] %s\n", 
+        "%s[%s%04d %s%.7-7s %s%dMhz %s%s %s%s %s%.1fV %s%dK%s] %s\n", 
         Debugger::duplicates > 0 ? "\n":"", 
         COL_BLUE,
         _loopCount,
@@ -282,7 +282,9 @@ void Debugger::Debug(String component, String format, ...)
         sdos_is_bluetooth_active() ? COL_RED : COL_GREEN,
         sdos_is_bluetooth_active() ? "B+" : "B-",
         sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
-        sDOS_POWER::getVbattMv(),
+        ((float) sDOS_POWER::getVbattMv()) / 1000,
+        COL_BLUE,
+        ESP.getFreeHeap()/1024,
         COL_RESET,
         buff
     );

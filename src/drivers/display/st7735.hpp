@@ -2,6 +2,7 @@
 #include "abstracts/display.hpp"
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
+#include "../lib/Adafruit_ST7735_shim.hpp"
 //#include "../lib/Adafruit/ST7735/Adafruit_ST7789.h" // Hardware-specific library for ST7789
 #include <SPI.h>
 
@@ -14,42 +15,40 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
         void setup() {
             setupBacklight();
             setupScreen();
-            demo();
         };
+
         void setupBacklight(){
             _debugger.Debug(_component, "setup()");
             pinMode(ST77XX_BL, OUTPUT);
             ledcSetup(_pwmChannel, 5000, 8);
             ledcAttachPin(ST77XX_BL, _pwmChannel);
         };
+
         void setupScreen(){
             _tft.initR(0x99);
             #ifdef ST77XX_ROTATION
             _tft.setRotation(ST77XX_ROTATION);
             #endif       
         };
-        void demo(){
-            _tft.setFont();
-            _tft.fillScreen(ST77XX_WHITE);
-            _tft.setTextColor(ST77XX_WHITE);
-            _tft.setTextSize(2);
+
+        void writePixel(uint16_t x, uint16_t y, uint16_t updatedValue){
+            _debugger.Debug(_component, "writePixel(%d, %d, %d)", x, y, updatedValue);
+            _tft.writePixel(x, y, updatedValue);
         };
 
         void loop() {
             updateBacklight();
-            //sDOS_DISPLAY_ST7735::_backlightBrightness = (sDOS_DISPLAY_ST7735::_backlightBrightness == 255) ? 0 : 255;
-            _tft.setCursor(0+0, (DISPLAY_WIDTH/2)+0);
-            _tft.setTextColor(ST77XX_RED);
-            _tft.print("ST7789");
-            _tft.setCursor(0+2, (DISPLAY_WIDTH/2)+2);
-            _tft.setTextColor(ST77XX_GREEN);
-            _tft.print("ST7789");
-            _tft.setCursor(0+4, (DISPLAY_WIDTH/2)+4);
-            _tft.setTextColor(ST77XX_BLUE);
-            _tft.print("ST7789");
-            
-            _tft.enableDisplay(sDOS_DISPLAY_ST7735::_displayOn);
         };
+
+        void beginRedraw(){
+            //_debugger.Debug(_component, "beginRedraw()");
+            _tft.startWrite();
+        };
+
+        void commitRedraw(){
+            //_debugger.Debug(_component, "commitRedraw()");
+            _tft.endWrite();
+        }
 
         void updateBacklight(){
             ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7735::_displayOn ? sDOS_DISPLAY_ST7735::_backlightBrightness : 0);
@@ -57,7 +56,8 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
         };
 
         String getName(){ return _component; };
-
+        
+        bool isActive(){ return true; };
 
     protected:
         String _component = "ST7735";
@@ -66,7 +66,7 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
         sDOS_SPI *_sdos_spi;
         static bool _displayOn;
         static unsigned int _backlightBrightness;   // 0-255 brightness
-        Adafruit_ST7735 _tft = Adafruit_ST7735(ST77XX_CS, ST77XX_DC, SPI_MOSI, SPI_SCLK, ST77XX_RST);
+        sDOS_Adafruit_ST7735_Shim _tft = sDOS_Adafruit_ST7735_Shim(ST77XX_CS, ST77XX_DC, SPI_MOSI, SPI_SCLK, ST77XX_RST);
         const uint16_t  _Display_Color_Black        = 0x0000;
         const uint16_t  _Display_Color_Blue         = 0x001F;
         const uint16_t  _Display_Color_Red          = 0xF800;

@@ -5,7 +5,7 @@
 #define TTGO_DEVBOARD 54
 #define TTGO_WATCH 55
 
-#pragma message "The value of HARDWARE: " XSTR(HARDWARE)
+//#pragma message "The value of HARDWARE: " XSTR(HARDWARE)
 
 #if TTGO_DEVBOARD == HARDWARE
 #include "ttgo_devboard.h"

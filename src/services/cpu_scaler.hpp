@@ -41,6 +41,7 @@ void sDOS_CPU_SCALER::onDemand(bool ondemandStateDesired){
     }else{
         setCpuFrequencyMhz(_onDemandPreviousFrequency);
     }
+    yield();
 };
 
 

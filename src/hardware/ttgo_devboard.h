@@ -30,8 +30,10 @@
 
     // Enable display
     #define ENABLE_ST7789
-    #define DISPLAY_WIDTH 135
-    #define DISPLAY_HEIGHT 240
+    #define DISPLAY_WIDTH 240
+    #define DISPLAY_HEIGHT 135
+    #define DISPLAY_OFFSET_COLS 40
+    #define DISPLAY_OFFSET_ROWS 53
     #define ST77XX_ROTATION 2
     #define ST77XX_DC GPIO_NUM_16
     #define ST77XX_RST GPIO_NUM_23
@@ -51,6 +53,7 @@
 
     // Enable CPU frequency scaling
     #define ENABLE_CPU_SCALER
+    #define CPU_FREQ_ONDEMAND 240
 
     #define DEBUG_EVENTS
     //#define DEBUG_LOOP_RUNNING

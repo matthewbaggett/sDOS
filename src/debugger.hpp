@@ -21,9 +21,22 @@ using handlersList = std::list<void(*)(String message)>;
 class Debugger
 {
     public:
-        Debugger();
+        Debugger()
+        {
+            _serial = Serial;
+            _serial.begin(SERIAL_BAUD);
+            _serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
+        };
         void Debug(String component, String message, ...);
-        void addHandler(void (*newHandler)(String));
+        unsigned int Step(){
+            Debugger::_stepCount++;
+            Debugger::Debug("step", "%d", Debugger::_stepCount);
+            return Debugger::_stepCount;
+        };
+        void addHandler(void (*newHandler)(String message))
+        {
+            Debugger::_handlers.push_back(newHandler);
+        };
 
     private:
         HardwareSerial _serial = Serial;
@@ -31,21 +44,11 @@ class Debugger
         static char lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
         static int duplicates;
         static handlersList  _handlers;
+        static unsigned int _stepCount;
 };
 
 String Debugger::lastComponent;
 char Debugger::lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
 int Debugger::duplicates = 0;
 handlersList Debugger::_handlers;
-
-Debugger::Debugger()
-{
-    _serial = Serial;
-    _serial.begin(SERIAL_BAUD);
-    _serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
-};
-
-void Debugger::addHandler(void (*newHandler)(String message))
-{
-    Debugger::_handlers.push_back(newHandler);
-};
+unsigned int Debugger::_stepCount;
