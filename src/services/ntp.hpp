@@ -15,6 +15,7 @@ public:
     void loop();
     void update();
     String getName(){ return _component; };
+    bool isActive();
     
 private:
     String _component = "NTP";
@@ -89,6 +90,10 @@ bool sDOS_NTP::needsUpdate()
         NTP_UPDATE_INTERVAL_SECONDS
     );*/
     return _needsToUpdate;
+}
+
+bool sDOS_NTP::isActive(){
+    return needsUpdate();
 }
 
 bool sDOS_NTP::talkNTP()
