@@ -14,7 +14,6 @@ class sDOS_BLECharacteristicCallbacks: public BLECharacteristicCallbacks {
     String bleSerialBuffer;
 
     void onWrite(BLECharacteristic *pCharacteristic) {
-      //Serial.println("DongsOS_BLECallbacks::onWrite");
       String newCharacters = pCharacteristic->getValue().c_str();
       newCharacters.replace("\r","\n");
       newCharacters.replace("\n\n","\n");

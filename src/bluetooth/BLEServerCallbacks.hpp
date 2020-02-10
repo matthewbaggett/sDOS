@@ -12,12 +12,10 @@
 
 class sDOS_BLEServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
-      Serial.println("DongsOS_BLEServerCallbacks::onConnect");
       bluetoothState = BluetoothState::BT_CONNECTED;
     };
 
     void onDisconnect(BLEServer* pServer) {
-      Serial.println("DongsOS_BLEServerCallbacks::onDisconnect");
       bluetoothState = BluetoothState::BT_ENABLED;
     }
 };
