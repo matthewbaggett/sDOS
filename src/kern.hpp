@@ -213,11 +213,12 @@ void sDOS::Loop()
     for (auto const& it : _drivers) {
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
+            uint64_t started = micros();
             _debugger.Debug(_component, ">>> Loop -> Driver -> %s", it->getName());
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Driver -> %s", it->getName());
+            _debugger.Debug(_component, "<<< Loop -> Driver -> %s (in %dms)", it->getName(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
@@ -230,11 +231,12 @@ void sDOS::Loop()
     for (auto const& it : _services) {
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
+                uint64_t started = micros();
             _debugger.Debug(_component, ">>> Loop -> Service -> %s", it->getName());
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Service -> %s", it->getName());
+            _debugger.Debug(_component, "<<< Loop -> Service -> %s (in %dms)", it->getName(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
