@@ -64,33 +64,37 @@ using serviceList = std::list<sDOS_Abstract_Service *>;
 
 class sDOS
 {
-public:
-    sDOS();
-    void Setup();
-    void Loop();
-    //static uint64_t getLoopCount();
+    public:
+        sDOS();
+        void Setup();
+        void Loop();
+        void addService(sDOS_Abstract_Service * service);
 
-private:
-    String _component = "Kernel";
-    driverList _drivers;
-    serviceList _services;
-    void _configure();
-    Debugger _debugger = Debugger();
-    FileSystem _fileSystem = FileSystem(_debugger);
-    EventsManager _events = EventsManager(_debugger);
-    WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
-    BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
-    #ifdef ENABLE_CPU_SCALER
-    sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
-    #endif
-    long _lastCycleTimeMS = 0;
-    long _lastTimeStampUS = 0;
+    protected:
+        String _component = "Kernel";
+        driverList _drivers;
+        serviceList _services;
+        void _configure();
+        Debugger _debugger = Debugger();
+        FileSystem _fileSystem = FileSystem(_debugger);
+        EventsManager _events = EventsManager(_debugger);
+        WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+        BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
+        #ifdef ENABLE_CPU_SCALER
+        sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
+        #endif
+        long _lastCycleTimeMS = 0;
+        long _lastTimeStampUS = 0;
 };
 
 
 sDOS::sDOS(){
 
 };
+
+void sDOS::addService(sDOS_Abstract_Service * service){
+    _services.push_back(service);
+}
 
 void sDOS::Setup()
 {
