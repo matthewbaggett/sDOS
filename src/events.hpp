@@ -1,3 +1,5 @@
+#ifndef SDOS_EVENTS_HPP
+#define SDOS_EVENTS_HPP
 #include "kern_inc.h"
 #include <RTClib.h> // Required for DateTime class
 
@@ -108,3 +110,4 @@ void EventsManager::trigger(String event)
     _debugger.Debug(_component, "%s", event.c_str());
 #endif
 };
+#endif

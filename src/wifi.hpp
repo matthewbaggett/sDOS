@@ -1,3 +1,5 @@
+#ifndef SDOS_WIFI_HPP
+#define SDOS_WIFI_HPP
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
@@ -293,3 +295,4 @@ bool WiFiManager::canSleep()
   }
   return true;
 }
+#endif

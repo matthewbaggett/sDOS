@@ -1,3 +1,5 @@
+#ifndef SDOS_DEBUGGER_HPP
+#define SDOS_DEBUGGER_HPP
 #include "kern_inc.h"
 #include <algorithm>
 #include <iostream>
@@ -52,3 +54,4 @@ char Debugger::lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
 int Debugger::duplicates = 0;
 handlersList Debugger::_handlers;
 unsigned int Debugger::_stepCount;
+#endif
