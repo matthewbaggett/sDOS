@@ -1,3 +1,5 @@
+#ifndef SDOS_BLUETOOTH_HPP
+#define SDOS_BLUETOOTH_HPP
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
@@ -201,3 +203,4 @@ bool sdos_is_bluetooth_active()
   return BluetoothManager::isPoweredOn();
 }
 
+#endif

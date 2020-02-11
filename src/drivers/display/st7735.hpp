@@ -12,7 +12,6 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
             : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
         void setup() {
-            _debugger.Debug(_component, "setup()");
             setupBacklight();
             setupReset();
             setupScreen();
@@ -54,17 +53,23 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
             _tft.writePixel(x,y,updatedValue);
         };
 
+        virtual void writePixels(uint16_t *colors, uint32_t len, bool block = true, bool bigEndian = false) {
+            _tft.writePixels(colors, len, block, bigEndian);
+        };
+        
+        virtual void setCursor(int16_t x, int16_t y) {
+            _tft.setCursor(x, y);
+        };
+
         void loop() {
             updateBacklight();
         };
         
         void beginRedraw(){
-            _debugger.Debug(_component, "beginRedraw()");
             _tft.startWrite();
         };
 
         void commitRedraw(){
-            _debugger.Debug(_component, "commitRedraw()");
             _tft.endWrite();
         };
 

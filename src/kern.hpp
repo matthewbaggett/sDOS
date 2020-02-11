@@ -80,6 +80,9 @@ class sDOS
         EventsManager _events = EventsManager(_debugger);
         WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
         BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
+        AbstractRTC * _driver_RTC;
+        AbstractDisplay * _display;
+        sDOS_FrameBuffer * _driver_FrameBuffer;
         #ifdef ENABLE_CPU_SCALER
         sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
         #endif
@@ -111,6 +114,8 @@ void sDOS::Setup()
 
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, F("Built with love on %s at %s."), F(__DATE__), F(__TIME__));
+    uint64_t chipId = ESP.getEfuseMac();
+    _debugger.Debug(_component, F("Hardware ID: %04X%08X"), (uint16_t)(chipId>>32), (uint32_t)(chipId));
 
 #if defined(ENABLE_I2C)
     sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
@@ -122,12 +127,12 @@ void sDOS::Setup()
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    sDOS_DISPLAY_ST7735 * _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
+    _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
 #define ENABLE_DISPLAY
-    sDOS_DISPLAY_ST7789 * _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
+    _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
@@ -141,19 +146,19 @@ void sDOS::Setup()
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
 #define ENABLE_RTC
-    sDOS_PCF8563 * _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
+    _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC)
 #define ENABLE_RTC
-    sDOS_FAKE_RTC * _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
+    _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
     _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
 #endif
 #if defined(ENABLE_DISPLAY)
-    sDOS_FrameBuffer * _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
+    _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _drivers.push_back(_driver_FrameBuffer);
 #endif

@@ -89,7 +89,6 @@ class sDOS_Adafruit_ST7735_Shim : public Adafruit_ST7735 {
         };
 
         void init(uint8_t width, uint8_t height, uint8_t colstart, uint8_t rowstart) {
-            Serial.printf("Size: %dx%d Offset: %dx%d\n", width, height, colstart, rowstart);
             _height = height;
             _width = width;
             

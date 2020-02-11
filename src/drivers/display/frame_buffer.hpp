@@ -1,3 +1,5 @@
+#ifndef SDOS_FRAMEBUFFER_HPP
+#define SDOS_FRAMEBUFFER_HPP
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 #include "abstracts/display.hpp"
@@ -31,10 +33,10 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
             _pixBuf = new uint16_t*[_height];
             _oldBuf = new uint16_t*[_height];
 
-            uint16_t   red = packColor565(255,0,0);
-            uint16_t green = packColor565(0,255,0);
-            uint16_t  blue = packColor565(0,0,255);
-            uint16_t white = packColor565(255,255,255);
+            uint16_t   red = packColour565(255,0,0);
+            uint16_t green = packColour565(0,255,0);
+            uint16_t  blue = packColour565(0,0,255);
+            uint16_t white = packColour565(255,255,255);
 
             for(uint16_t x = 0; x < _height; ++x) {
                 _pixBuf[x] = new uint16_t[_width];
@@ -56,6 +58,7 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
                 }
                 //_debugger.Debug(_component, "Allocated row %d of %d, %dKB ram free", x, _height, ESP.getFreeHeap() / 1024);
             }
+            _isDirty = true;
             _cpuScaler->onDemand(false);
 
             buffSize = ramBefore - ESP.getFreeHeap();
@@ -64,22 +67,42 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
 
         void loop() {
             scanForChanges();
-            //randomPixelFlip();
-        };        
+        };
 
         virtual String getName(){ return "fbuff"; };
 
         /**
-         * Set the pixel in the buffer - this does not trigger a repaint.
+         * Set the pixel in the buffer.
+         * this does not trigger a repaint.
          */
-        void setPixel(uint16_t x, uint16_t y, uint16_t newValue){
-            _pixBuf[x][y] = newValue;
+        void setPixel(uint16_t x, uint16_t y, uint16_t colour565){
+            _pixBuf[x][y] = colour565;
+            _isDirty = true;
         };
         void setPixel(uint16_t x, uint16_t y, uint8_t red, uint8_t green, uint8_t blue){
-            _pixBuf[x][y] = packColor565(red, green, blue);
-        }
+            setPixel(x, y, packColour565(red, green, blue));
+        };
 
-        bool isActive() { return true; };
+        /**
+         * Set all pixels in the buffer to a specific colour.
+         * This does not trigger a repaint.
+         */
+        void setAll(uint16_t colour565){
+            _cpuScaler->onDemand(true);
+            for(uint16_t x = 0; x < _height; x++) {
+                for(uint16_t y = 0; y < _width; y++) {
+                    _pixBuf[x][y] = colour565;
+                }
+                yield();
+            }
+            _cpuScaler->onDemand(false);
+            _isDirty = true;
+        };
+        void setAll(uint8_t red, uint8_t green, uint8_t blue){
+            setAll(packColour565(red, green, blue));
+        };
+
+        bool isActive() { return _isDirty; };
 
     private:
         Debugger _debugger;
@@ -92,15 +115,38 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
         uint16_t _height;
         uint16_t** _pixBuf;
         uint16_t** _oldBuf;
-        void repaintPixel(uint16_t x, uint16_t y, uint16_t updatedValue){
+        bool _isDirty = false;
+        void repaintPixel(uint16_t x, uint16_t y){
             //_debugger.Debug(_component, "Update Pixel %dx%d on %s", x, y, _display->getName());
-            _display->writePixel(x,y,updatedValue);
-            _oldBuf[x][y] = updatedValue;
+            _display->writePixel(x,y,_pixBuf[x][y]);
+            _oldBuf[x][y] = _pixBuf[x][y];
         };
-        uint16_t packColor565(uint8_t red, uint8_t green, uint8_t blue){
+        void repaintPixelRow(uint16_t x){
+            _display->setCursor(x, 0);
+            _display->writePixels(_pixBuf[x], sizeof(_pixBuf[x]), true, true);
+            _oldBuf[x] = _pixBuf[x];
+        };
+        void repaintEntireBuf(){
+            _cpuScaler->onDemand(true);
+            _display->beginRedraw();
+
+            for(uint16_t x = 0; x < _width; x++) {
+                _display->setCursor(x, 0);
+                _display->writePixels(_pixBuf[x], _height, true, true);
+                yield();
+            }
+            _display->commitRedraw();
+            _cpuScaler->onDemand(false);
+        };
+
+        uint16_t packColour565(uint8_t red, uint8_t green, uint8_t blue){
             return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
         }
         bool scanForChanges(){
+            repaintEntireBuf();
+            return true;
+            
+            /*
             bool startedWriteSession = false;
             for(uint16_t x = 0; x < _height; x++) {
                 for(uint16_t y = 0; y < _width; y++) {
@@ -111,23 +157,21 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
                             _display->beginRedraw();
                             startedWriteSession = true;
                         }
-                        repaintPixel(x, y, _pixBuf[x][y]);
+                        repaintPixelRow(x);
+                        //repaintPixel(x, y);
                     }
                     yield();
                 }
                 yield();
             }
+            _isDirty = false;
             if(startedWriteSession){
                 _display->commitRedraw();
                 _cpuScaler->onDemand(false);
                 return true;
             }
             return false;
-        };
-        void randomPixelFlip(){
-            int numToFlip = random(10,100);
-            for(int i = 0; i < numToFlip; i++){
-                setPixel(random(0, _height), random(0, _width), random(0,255), random(0,255), random(0,255));
-            }
+            */
         };
 };
+#endif

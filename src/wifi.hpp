@@ -280,7 +280,7 @@ void WiFiManager::updateRequestedActivity()
 
 bool WiFiManager::isActive()
 {
-  return true;
+  return (WiFiManager::_numLoadedSSIDs > 0) || (WiFiManager::getRequestCount() > 0) || WiFi.isConnected();
 }
 
 bool WiFiManager::canSleep()
