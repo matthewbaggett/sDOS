@@ -1,7 +1,9 @@
 #include "kern_inc.h"
 #include <ArduinoJson.h>
-#include "FS.h"
-#include "SPIFFS.h"
+#include <FS.h>
+#ifdef ESP32
+#include <SPIFFS.h>
+#endif
 #include <iostream>
 #include <map>
 #include <string>

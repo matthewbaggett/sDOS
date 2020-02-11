@@ -1,15 +1,16 @@
-#ifndef sdos_cpp
-#define sdos_cpp
+#ifndef kern_hpp
+#define kern_hpp
 #include "kern_inc.h"
 
 unsigned int _loopCount = 0;
 
-#include "debugger.hpp"
-#include "events.hpp"
-#include "filesystem.hpp"
-#include "wifi.hpp"
-#include "bluetooth/bluetooth.hpp"
-
+#include <debugger.hpp>
+#include <events.hpp>
+#include <filesystem.hpp>
+#include <wifi.hpp>
+#ifdef ESP32
+#include <bluetooth/bluetooth.hpp>
+#endif
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
 #endif

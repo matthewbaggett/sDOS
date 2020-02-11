@@ -4,7 +4,9 @@
 #include "Arduino.h"
 #include "hardware/all.h"
 #include "defaults.h"
+#ifdef ESP32
 #include "integer.h"
+#endif
 #include "Wire.h"
 
 #ifdef ESP32
@@ -25,10 +27,9 @@ ESP8266WiFiMulti wifiMulti;
 
 #include <WiFiUdp.h>
 
+#ifdef ESP32
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
-
-#include <SparkFunMPU9250-DMP.h>
-
+#endif
 
 #endif

@@ -2,6 +2,7 @@
 #define XSTR(x) STR(x)
 #define STR(x) #x
 
+#define ESP8266_DEVBOARD 53
 #define TTGO_DEVBOARD 54
 #define TTGO_WATCH 55
 
@@ -15,4 +16,6 @@
 #include "ttgo_watch/ttgo_watch.h"
 #endif
 
-
+#if ESP8266_DEVBOARD == HARDWARE
+#include "esp8266_devboard/esp8266_devboard.h"
+#endif

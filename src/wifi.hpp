@@ -74,7 +74,9 @@ WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManag
 
 void WiFiManager::setup()
 {
+  #ifdef ESP32
   esp_wifi_deinit();
+  #endif
   powerOff();
   loadWifiConfigs();
 }
@@ -173,21 +175,23 @@ long WiFiManager::getSignalStrength()
 
 String WiFiManager::getCurrentWifiMode()
 {
-  switch (WiFi.getMode())
-  {
-  case WIFI_MODE_NULL:
-    return "Null";
-  case WIFI_MODE_STA:
-    return "Station";
-  case WIFI_MODE_AP:
-    return "Access Point";
-  case WIFI_MODE_APSTA:
-    return "Access Point + Station";
-  case WIFI_MODE_MAX:
-    return "Max";
-  default:
-    return "Invalid Mode";
-  }
+  #ifdef ESP32
+    switch (WiFi.getMode())
+    {
+    case WIFI_MODE_NULL:
+      return "Null";
+    case WIFI_MODE_STA:
+      return "Station";
+    case WIFI_MODE_AP:
+      return "Access Point";
+    case WIFI_MODE_APSTA:
+      return "Access Point + Station";
+    case WIFI_MODE_MAX:
+      return "Max";
+    default:
+      return "Invalid Mode";
+    }
+  #endif
 }
 
 void WiFiManager::powerOn()
@@ -198,15 +202,16 @@ void WiFiManager::powerOn()
   WiFiManager::_powerOnState = true;
 
   _debugger.Debug(_component, "powerOn()");
+  #ifdef ESP32
   WiFi.mode(WIFI_MODE_STA);
-
+  #endif
   WiFi.persistent(false);
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(true);
   
   _events.trigger("wifi_on");
   
-#ifdef WIFI_POWER_SAVING
+#if defined(ESP32) && defined(WIFI_POWER_SAVING)
   if (WIFI_POWER_SAVING == WIFI_PS_NONE)
   {
     _debugger.Debug(_component, "WiFi power saving is disabled");

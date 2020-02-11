@@ -36,3 +36,9 @@
 
 #define BT_BLE_UART_MAX_PACKET 20
 #define BT_BLE_UART_DEBUG false
+
+#ifndef WIFI_PS_NONE
+#define WIFI_PS_NONE 0
+#define WIFI_PS_MIN_MODEM 2
+#define WIFI_PS_MAX_MODEM 3
+#endif
