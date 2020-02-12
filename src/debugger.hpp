@@ -14,7 +14,9 @@
 #define DEBUG_SERIAL_BUFFER_SIZE 255
 
 bool sdos_is_wifi_active();
+#if defined(BLUETOOTH_ENABLED) && defined(ESP32)
 bool sdos_is_bluetooth_active();
+#endif
 
 using namespace std;
 using handlersList = std::list<void(*)(String message)>;

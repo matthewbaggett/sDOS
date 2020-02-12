@@ -2,7 +2,7 @@
 #include "abstracts/display.hpp"
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
-#include "../lib/Adafruit_ST7735_shim.hpp"
+#include <shims/Adafruit_ST7735_shim.hpp>
 #include <SPI.h>
 
 class sDOS_DISPLAY_ST7735 : public AbstractDisplay

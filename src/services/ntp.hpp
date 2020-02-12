@@ -104,7 +104,7 @@ bool sDOS_NTP::talkNTP()
         return false;
     }
 
-    _debugger.Debug(_component, "Time updated: %s", _timeClient->getFormattedTime());
+    _debugger.Debug(_component, "Time updated: %s", _timeClient->getFormattedTime().c_str());
 
     unsigned long epoch = _timeClient->getEpochTime();
     DateTime newEpoch(epoch);

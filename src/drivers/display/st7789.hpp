@@ -2,7 +2,7 @@
 #include "abstracts/display.hpp"
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
-#include "../lib/Adafruit_ST7789_shim.hpp"
+#include <shims/Adafruit_ST7789_shim.hpp>
 
 #include <SPI.h>
 #ifndef DISPLAY_OFFSET_ROWS

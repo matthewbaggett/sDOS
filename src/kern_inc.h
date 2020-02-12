@@ -7,6 +7,9 @@
 #ifdef ESP32
 #include "integer.h"
 #endif
+#ifdef ESP8266
+#include <shims/esp8266_shim.hpp>
+#endif
 #include "Wire.h"
 
 #ifdef ESP32

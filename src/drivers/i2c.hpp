@@ -39,6 +39,7 @@ bool sDOS_I2C::isConnected(){
 }
 
 void sDOS_I2C::connect(){
+    #ifdef ESP32
     if(Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)){
         _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
         _events.trigger("i2c_ready");
@@ -46,6 +47,13 @@ void sDOS_I2C::connect(){
     }else{
         _events.trigger("i2c_fail");
     }   
+    #endif
+    #ifdef ESP8266
+        Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
+        _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
+        _events.trigger("i2c_ready");
+        sDOS_I2C::_isConnected = true;
+    #endif
 }
 
 TwoWire sDOS_I2C::getWire(){

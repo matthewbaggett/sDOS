@@ -30,19 +30,24 @@ unsigned int _loopCount = 0;
 #include "drivers/touch/ttp223.hpp"
 #endif
 #ifdef ENABLE_PCF8563
+#define ENABLE_RTC
 #include "drivers/rtc/pcf8563.hpp"
 #endif
 #ifdef ENABLE_FAKE_RTC
+#define ENABLE_RTC
 #include "drivers/rtc/fake.hpp"
 #endif
 #ifdef ENABLE_MPU9250
+#define ENABLE_ACCELLEROMETER
 #include "drivers/accellerometer/mpu9250.hpp"
 #endif
 #ifdef ENABLE_ST7735
+#define ENABLE_DISPLAY
 #include "drivers/display/st7735.hpp"
 #include "drivers/display/frame_buffer.hpp"
 #endif
 #ifdef ENABLE_ST7789
+#define ENABLE_DISPLAY
 #include "drivers/display/st7789.hpp"
 #include "drivers/display/frame_buffer.hpp"
 #endif
@@ -51,17 +56,16 @@ unsigned int _loopCount = 0;
 #ifdef ENABLE_SERVICE_NTP
 #include "services/ntp.hpp"
 #endif
-#ifdef ENABLE_SERVICE_SLEEPTUNE
+#if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
 #include "services/sleeptune.hpp"
 #endif
-#ifdef ENABLE_CPU_SCALER
+#if defined(ENABLE_CPU_SCALER) && defined(ESP32)
 #include "services/cpu_scaler.hpp"
 #endif
 
 using namespace std;
 using driverList = std::list<sDOS_Abstract_Driver *>;
 using serviceList = std::list<sDOS_Abstract_Service *>;
-
 
 class sDOS
 {
@@ -73,6 +77,7 @@ class sDOS
 
     protected:
         String _component = "Kernel";
+        uint64_t _chip_id;
         driverList _drivers;
         serviceList _services;
         void _configure();
@@ -80,11 +85,15 @@ class sDOS
         FileSystem _fileSystem = FileSystem(_debugger);
         EventsManager _events = EventsManager(_debugger);
         WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+        #ifdef ESP32
         BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
+        #endif
         AbstractRTC * _driver_RTC;
+        #if defined(ENABLE_DISPLAY) && defined(ESP32)
         AbstractDisplay * _display;
         sDOS_FrameBuffer * _driver_FrameBuffer;
-        #ifdef ENABLE_CPU_SCALER
+        #endif
+        #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
         sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
         #endif
         long _lastCycleTimeMS = 0;
@@ -102,12 +111,12 @@ void sDOS::addService(sDOS_Abstract_Service * service){
 
 void sDOS::Setup()
 {
-#if defined(ENABLE_CPU_SCALER)
+    
+
+
+#if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
-    Serial.begin(SERIAL_BAUD);
-    Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
-    delay(300);
 
 #if defined(ENABLE_POWER)
     _drivers.push_back(new sDOS_POWER(_debugger, _events));
@@ -115,10 +124,17 @@ void sDOS::Setup()
 
     _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
     _debugger.Debug(_component, F("Built with love on %s at %s."), F(__DATE__), F(__TIME__));
-    uint64_t chipId = ESP.getEfuseMac();
-    _debugger.Debug(_component, F("Hardware ID: %04X%08X"), (uint16_t)(chipId>>32), (uint32_t)(chipId));
+    #ifdef ESP32
+    _chip_id = ESP.getEfuseMac();
+    _debugger.Debug(_component, F("Hardware ID: %04X%08X"), (uint16_t)(_chip_id>>32), (uint32_t)(_chip_id));
+    #endif
+    #ifdef ESP8266
+    _chip_id = ESP.getChipId();
+    _debugger.Debug(_component, F("Hardware ID: %08X"), (uint32_t)(_chip_id));
+    #endif
 
 #if defined(ENABLE_I2C)
+    delay(1);
     sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
     _drivers.push_back(_driver_I2C);
 #endif
@@ -127,12 +143,10 @@ void sDOS::Setup()
     _drivers.push_back(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
-#define ENABLE_DISPLAY
     _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
-#define ENABLE_DISPLAY
     _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
@@ -146,12 +160,10 @@ void sDOS::Setup()
     _drivers.push_back(new sDOS_TTP223(_debugger, _events));
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
-#define ENABLE_RTC
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC)
-#define ENABLE_RTC
     _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
@@ -164,13 +176,17 @@ void sDOS::Setup()
     _drivers.push_back(_driver_FrameBuffer);
 #endif
 
+#if defined(ENABLE_WIFI)
     _drivers.push_back(_driver_WiFi);
+#endif
+#if defined(ENABLE_BLUETOOTH) && defined(ESP32)
     _drivers.push_back(_driver_BT);
+#endif
 
-#if defined(ENABLE_CPU_SCALER)
+#if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     _services.push_back(_cpuScaler);
 #endif
-#if defined(ENABLE_SERVICE_SLEEPTUNE)
+#if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
     _services.push_back(new sDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
@@ -180,26 +196,26 @@ void sDOS::Setup()
     // Setup Drivers
     for (auto const& it : _drivers) {
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, ">>> Setup -> Driver -> %s", it->getName());
+        _debugger.Debug(_component, ">>> Setup -> Driver -> %s", it->getName().c_str());
         #endif
         it->setup();
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "<<< Setup -> Driver -> %s", it->getName());
+        _debugger.Debug(_component, "<<< Setup -> Driver -> %s", it->getName().c_str());
         #endif
     }
 
     // Setup Services
     for (auto const& it : _services) {
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, ">>> Setup -> Service -> %s", it->getName());
+        _debugger.Debug(_component, ">>> Setup -> Service -> %s", it->getName().c_str());
         #endif
         it->setup();
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "<<< Setup -> Service -> %s", it->getName());
+        _debugger.Debug(_component, "<<< Setup -> Service -> %s", it->getName().c_str());
         #endif
     }
 
-#if defined(ENABLE_CPU_SCALER)
+#if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     // To slow down the clock sooner rather than later, we call CPU_SCALERS loop here as an extra.
     _cpuScaler->loop();
 #endif
@@ -224,15 +240,15 @@ void sDOS::Loop()
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
             uint64_t started = micros();
-            _debugger.Debug(_component, ">>> Loop -> Driver -> %s", it->getName());
+            _debugger.Debug(_component, ">>> Loop -> Driver -> %s", it->getName().c_str());
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Driver -> %s (in %dms)", it->getName(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "<<< Loop -> Driver -> %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx Loop -> Driver -> %s", it->getName());
+            _debugger.Debug(_component, "xxx Loop -> Driver -> %s", it->getName().c_str());
             #endif
         }
     }
@@ -242,15 +258,15 @@ void sDOS::Loop()
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
                 uint64_t started = micros();
-            _debugger.Debug(_component, ">>> Loop -> Service -> %s", it->getName());
+            _debugger.Debug(_component, ">>> Loop -> Service -> %s", it->getName().c_str());
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Service -> %s (in %dms)", it->getName(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "<<< Loop -> Service -> %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx Loop -> Service -> %s", it->getName());
+            _debugger.Debug(_component, "xxx Loop -> Service -> %s", it->getName().c_str());
             #endif
 
         }
@@ -291,10 +307,18 @@ void Debugger::Debug(String component, String format, ...)
         getCpuFrequencyMhz(),
         WiFi.isConnected() ? COL_RED : COL_GREEN,
         WiFi.isConnected() ? "W+" : "W-",
+        #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
         sdos_is_bluetooth_active() ? COL_RED : COL_GREEN,
         sdos_is_bluetooth_active() ? "B+" : "B-",
+        #else
+        NULL, NULL,
+        #endif
         sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
+        #if defined(POWER_MONITOR_VBATT)
         ((float) sDOS_POWER::getVbattMv()) / 1000,
+        #else
+        0,
+        #endif
         COL_BLUE,
         ESP.getFreeHeap()/1024,
         COL_RESET,
