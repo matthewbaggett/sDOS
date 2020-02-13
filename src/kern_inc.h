@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 #include "hardware/all.h"
-#include "defaults.h"
 #ifdef ESP32
 #include "integer.h"
 #endif
@@ -34,5 +33,7 @@ ESP8266WiFiMulti wifiMulti;
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
 #endif
+
+#include "defaults.h"
 
 #endif

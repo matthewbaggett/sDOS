@@ -39,8 +39,3 @@
 #define BT_BLE_UART_DEBUG false
 
 #define ENABLE_WIFI
-#ifndef WIFI_PS_NONE
-#define WIFI_PS_NONE 0
-#define WIFI_PS_MIN_MODEM 2
-#define WIFI_PS_MAX_MODEM 3
-#endif
