@@ -48,6 +48,7 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
     char temp[f.size()];
     f.readBytes(temp, f.size());
     f.close();
+    yield();
 
     DynamicJsonDocument doc(documentSize);
     DeserializationError error = deserializeJson(doc, temp);
@@ -67,6 +68,7 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
             const char *_key = it->key().c_str();
             const char *_value = it->value().as<char *>();
             _config.data.emplace(_key, _value);
+            yield();
         }
 
         rowId++;

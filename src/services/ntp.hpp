@@ -42,32 +42,25 @@ sDOS_NTP::sDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, 
     sDOS_NTP::_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
 };
 
-void sDOS_NTP::setup()
-{
-};
+void sDOS_NTP::setup() {};
 
-void sDOS_NTP::loop()
-{
+void sDOS_NTP::loop() {
     update();
 };
 
-void sDOS_NTP::update()
-{
-    if (!needsUpdate())
-    {
+void sDOS_NTP::update() {
+    if (!needsUpdate()) {
         return;
     }
     
-    if (!sDOS_NTP::_hasRequestedWifi)
-    {
+    if (!sDOS_NTP::_hasRequestedWifi) {
+        _debugger.Debug(_component, "Requested wifi on.");
         _wifi->addRequestActive();
         sDOS_NTP::_hasRequestedWifi = true;
-        _debugger.Debug(_component, "Requested wifi on.");
         return;
     }
     
-    if (_wifi->isConnected())
-    {
+    if (_wifi->isConnected()) {
         bool successfulUpdate = talkNTP();
         if (successfulUpdate)
         {
@@ -78,8 +71,7 @@ void sDOS_NTP::update()
     }
 };
 
-bool sDOS_NTP::needsUpdate()
-{
+bool sDOS_NTP::needsUpdate() {
     bool _needsToUpdate = _rtc->getTime().unixtime() - sDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
     /*_debugger.Debug(
         _component,
@@ -96,11 +88,9 @@ bool sDOS_NTP::isActive(){
     return needsUpdate();
 }
 
-bool sDOS_NTP::talkNTP()
-{
+bool sDOS_NTP::talkNTP() {
     _timeClient->begin();
-    if (!_timeClient->update())
-    {
+    if (!_timeClient->update()) {
         return false;
     }
 

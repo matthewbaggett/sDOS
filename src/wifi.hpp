@@ -40,6 +40,7 @@ private:
   const String _component = "WiFi";
   const String _fileWifiCredentials = "/wifi.json";
   void loadWifiConfigs();
+  void scanWifiAps();
   enum WifiState _wifiClientState = WIFI_DISCONNECTED;
   enum WifiState _wifiClientStatePrevious = WIFI_DISCONNECTED;
   long _wifiSignalStrength = 0;
@@ -62,47 +63,37 @@ unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
 bool WiFiManager::_powerOnState = false;
 
-bool WiFiManager::hasRequests()
-{
-  return WiFiManager::_requestsActive > 0;
-}
 
 WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events)
     : _debugger(debugger), _fileSystem(fileSystem), _events(events)
-{
+{}
+
+bool WiFiManager::hasRequests() {
+  return WiFiManager::_requestsActive > 0;
 }
 
-void WiFiManager::setup()
-{
+void WiFiManager::setup() {
   #ifdef ESP32
   esp_wifi_deinit();
   #endif
   powerOff();
   loadWifiConfigs();
+  WiFiManager::_requestsActive = 0;
 }
 
-void WiFiManager::loop()
-{
+void WiFiManager::loop() {
+  //_debugger.Debug(_component, "Active? %s", isActive() ? "yes" : "no");
   updateState();
-
-  if (WiFi.isConnected()){
-    
-    _wifiSignalStrength = getSignalStrength();
-  }else{
-    _wifiSignalStrength = 0;
-  }
-
+  _wifiSignalStrength = WiFi.isConnected() ? getSignalStrength() : 0;
   checkForStateChanges();
-  
   updateRequestedActivity();
 }
 
-bool WiFiManager::isConnected(){
+bool WiFiManager::isConnected() {
   return WiFi.isConnected();
 }
 
-void WiFiManager::updateState()
-{
+void WiFiManager::updateState() {
   if(WiFiManager::_powerOnState){
     _wifiClientState = (wifiMulti.run() == WL_CONNECTED) ? WIFI_CONNECTED : WIFI_DISCONNECTED;
   }else{
@@ -110,11 +101,11 @@ void WiFiManager::updateState()
   }
 }
 
-void WiFiManager::loadWifiConfigs()
-{
+void WiFiManager::loadWifiConfigs() {
+  delay(100);
   JsonConfigFile wifiCreds[MAX_WIFI_CREDENTIALS];
   _fileSystem.loadJsonArray(wifiCreds, _fileWifiCredentials);
-
+  delay(100);
   for (int i = 0; i < MAX_WIFI_CREDENTIALS; i++)
   {
     std::map<std::string, std::string> row = wifiCreds[i].data;
@@ -132,18 +123,25 @@ void WiFiManager::loadWifiConfigs()
   }
 }
 
-void WiFiManager::checkForStateChanges()
-{
-  if (_wifiClientStatePrevious != _wifiClientState)
-  {
-    if (_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED)
-    {
+void WiFiManager::scanWifiAps() {
+  _debugger.Debug(_component, "Scanning for WiFi APs");
+  int numberFound = WiFi.scanNetworks();
+  if(numberFound == 0){
+      _debugger.Debug(_component, "No WiFi found");
+  }else{
+    for(int i = 0; i < numberFound; i++){
+      _debugger.Debug(_component, "WiFi AP Found: %s (%s)", WiFi.SSID(numberFound), WiFi.RSSI(numberFound));
+    }
+  }
+}
+
+void WiFiManager::checkForStateChanges() {
+  if (_wifiClientStatePrevious != _wifiClientState) {
+    if (_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED) {
       _debugger.Debug(_component, "Connected to %s as %s", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
       _events.trigger("wifi_connect", WiFi.SSID());
       _events.trigger("wifi_ip_set", WiFi.localIP().toString());
-    }
-    else if (_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED)
-    {
+    } else if (_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED) {
       _debugger.Debug(_component, "Disconnected from Wifi.");
       _events.trigger("wifi_disconnect");
       _events.trigger("wifi_ip_unset");
@@ -160,8 +158,7 @@ void WiFiManager::checkForStateChanges()
   }
 }
 
-long WiFiManager::getSignalStrength()
-{
+long WiFiManager::getSignalStrength() {
   long dBm = WiFi.RSSI();
   long quality;
   if (dBm <= -100)
@@ -173,8 +170,7 @@ long WiFiManager::getSignalStrength()
   return quality;
 }
 
-String WiFiManager::getCurrentWifiMode()
-{
+String WiFiManager::getCurrentWifiMode() {
   #ifdef ESP32
     switch (WiFi.getMode())
     {
@@ -194,13 +190,14 @@ String WiFiManager::getCurrentWifiMode()
   #endif
 }
 
-void WiFiManager::powerOn()
-{
+void WiFiManager::powerOn() {
   if(WiFiManager::_powerOnState){
     return;
   }
+  if(WiFiManager::_numLoadedSSIDs == 0){
+    return;
+  }
   WiFiManager::_powerOnState = true;
-
   _debugger.Debug(_component, "powerOn()");
   #ifdef ESP32
   WiFi.mode(WIFI_MODE_STA);
@@ -208,37 +205,29 @@ void WiFiManager::powerOn()
   WiFi.persistent(false);
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(true);
-  
   _events.trigger("wifi_on");
-  
-#if defined(ESP32) && defined(WIFI_POWER_SAVING)
-  if (WIFI_POWER_SAVING == WIFI_PS_NONE)
-  {
+  /*
+  #if defined(ESP32) && defined(WIFI_POWER_SAVING)
+  if (WIFI_POWER_SAVING == WIFI_PS_NONE){
     _debugger.Debug(_component, "WiFi power saving is disabled");
-  }
-  else if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK)
-  {
+  } else if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK) {
     _debugger.Debug(_component, "Enabled WiFi power saving successfully");
     _events.trigger("wifi_powersave", F("okay"));
-  }
-  else
-  {
+  } else {
     _debugger.Debug(_component, "Failed to enable WiFi power saving");
     _events.trigger("wifi_powersave", F("fail"));
   }
-#endif
+  #endif
+  */
+  scanWifiAps();
 }
 
-void WiFiManager::powerOff()
-{
-  if(WiFiManager::_powerOnState == false){
+void WiFiManager::powerOff() {
+  if(WiFiManager::_powerOnState == false) {
     return;
   }
-
   _debugger.Debug(_component, "powerOff()");
-
   WiFiManager::_powerOnState = false;
-
   WiFi.persistent(false);
   WiFi.setAutoConnect(false);
   WiFi.setAutoReconnect(false);
@@ -250,31 +239,37 @@ void WiFiManager::powerOff()
   return;
 }
 
-unsigned int WiFiManager::getRequestCount()
-{
+unsigned int WiFiManager::getRequestCount() {
   //_debugger.Debug(_component, "wifi request count: %d, connected status %s, power state %s", _requestsActive, WiFi.isConnected() ? "Connected" : "Disconnected", WiFiManager::_wifiPowerState == true ? "on" : "off");
   return _requestsActive;
 }
 
-void WiFiManager::addRequestActive()
-{
-  if (WiFiManager::_requestsActive >= 0)
-  {
-    WiFiManager::_requestsActive++;
+void WiFiManager::addRequestActive() {
+  if(WiFiManager::_numLoadedSSIDs == 0) {
+    // If we don't have any SSIDs loaded, we ain't connectin' to nothin'.
+    return;
   }
+
+  if (WiFiManager::_requestsActive < 0) {
+    WiFiManager::_requestsActive = 0;
+  }
+
+  _debugger.Debug(_component, "Adding a wifi request");
+  WiFiManager::_requestsActive++;
 }
 
-void WiFiManager::removeRequestActive()
-{
-  if (WiFiManager::_requestsActive > 0)
-  {
+void WiFiManager::removeRequestActive() {
+  if (WiFiManager::_requestsActive < 0) {
+    WiFiManager::_requestsActive = 0;
+  }
+  
+  if (WiFiManager::_requestsActive > 0) {
     WiFiManager::_requestsActive--;
   }
 }
 
-void WiFiManager::updateRequestedActivity()
-{
-  if(WiFiManager::getRequestCount() > 0){
+void WiFiManager::updateRequestedActivity(){
+  if(WiFiManager::_requestsActive > 0){
     if(getCpuFrequencyMhz() >= 80) {
       powerOn();
       return;
@@ -283,19 +278,34 @@ void WiFiManager::updateRequestedActivity()
   powerOff();
 }
 
-bool WiFiManager::isActive()
-{
-  return (WiFiManager::_numLoadedSSIDs > 0) || (WiFiManager::getRequestCount() > 0) || WiFi.isConnected();
-}
-
-bool WiFiManager::canSleep()
-{
-  if (WiFiManager::getRequestCount() > 0)
-  {
+bool WiFiManager::isActive() {
+  if (getCpuFrequencyMhz() < 80) {
+    //_debugger.Debug(_component, "isActive: No. CPU frequency too low");
     return false;
   }
-  if (WiFi.isConnected())
-  {
+  if (WiFiManager::_numLoadedSSIDs == 0) {
+    //_debugger.Debug(_component, "isActive: No. Zero SSIDs loaded");
+    return false;
+  }
+  if (WiFiManager::_requestsActive == 0) {
+    //_debugger.Debug(_component, "isActive: No. Request count is 0");
+    return false;
+  }
+  //if (!WiFi.isConnected()) {
+    //_debugger.Debug(_component, "isActive: No. Wifi is not connected to anything");
+  //  return false;
+  //}
+  //_debugger.Debug(_component, "isActive: Yes!");
+  return true;
+}
+
+bool WiFiManager::canSleep() {
+  if (WiFiManager::_requestsActive > 0) {
+    //_debugger.Debug(_component, "canSleep: No, there are requests active: %d", WiFiManager::_requestsActive);
+    return false;
+  }
+  if (WiFi.isConnected()) {
+    //_debugger.Debug(_component, "canSleep: No, WiFi.isConnected() was true!");
     return false;
   }
   return true;

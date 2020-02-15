@@ -11,6 +11,8 @@ unsigned int _loopCount = 0;
 #ifdef ESP32
 #include <bluetooth/bluetooth.hpp>
 #endif
+
+#include <abstracts/driver.hpp>
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
 #endif
@@ -53,6 +55,7 @@ unsigned int _loopCount = 0;
 #endif
 
 // System Services
+#include <abstracts/service.hpp>
 #ifdef ENABLE_SERVICE_NTP
 #include "services/ntp.hpp"
 #endif
@@ -88,7 +91,9 @@ class sDOS
         #ifdef ESP32
         BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
         #endif
+        #if defined(ENABLE_RTC)
         AbstractRTC * _driver_RTC;
+        #endif
         #if defined(ENABLE_DISPLAY) && defined(ESP32)
         AbstractDisplay * _display;
         sDOS_FrameBuffer * _driver_FrameBuffer;
@@ -159,11 +164,11 @@ void sDOS::Setup()
 #if defined(ENABLE_TTP223)
     _drivers.push_back(new sDOS_TTP223(_debugger, _events));
 #endif
-#if defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
+#if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
-#if defined(ENABLE_FAKE_RTC)
+#if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC) 
     _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
@@ -202,6 +207,7 @@ void sDOS::Setup()
         #ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "<<< Setup -> Driver -> %s", it->getName().c_str());
         #endif
+        yield();
     }
 
     // Setup Services
@@ -213,6 +219,7 @@ void sDOS::Setup()
         #ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "<<< Setup -> Service -> %s", it->getName().c_str());
         #endif
+        yield();
     }
 
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
@@ -244,13 +251,14 @@ void sDOS::Loop()
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Driver -> %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "<<< Loop <- Driver <- %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx Loop -> Driver -> %s", it->getName().c_str());
+            _debugger.Debug(_component, "xxx SKIP >< Driver >< %s", it->getName().c_str());
             #endif
         }
+        yield();
     }
 
     // Loop over Services
@@ -262,14 +270,14 @@ void sDOS::Loop()
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop -> Service -> %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "<<< Loop <- Service <- %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx Loop -> Service -> %s", it->getName().c_str());
+            _debugger.Debug(_component, "xxx SKIP >< Service >< %s", it->getName().c_str());
             #endif
-
         }
+        yield();
     }
     
     // Check the Events loop
@@ -313,11 +321,11 @@ void Debugger::Debug(String component, String format, ...)
         #else
         NULL, NULL,
         #endif
+        #if defined(ENABLE_POWER)
         sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
-        #if defined(POWER_MONITOR_VBATT)
         ((float) sDOS_POWER::getVbattMv()) / 1000,
         #else
-        0,
+        NULL, NULL, 
         #endif
         COL_BLUE,
         ESP.getFreeHeap()/1024,

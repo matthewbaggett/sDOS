@@ -79,6 +79,10 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
         };
 
         String getName(){ return _component; };
+
+        bool isActive(){
+            return sDOS_DISPLAY_ST7735::_displayOn && sDOS_DISPLAY_ST7735::_backlightBrightness > 0;
+        };
         
     protected:
         String _component = "ST7735";
@@ -100,4 +104,4 @@ class sDOS_DISPLAY_ST7735 : public AbstractDisplay
 };
 
 unsigned int sDOS_DISPLAY_ST7735::_backlightBrightness = 255;
-bool sDOS_DISPLAY_ST7735::_displayOn = true;
+bool sDOS_DISPLAY_ST7735::_displayOn = false;

@@ -102,7 +102,7 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
             setAll(packColour565(red, green, blue));
         };
 
-        bool isActive() { return _isDirty; };
+        bool isActive() { return _isDirty && _display->isActive(); };
 
     private:
         Debugger _debugger;
