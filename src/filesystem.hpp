@@ -33,14 +33,18 @@ private:
 
 JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileName)
 {
-    if (!SPIFFS.begin())
+    delay(100);
+    if (!SPIFFS.begin(true))
     {
-        _debugger.Debug(_component, "loadJsonArray _spiffs.begin() for %s did not succeed\n", fileName.c_str());
+        _debugger.Debug(_component, "loadJsonArray _spiffs.begin() for %s did not succeed", fileName.c_str());
+    }
+    if(!SPIFFS.exists(fileName.c_str())){
+        _debugger.Debug(_component, "loadJsonArray File %s doesn't exist", fileName.c_str());
     }
     File f = SPIFFS.open(fileName.c_str(), "r");
     if (!f)
     {
-        _debugger.Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed\n", fileName.c_str());
+        _debugger.Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed", fileName.c_str());
     }
 
     // Read the file into buffer
@@ -53,6 +57,8 @@ JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileN
     DynamicJsonDocument doc(documentSize);
     DeserializationError error = deserializeJson(doc, temp);
     // Test if parsing succeeds.
+        _debugger.Debug(_component, "F");
+
     if (error)
     {
         _debugger.Debug(F("deserializeJson() failed: %s"), error.c_str());
