@@ -10,11 +10,6 @@
 #define SDOS_SERIAL_DEBUG_ENABLED true
 #endif
 
-bool sdos_is_wifi_active();
-#if defined(BLUETOOTH_ENABLED) && defined(ESP32)
-bool sdos_is_bluetooth_active();
-#endif
-
 #if SDOS_SERIAL_DEBUG_ENABLED == true
     using namespace std;
     using debugHandlersList = std::list<void(*)(String message)>;

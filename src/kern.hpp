@@ -326,8 +326,8 @@ void Debugger::Debug(String component, String format, ...)
             WiFi.isConnected() ? COL_RED : COL_GREEN,
             WiFi.isConnected() ? "W+" : "W-",
             #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-            sdos_is_bluetooth_active() ? COL_RED : COL_GREEN,
-            sdos_is_bluetooth_active() ? "B+" : "B-",
+            BluetoothManager::isPoweredOn() ? COL_RED : COL_GREEN,
+            BluetoothManager::isPoweredOn() ? "B+" : "B-",
             #else
             NULL, NULL,
             #endif

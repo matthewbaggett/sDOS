@@ -60,11 +60,6 @@ class BluetoothManager : public sDOS_Abstract_Driver
 
 int BluetoothManager::_requested = 0;
 
-void bluetooth_send_debug_message(String message)
-{
-  BluetoothManager::sendMessage(message);
-}
-
 BluetoothManager::BluetoothManager(Debugger &debugger, EventsManager &events)
     : _debugger(debugger), _events(events)
 {
@@ -91,7 +86,7 @@ void BluetoothManager::debugMessage(String message)
 void BluetoothManager::setup()
 {
   powerOff();
-  _debugger.addHandler(&bluetooth_send_debug_message);
+  _debugger.addHandler(&BluetoothManager::sendMessage);
 #if defined(BT_BLE_UART_DEBUG) && BT_BLE_UART_DEBUG == true
   addRequested();
 #endif
@@ -196,11 +191,6 @@ void BluetoothManager::sendMessage(String message){
       delay(10);
     }
   }
-}
-
-bool sdos_is_bluetooth_active()
-{
-  return BluetoothManager::isPoweredOn();
 }
 
 #endif
