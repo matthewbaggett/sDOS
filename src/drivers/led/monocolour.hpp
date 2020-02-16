@@ -23,7 +23,6 @@ class sDOS_LED_MONO : public sDOS_Abstract_Driver
         };
 
         void updateBrightness(){
-            _debugger.Debug(_component, "Mono LED (gpio %d) brightness: %d/255", sDOS_LED_MONO::_gpio, sDOS_LED_MONO::_brightness);
             ledcWrite(_pwmChannel, sDOS_LED_MONO::_brightness);
             sDOS_LED_MONO::_brightnessPrev = sDOS_LED_MONO::_brightness;
         };
