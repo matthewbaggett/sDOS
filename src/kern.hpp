@@ -85,7 +85,9 @@ public:
 
     void Loop();
 
-    void addService(sDOS_Abstract_Service *service);
+    void add(sDOS_Abstract_Service *service);
+
+    void add(sDOS_Abstract_Driver *driver);
 
 protected:
     String _component = "Kernel";
@@ -96,7 +98,7 @@ protected:
     void _configure();
 
     Debugger _debugger = Debugger();
-    FileSystem _fileSystem = FileSystem(_debugger);
+    FileSystem *_fileSystem = new FileSystem(_debugger);
     EventsManager _events = EventsManager(_debugger);
     WiFiManager *_driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
 #ifdef ESP32
@@ -131,14 +133,20 @@ sDOS::sDOS() {
 
 };
 
-void sDOS::addService(sDOS_Abstract_Service *service) {
+void sDOS::add(sDOS_Abstract_Service *service) {
     _services.push_back(service);
+}
+
+void sDOS::add(sDOS_Abstract_Driver *driver) {
+    _drivers.push_back(driver);
 }
 
 void sDOS::Setup() {
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
+
+    _drivers.push_back(_fileSystem);
 
 #if defined(ENABLE_POWER)
     _drivers.push_back(new sDOS_POWER(_debugger, _events));
