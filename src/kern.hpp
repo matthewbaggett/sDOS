@@ -127,15 +127,15 @@ void sDOS::Setup()
     _drivers.push_back(new sDOS_POWER(_debugger, _events));
 #endif
 
-    _debugger.Debug(_component, F("Started Smol Device Operating System Kernel"));
-    _debugger.Debug(_component, F("Built with love on %s at %s."), F(__DATE__), F(__TIME__));
+    _debugger.Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
+    _debugger.Debug(_component, F("Built with %slove%s on %s at %s."),COL_RED, COL_RESET, F(__DATE__), F(__TIME__));
     #ifdef ESP32
     _chip_id = ESP.getEfuseMac();
-    _debugger.Debug(_component, F("Hardware ID: %04X%08X"), (uint16_t)(_chip_id>>32), (uint32_t)(_chip_id));
+    _debugger.Debug(_component, F("Hardware ID: %s%04X%08X%s"), COL_PINK, (uint16_t)(_chip_id>>32), (uint32_t)(_chip_id), COL_RESET);
     #endif
     #ifdef ESP8266
     _chip_id = ESP.getChipId();
-    _debugger.Debug(_component, F("Hardware ID: %08X"), (uint32_t)(_chip_id));
+    _debugger.Debug(_component, F("Hardware ID: %s%08X%s"), COL_PINK, (uint32_t)(_chip_id), COL_RESET);
     #endif
 
 #if defined(ENABLE_I2C)
@@ -201,11 +201,11 @@ void sDOS::Setup()
     // Setup Drivers
     for (auto const& it : _drivers) {
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, ">>> Setup -> Driver -> %s", it->getName().c_str());
+        _debugger.Debug(_component, "%s>>> Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
         #endif
         it->setup();
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "<<< Setup -> Driver -> %s", it->getName().c_str());
+        _debugger.Debug(_component, "%s<<< Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
         #endif
         yield();
     }
@@ -213,11 +213,11 @@ void sDOS::Setup()
     // Setup Services
     for (auto const& it : _services) {
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, ">>> Setup -> Service -> %s", it->getName().c_str());
+        _debugger.Debug(_component, "%s>>> Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
         #endif
         it->setup();
         #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "<<< Setup -> Service -> %s", it->getName().c_str());
+        _debugger.Debug(_component, "%s<<< Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
         #endif
         yield();
     }
@@ -247,15 +247,15 @@ void sDOS::Loop()
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
             uint64_t started = micros();
-            _debugger.Debug(_component, ">>> Loop -> Driver -> %s", it->getName().c_str());
+            _debugger.Debug(_component, "%s>>> Loop -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop <- Driver <- %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx SKIP >< Driver >< %s", it->getName().c_str());
+            _debugger.Debug(_component, "%sxxx SKIP >< Driver >< %s%s", COL_RED, it->getName().c_str(), COL_RESET);
             #endif
         }
         yield();
@@ -266,15 +266,15 @@ void sDOS::Loop()
         if(it->isActive()){
             #ifdef DEBUG_LOOP_RUNNING
                 uint64_t started = micros();
-            _debugger.Debug(_component, ">>> Loop -> Service -> %s", it->getName().c_str());
+            _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
             #endif
             it->loop();
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "<<< Loop <- Service <- %s (in %dms)", it->getName().c_str(), (micros() - started) / 1000);
+            _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
             #endif
         }else{
             #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "xxx SKIP >< Service >< %s", it->getName().c_str());
+            _debugger.Debug(_component, "%sxxx SKIP >< Service >< %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
             #endif
         }
         yield();
