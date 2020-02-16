@@ -83,6 +83,13 @@ public:
         return sDOS_DISPLAY_ST7735::_displayOn && sDOS_DISPLAY_ST7735::_backlightBrightness > 0;
     };
 
+    void setBacklight(unsigned int backlight){
+        sDOS_DISPLAY_ST7735::_backlightBrightness = backlight;
+    };
+    void setEnabled(bool on){
+        sDOS_DISPLAY_ST7735::_displayOn = on;
+    };
+
 protected:
     String _component = "ST7735";
     Debugger _debugger;

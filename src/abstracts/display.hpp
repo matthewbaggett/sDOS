@@ -15,6 +15,10 @@ public:
     virtual void beginRedraw() = 0;
 
     virtual void commitRedraw() = 0;
+
+    virtual void setBacklight(unsigned int backlight) = 0;
+
+    virtual void setEnabled(bool on) = 0;
 };
 
 #endif

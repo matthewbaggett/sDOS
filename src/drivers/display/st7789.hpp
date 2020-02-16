@@ -74,6 +74,13 @@ public:
         //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);
     };
 
+    void setBacklight(unsigned int backlight){
+        sDOS_DISPLAY_ST7789::_backlightBrightness = backlight;
+    };
+    void setEnabled(bool on){
+        sDOS_DISPLAY_ST7789::_displayOn = on;
+    };
+
     String getName() { return _component; };
 
 
