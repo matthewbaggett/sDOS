@@ -201,7 +201,7 @@ void WiFiManager::powerOn() {
   WiFiManager::_powerOnState = true;
   _debugger.Debug(_component, "powerOn()");
   #ifdef ESP32
-  WiFi.mode(WIFI_MODE_STA);
+    WiFi.mode(WIFI_MODE_STA);
   #endif
   WiFi.persistent(false);
   WiFi.setAutoConnect(false);
@@ -237,6 +237,9 @@ void WiFiManager::powerOff() {
   }else{
     _events.trigger("wifi_off");
   }
+  #ifdef ESP32
+    WiFi.mode(WIFI_MODE_NULL);
+  #endif
   return;
 }
 
@@ -281,22 +284,34 @@ void WiFiManager::updateRequestedActivity(){
 
 bool WiFiManager::isActive() {
   if (getCpuFrequencyMhz() < 80) {
-    //_debugger.Debug(_component, "isActive: No. CPU frequency too low");
+    #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
+      _debugger.Debug(_component, "isActive: No. CPU frequency too low");
+    #endif
     return false;
   }
+
   if (WiFiManager::_numLoadedSSIDs == 0) {
-    //_debugger.Debug(_component, "isActive: No. Zero SSIDs loaded");
+    #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
+      _debugger.Debug(_component, "isActive: No. Zero SSIDs loaded");
+    #endif
     return false;
   }
+
   if (WiFiManager::_requestsActive == 0) {
-    //_debugger.Debug(_component, "isActive: No. Request count is 0");
+    #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
+      _debugger.Debug(_component, "isActive: No. Request count is 0");
+    #endif
     return false;
   }
+
   //if (!WiFi.isConnected()) {
     //_debugger.Debug(_component, "isActive: No. Wifi is not connected to anything");
   //  return false;
   //}
-  //_debugger.Debug(_component, "isActive: Yes!");
+
+  #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
+    _debugger.Debug(_component, "isActive: Yes!");
+  #endif
   return true;
 }
 
