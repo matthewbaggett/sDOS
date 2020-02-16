@@ -270,13 +270,18 @@ void sDOS::Loop() {
     // Loop over Drivers
     for (auto const &it : _drivers) {
         if (it->isActive()) {
-#ifdef DEBUG_LOOP_RUNNING
             uint64_t started = micros();
+#ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%s>>> Loop -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
             it->loop();
+            uint64_t runTimeMS = (micros() - started) / 1000;
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
+            _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
+#else
+            if(runTimeMS > 200) {
+                _debugger.Debug(_component, "%s%s Driver loop took %dms, slow!%s", COL_RED, runTimeMS, COL_RESET);
+            }
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
@@ -289,13 +294,18 @@ void sDOS::Loop() {
     // Loop over Services
     for (auto const &it : _services) {
         if (it->isActive()) {
-#ifdef DEBUG_LOOP_RUNNING
             uint64_t started = micros();
-        _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+#ifdef DEBUG_LOOP_RUNNING
+            _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
             it->loop();
+            uint64_t runTimeMS = (micros() - started) / 1000;
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
+            _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
+#else
+            if(runTimeMS > 200) {
+                _debugger.Debug(_component, "%s%s Service loop took %dms, slow!%s", COL_RED, runTimeMS, COL_RESET);
+            }
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
