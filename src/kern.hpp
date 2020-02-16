@@ -103,6 +103,16 @@ class sDOS
         #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
         sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
         #endif
+        #if defined(ENABLE_BUTTON)
+        sDOS_BUTTON * _button = new sDOS_BUTTON(_debugger, _events);
+        #endif
+        #if defined(ENABLE_TTP223)
+        sDOS_TTP223 * _button_ttp223 = new sDOS_TTP223(_debugger, _events);
+        #endif
+        #if defined(ENABLE_MONOCOLOUR_LED)
+        sDOS_LED_MONO * _mono_led = new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED);
+        #endif
+
         long _lastCycleTimeMS = 0;
         long _lastTimeStampUS = 0;
 };
@@ -155,13 +165,13 @@ void sDOS::Setup()
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    _drivers.push_back(new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED));
+    _drivers.push_back(_mono_led);
 #endif
-#ifdef ENABLE_BUTTON
-    _drivers.push_back(new sDOS_BUTTON(_debugger, _events));
+#if defined(ENABLE_BUTTON)
+    _drivers.push_back(_button);
 #endif
 #if defined(ENABLE_TTP223)
-    _drivers.push_back(new sDOS_TTP223(_debugger, _events));
+    _drivers.push_back(_button_ttp223);
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
