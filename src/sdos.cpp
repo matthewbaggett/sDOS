@@ -2,8 +2,7 @@
 
 sDOS instance;
 
-void setup()
-{
+void setup() {
     Serial.begin(SERIAL_BAUD);
     Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
     delay(300);
@@ -11,7 +10,6 @@ void setup()
     instance.Setup();
 }
 
-void loop()
-{
-   instance.Loop();
+void loop() {
+    instance.Loop();
 }

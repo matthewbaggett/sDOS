@@ -3,19 +3,25 @@
 
 #include "Arduino.h"
 #include "hardware/all.h"
+
 #ifdef ESP32
+
 #include "integer.h"
+
 #endif
 #ifdef ESP8266
 #include <shims/esp8266_shim.hpp>
 #endif
+
 #include "Wire.h"
 
 #ifdef ESP32
+
 #include <WiFi.h>
 //#include <ESPmDNS.h>
 #include <WiFiMulti.h>
 #include <esp_wifi.h>
+
 WiFiMulti wifiMulti;
 #endif
 
@@ -30,8 +36,10 @@ ESP8266WiFiMulti wifiMulti;
 #include <WiFiUdp.h>
 
 #ifdef ESP32
+
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
+
 #endif
 
 #include "defaults.h"

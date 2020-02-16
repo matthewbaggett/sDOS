@@ -6,17 +6,21 @@
 #define NTP_UPDATE_INTERVAL_SECONDS 60 * 60 * 12
 #endif
 
-class sDOS_NTP : public sDOS_Abstract_Service
-{
+class sDOS_NTP : public sDOS_Abstract_Service {
 
 public:
     sDOS_NTP(Debugger &debugger, EventsManager &eventsManager, AbstractRTC *rtc, WiFiManager *wifi);
+
     void setup();
+
     void loop();
+
     void update();
-    String getName(){ return _component; };
+
+    String getName() { return _component; };
+
     bool isActive();
-    
+
 private:
     String _component = "NTP";
     Debugger _debugger;
@@ -25,8 +29,11 @@ private:
     WiFiManager *_wifi;
     WiFiUDP _ntpUDP = WiFiUDP();
     NTPClient *_timeClient;
+
     bool talkNTP();
+
     bool needsUpdate();
+
     static int _lastSuccessfulUpdateEpoch;
     static bool _hasRequestedWifi;
 };
@@ -35,8 +42,7 @@ int sDOS_NTP::_lastSuccessfulUpdateEpoch = 0;
 bool sDOS_NTP::_hasRequestedWifi = false;
 
 sDOS_NTP::sDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, WiFiManager *wifi)
-    : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi)
-{
+        : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi) {
     _timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
     DateTime initialDateTime(1990, 6, 1);
     sDOS_NTP::_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
@@ -52,18 +58,17 @@ void sDOS_NTP::update() {
     if (!needsUpdate()) {
         return;
     }
-    
+
     if (!sDOS_NTP::_hasRequestedWifi) {
         _debugger.Debug(_component, "Requested wifi on.");
         _wifi->addRequestActive();
         sDOS_NTP::_hasRequestedWifi = true;
         return;
     }
-    
+
     if (_wifi->isConnected()) {
         bool successfulUpdate = talkNTP();
-        if (successfulUpdate)
-        {
+        if (successfulUpdate) {
             _debugger.Debug(_component, "Requested wifi off.");
             _wifi->removeRequestActive();
             sDOS_NTP::_hasRequestedWifi = false;
@@ -72,7 +77,8 @@ void sDOS_NTP::update() {
 };
 
 bool sDOS_NTP::needsUpdate() {
-    bool _needsToUpdate = _rtc->getTime().unixtime() - sDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
+    bool _needsToUpdate =
+            _rtc->getTime().unixtime() - sDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
     /*_debugger.Debug(
         _component,
         "needs update? %s. last success %d (%d > %d)",
@@ -84,7 +90,7 @@ bool sDOS_NTP::needsUpdate() {
     return _needsToUpdate;
 }
 
-bool sDOS_NTP::isActive(){
+bool sDOS_NTP::isActive() {
     return needsUpdate();
 }
 

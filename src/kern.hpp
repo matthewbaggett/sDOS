@@ -1,5 +1,6 @@
 #ifndef kern_hpp
 #define kern_hpp
+
 #include "kern_inc.h"
 
 unsigned int _loopCount = 0;
@@ -11,10 +12,13 @@ unsigned int _loopCount = 0;
 #include <wifi.hpp>
 
 #ifdef ESP32
+
 #include <bluetooth/bluetooth.hpp>
+
 #endif
 
 #include <abstracts/driver.hpp>
+
 #ifdef ENABLE_POWER
 #include "drivers/power.hpp"
 #endif
@@ -58,6 +62,7 @@ unsigned int _loopCount = 0;
 
 // System Services
 #include <abstracts/service.hpp>
+
 #ifdef ENABLE_SERVICE_NTP
 #include "services/ntp.hpp"
 #endif
@@ -72,62 +77,65 @@ using namespace std;
 using driverList = std::list<sDOS_Abstract_Driver *>;
 using serviceList = std::list<sDOS_Abstract_Service *>;
 
-class sDOS
-{
-    public:
-        sDOS();
-        void Setup();
-        void Loop();
-        void addService(sDOS_Abstract_Service * service);
+class sDOS {
+public:
+    sDOS();
 
-    protected:
-        String _component = "Kernel";
-        uint64_t _chip_id;
-        driverList _drivers;
-        serviceList _services;
-        void _configure();
-        Debugger _debugger = Debugger();
-        FileSystem _fileSystem = FileSystem(_debugger);
-        EventsManager _events = EventsManager(_debugger);
-        WiFiManager * _driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
-        #ifdef ESP32
-        BluetoothManager * _driver_BT = new BluetoothManager(_debugger, _events);
-        #endif
-        #if defined(ENABLE_RTC)
-        AbstractRTC * _driver_RTC;
-        #endif
-        #if defined(ENABLE_DISPLAY) && defined(ESP32)
-        AbstractDisplay * _display;
-        sDOS_FrameBuffer * _driver_FrameBuffer;
-        #endif
-        #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-        sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
-        #endif
-        #if defined(ENABLE_BUTTON)
-        sDOS_BUTTON * _button = new sDOS_BUTTON(_debugger, _events);
-        #endif
-        #if defined(ENABLE_TTP223)
-        sDOS_TTP223 * _button_ttp223 = new sDOS_TTP223(_debugger, _events);
-        #endif
-        #if defined(ENABLE_MONOCOLOUR_LED)
-        sDOS_LED_MONO * _mono_led = new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED);
-        #endif
+    void Setup();
 
-        long _lastCycleTimeMS = 0;
-        long _lastTimeStampUS = 0;
+    void Loop();
+
+    void addService(sDOS_Abstract_Service *service);
+
+protected:
+    String _component = "Kernel";
+    uint64_t _chip_id;
+    driverList _drivers;
+    serviceList _services;
+
+    void _configure();
+
+    Debugger _debugger = Debugger();
+    FileSystem _fileSystem = FileSystem(_debugger);
+    EventsManager _events = EventsManager(_debugger);
+    WiFiManager *_driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+#ifdef ESP32
+    BluetoothManager *_driver_BT = new BluetoothManager(_debugger, _events);
+#endif
+#if defined(ENABLE_RTC)
+    AbstractRTC * _driver_RTC;
+#endif
+#if defined(ENABLE_DISPLAY) && defined(ESP32)
+    AbstractDisplay * _display;
+    sDOS_FrameBuffer * _driver_FrameBuffer;
+#endif
+#if defined(ENABLE_CPU_SCALER) && defined(ESP32)
+    sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
+#endif
+#if defined(ENABLE_BUTTON)
+    sDOS_BUTTON * _button = new sDOS_BUTTON(_debugger, _events);
+#endif
+#if defined(ENABLE_TTP223)
+    sDOS_TTP223 * _button_ttp223 = new sDOS_TTP223(_debugger, _events);
+#endif
+#if defined(ENABLE_MONOCOLOUR_LED)
+    sDOS_LED_MONO * _mono_led = new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED);
+#endif
+
+    long _lastCycleTimeMS = 0;
+    long _lastTimeStampUS = 0;
 };
 
 
-sDOS::sDOS(){
+sDOS::sDOS() {
 
 };
 
-void sDOS::addService(sDOS_Abstract_Service * service){
+void sDOS::addService(sDOS_Abstract_Service *service) {
     _services.push_back(service);
 }
 
-void sDOS::Setup()
-{
+void sDOS::Setup() {
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
@@ -137,15 +145,16 @@ void sDOS::Setup()
 #endif
 
     _debugger.Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
-    _debugger.Debug(_component, F("Built with %slove%s on %s at %s."),COL_RED, COL_RESET, F(__DATE__), F(__TIME__));
-    #ifdef ESP32
+    _debugger.Debug(_component, F("Built with %slove%s on %s at %s."), COL_RED, COL_RESET, F(__DATE__), F(__TIME__));
+#ifdef ESP32
     _chip_id = ESP.getEfuseMac();
-    _debugger.Debug(_component, F("Hardware ID: %s%04X%08X%s"), COL_PINK, (uint16_t)(_chip_id>>32), (uint32_t)(_chip_id), COL_RESET);
-    #endif
-    #ifdef ESP8266
+    _debugger.Debug(_component, F("Hardware ID: %s%04X%08X%s"), COL_PINK, (uint16_t) (_chip_id >> 32),
+                    (uint32_t) (_chip_id), COL_RESET);
+#endif
+#ifdef ESP8266
     _chip_id = ESP.getChipId();
     _debugger.Debug(_component, F("Hardware ID: %s%08X%s"), COL_PINK, (uint32_t)(_chip_id), COL_RESET);
-    #endif
+#endif
 
 #if defined(ENABLE_I2C)
     delay(1);
@@ -177,7 +186,7 @@ void sDOS::Setup()
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
-#if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC) 
+#if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
     _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
@@ -208,26 +217,26 @@ void sDOS::Setup()
 #endif
 
     // Setup Drivers
-    for (auto const& it : _drivers) {
-        #ifdef DEBUG_LOOP_RUNNING
+    for (auto const &it : _drivers) {
+#ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "%s>>> Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-        #endif
+#endif
         it->setup();
-        #ifdef DEBUG_LOOP_RUNNING
+#ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "%s<<< Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-        #endif
+#endif
         yield();
     }
 
     // Setup Services
-    for (auto const& it : _services) {
-        #ifdef DEBUG_LOOP_RUNNING
+    for (auto const &it : _services) {
+#ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "%s>>> Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-        #endif
+#endif
         it->setup();
-        #ifdef DEBUG_LOOP_RUNNING
+#ifdef DEBUG_LOOP_RUNNING
         _debugger.Debug(_component, "%s<<< Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-        #endif
+#endif
         yield();
     }
 
@@ -237,8 +246,7 @@ void sDOS::Setup()
 #endif
 };
 
-void sDOS::Loop()
-{
+void sDOS::Loop() {
 
     // Calculate how long it takes to iterate a loop.
     long microseconds = micros();
@@ -247,76 +255,74 @@ void sDOS::Loop()
 
     _lastTimeStampUS = microseconds;
     _loopCount++;
-    if(_loopCount > 10000){
+    if (_loopCount > 10000) {
         _loopCount = 0;
     }
 
     // Loop over Drivers
-    for (auto const& it : _drivers) {
-        if(it->isActive()){
-            #ifdef DEBUG_LOOP_RUNNING
+    for (auto const &it : _drivers) {
+        if (it->isActive()) {
+#ifdef DEBUG_LOOP_RUNNING
             uint64_t started = micros();
             _debugger.Debug(_component, "%s>>> Loop -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-            #endif
+#endif
             it->loop();
-            #ifdef DEBUG_LOOP_RUNNING
+#ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
-            #endif
-        }else{
-            #ifdef DEBUG_LOOP_RUNNING
+#endif
+        } else {
+#ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%sxxx SKIP >< Driver >< %s%s", COL_RED, it->getName().c_str(), COL_RESET);
-            #endif
+#endif
         }
         yield();
     }
 
     // Loop over Services
-    for (auto const& it : _services) {
-        if(it->isActive()){
-            #ifdef DEBUG_LOOP_RUNNING
-                uint64_t started = micros();
-            _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-            #endif
+    for (auto const &it : _services) {
+        if (it->isActive()) {
+#ifdef DEBUG_LOOP_RUNNING
+            uint64_t started = micros();
+        _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+#endif
             it->loop();
-            #ifdef DEBUG_LOOP_RUNNING
+#ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, (micros() - started) / 1000);
-            #endif
-        }else{
-            #ifdef DEBUG_LOOP_RUNNING
+#endif
+        } else {
+#ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%sxxx SKIP >< Service >< %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-            #endif
+#endif
         }
         yield();
     }
-    
+
     // Check the Events loop
     _events.loop();
     yield();
 }
 
-void Debugger::Debug(String component, String format, ...)
-{
-    #if defined(SDOS_SERIAL_DEBUG_ENABLED) && SDOS_SERIAL_DEBUG_ENABLED == true
-        char buff[DEBUG_SERIAL_BUFFER_SIZE];
-        va_list args;
-        va_start(args, format.c_str());
-        vsprintf(buff, format.c_str(), args);
+void Debugger::Debug(String component, String format, ...) {
+#if defined(SDOS_SERIAL_DEBUG_ENABLED) && SDOS_SERIAL_DEBUG_ENABLED == true
+    char buff[DEBUG_SERIAL_BUFFER_SIZE];
+    va_list args;
+    va_start(args, format.c_str());
+    vsprintf(buff, format.c_str(), args);
 
-        if (Debugger::lastComponent.equals(component) && strcmp(buff, Debugger::lastBuff) == 0)
-        {
-            Debugger::duplicates++;
-            _serial.printf("\t\t(repeated %d times)\r", Debugger::duplicates);
-            return;
-        }
+    if (Debugger::lastComponent.equals(component) && strcmp(buff, Debugger::lastBuff) == 0) {
+        Debugger::duplicates++;
+        _serial.printf("\t\t(repeated %d times)\r", Debugger::duplicates);
+        return;
+    }
 
-        component.toUpperCase();
+    component.toUpperCase();
 
-        char outputBuffer[sizeof(buff)];
-        snprintf(
+    char outputBuffer[sizeof(buff)];
+    snprintf(
             outputBuffer,
             sizeof(outputBuffer),
             "%s[%s%04d %s%-7.7s %s%dMhz %s%s %s%s %s%.1fV %s%dK%s] %s\n",
-            Debugger::duplicates > 0 ? "\n":"",
+            Debugger::duplicates > 0 ? "\n" : "",
             COL_BLUE,
             _loopCount,
             COL_YELLOW,
@@ -325,35 +331,35 @@ void Debugger::Debug(String component, String format, ...)
             getCpuFrequencyMhz(),
             WiFi.isConnected() ? COL_RED : COL_GREEN,
             WiFi.isConnected() ? "W+" : "W-",
-            #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
+#if defined(ENABLE_BLUETOOTH) && defined(ESP32)
             BluetoothManager::isPoweredOn() ? COL_RED : COL_GREEN,
             BluetoothManager::isPoweredOn() ? "B+" : "B-",
-            #else
+#else
             NULL, NULL,
-            #endif
-            #if defined(ENABLE_POWER)
-            sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
-            ((float) sDOS_POWER::getVbattMv()) / 1000,
-            #else
+#endif
+#if defined(ENABLE_POWER)
+    sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
+    ((float) sDOS_POWER::getVbattMv()) / 1000,
+#else
             NULL, NULL,
-            #endif
+#endif
             COL_BLUE,
-            ESP.getFreeHeap()/1024,
+            ESP.getFreeHeap() / 1024,
             COL_RESET,
             buff
-        );
+    );
 
-        _serial.print(outputBuffer);
+    _serial.print(outputBuffer);
 
-        for (auto const& it : Debugger::_handlers) {
-            it(outputBuffer);
-        }
+    for (auto const &it : Debugger::_handlers) {
+        it(outputBuffer);
+    }
 
-        memcpy(Debugger::lastBuff, buff, sizeof(Debugger::lastBuff));
-        Debugger::lastComponent = component;
-        Debugger::duplicates = 0;
-        return;
-    #endif
+    memcpy(Debugger::lastBuff, buff, sizeof(Debugger::lastBuff));
+    Debugger::lastComponent = component;
+    Debugger::duplicates = 0;
+    return;
+#endif
 };
 
 #endif

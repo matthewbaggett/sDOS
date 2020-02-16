@@ -2,29 +2,42 @@
 #include "abstracts/accellerometer.hpp"
 #include <SparkFunMPU9250-DMP.h>
 
-class sDOS_MPU9250: public AbstractAccellerometer
-{
+class sDOS_MPU9250 : public AbstractAccellerometer {
 public:
     sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager);
+
     void setup();
+
     void loop();
+
     void enable();
+
     void disable();
-    String getName(){ return _component; };
+
+    String getName() { return _component; };
 
 private:
     String _component = "MPU9250";
+
     static void interrupt();
+
     static bool hasInterruptOccured();
+
     static bool interruptTriggered;
     Debugger _debugger;
     EventsManager _events;
     MPU9250_DMP _imu;
+
     void printIMUData();
+
     void checkFIFO();
+
     void checkInterrupt();
+
     void handleTap();
+
     void handleSteps();
+
     unsigned long _stepCount = 0;
     unsigned long _stepTime = 0;
     unsigned long _lastStepCount = 0;
@@ -32,22 +45,20 @@ private:
 
 bool sDOS_MPU9250::interruptTriggered = false;
 
-sDOS_MPU9250::sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
-{
+sDOS_MPU9250::sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger),
+                                                                               _events(eventsManager) {
 }
 
-void sDOS_MPU9250::setup()
-{
+void sDOS_MPU9250::setup() {
     _events.trigger("MPU9250_enable");
 
     // Initialise IMU
-    if (_imu.begin() != INV_SUCCESS)
-    {
+    if (_imu.begin() != INV_SUCCESS) {
         _events.trigger("MPU9250_fail");
         return;
     }
 
-    _imu.setSensors(INV_XYZ_ACCEL | INV_XYZ_GYRO );
+    _imu.setSensors(INV_XYZ_ACCEL | INV_XYZ_GYRO);
     // Setup DMP features.
     _imu.dmpBegin(DMP_FEATURE_TAP | DMP_FEATURE_PEDOMETER, 5);
 
@@ -61,8 +72,8 @@ void sDOS_MPU9250::setup()
     // The interrupt is 50us pulse.
     // @todo work out why this doesn't work
     //if (mpu_lp_motion_interrupt(1,0,2) != INV_SUCCESS) {    
-        // Failed to initialize MPU-9250, report somehow
-        //Serial.println(F("IMU set up failed. Please check installed IMU IC."));    
+    // Failed to initialize MPU-9250, report somehow
+    //Serial.println(F("IMU set up failed. Please check installed IMU IC."));
     //}
 
     //_imu.configureFifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
@@ -85,127 +96,109 @@ void sDOS_MPU9250::setup()
     _imu.setIntLevel(INT_ACTIVE_LOW);
     interruptTriggered = false;
     //_imu.setIntLatched(false);
-    
+
     // All done
     _events.trigger("MPU9250_ready");
 };
 
-void sDOS_MPU9250::interrupt()
-{
+void sDOS_MPU9250::interrupt() {
     interruptTriggered = true;
 };
 
-bool sDOS_MPU9250::hasInterruptOccured()
-{
-    if (interruptTriggered)
-    {
+bool sDOS_MPU9250::hasInterruptOccured() {
+    if (interruptTriggered) {
         interruptTriggered = false;
         return true;
     }
     return false;
 }
 
-void sDOS_MPU9250::loop()
-{
+void sDOS_MPU9250::loop() {
     checkInterrupt();
     //checkFIFO();
 };
 
-void sDOS_MPU9250::checkInterrupt()
-{
-    if (sDOS_MPU9250::hasInterruptOccured())
-    {
+void sDOS_MPU9250::checkInterrupt() {
+    if (sDOS_MPU9250::hasInterruptOccured()) {
         //_events.trigger("MPU9250_interrupt");
         checkFIFO();
     }
 }
 
-void sDOS_MPU9250::checkFIFO()
-{
+void sDOS_MPU9250::checkFIFO() {
     handleSteps();
     //Serial.printf("Fifo length: %d\n", _imu.fifoAvailable());
-    if (_imu.fifoAvailable() >= 0)
-    {
+    if (_imu.fifoAvailable() >= 0) {
         //Serial.printf("Fifo length: %d\n", _imu.fifoAvailable());
 
-        while (_imu.fifoAvailable() > 0)
-        {
+        while (_imu.fifoAvailable() > 0) {
             yield();
             // DMP FIFO must be updated in order to update tap data
-            if (_imu.dmpUpdateFifo() != INV_SUCCESS)
-            {
+            if (_imu.dmpUpdateFifo() != INV_SUCCESS) {
                 _events.trigger("mpu9250_fifo", F("failure_to_read"));
             }
 
             // Check for new tap data by polling tapAvailable
-            if (_imu.tapAvailable())
-            {
+            if (_imu.tapAvailable()) {
                 handleTap();
             }
         }
     }
 }
 
-void sDOS_MPU9250::handleSteps()
-{
+void sDOS_MPU9250::handleSteps() {
     _stepCount = _imu.dmpGetPedometerSteps();
     _stepTime = _imu.dmpGetPedometerTime();
 
-    if(_lastStepCount ==0){
+    if (_lastStepCount == 0) {
         _lastStepCount = _stepCount;
     }
-    if (_stepCount != _lastStepCount)
-    {
+    if (_stepCount != _lastStepCount) {
         _lastStepCount = _stepCount;
         Serial.print("Walked " + String(_stepCount) +
                      " steps");
-        Serial.println(" (" + String((float)_stepTime / 1000.0) + " s)");
+        Serial.println(" (" + String((float) _stepTime / 1000.0) + " s)");
     }
 }
 
-void sDOS_MPU9250::handleTap()
-{
+void sDOS_MPU9250::handleTap() {
     // If a new tap happened, get the direction and count
     // by reading getTapDir and getTapCount
     unsigned char tapDir = _imu.getTapDir();
     //unsigned char tapCnt = _imu.getTapCount();
-    switch (tapDir)
-    {
-    case TAP_X_UP:
-        _events.trigger("mpu9250_tap", F("X+"));
-        break;
-    case TAP_X_DOWN:
-        _events.trigger("mpu9250_tap", F("X-"));
-        break;
-    case TAP_Y_UP:
-        _events.trigger("mpu9250_tap", F("Y+"));
-        break;
-    case TAP_Y_DOWN:
-        _events.trigger("mpu9250_tap", F("Y-"));
-        break;
-    case TAP_Z_UP:
-        _events.trigger("mpu9250_tap", F("Z+"));
-        break;
-    case TAP_Z_DOWN:
-        _events.trigger("mpu9250_tap", F("Z-"));
-        break;
+    switch (tapDir) {
+        case TAP_X_UP:
+            _events.trigger("mpu9250_tap", F("X+"));
+            break;
+        case TAP_X_DOWN:
+            _events.trigger("mpu9250_tap", F("X-"));
+            break;
+        case TAP_Y_UP:
+            _events.trigger("mpu9250_tap", F("Y+"));
+            break;
+        case TAP_Y_DOWN:
+            _events.trigger("mpu9250_tap", F("Y-"));
+            break;
+        case TAP_Z_UP:
+            _events.trigger("mpu9250_tap", F("Z+"));
+            break;
+        case TAP_Z_DOWN:
+            _events.trigger("mpu9250_tap", F("Z-"));
+            break;
     }
 }
 
-void sDOS_MPU9250::enable()
-{
+void sDOS_MPU9250::enable() {
     _events.trigger("MPU9250_enable");
     //@todo power management code
 }
 
-void sDOS_MPU9250::disable()
-{
+void sDOS_MPU9250::disable() {
     _events.trigger("MPU9250_disable");
     //@todo power management code
 }
 
-void sDOS_MPU9250::printIMUData(void)
-{
+void sDOS_MPU9250::printIMUData(void) {
     // After calling update() the ax, ay, az, gx, gy, gz, mx,
     // my, mz, time, and/or temerature class variables are all
     // updated. Access them by placing the object. in front:
