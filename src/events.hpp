@@ -37,7 +37,7 @@ void EventsManager::loop()
 void EventsManager::trigger(String event, DateTime &payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload.toStr(), COL_RESET);
 #endif
 };
 
@@ -51,7 +51,7 @@ void EventsManager::trigger(String event, const __FlashStringHelper *payload)
 void EventsManager::trigger(String event, String payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload.c_str(), COL_RESET);
 #endif
 };
 
