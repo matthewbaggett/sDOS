@@ -28,7 +28,7 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
             uint16_t pixelCount = _width * _height;
             uint32_t buffSize = 0;
             _cpuScaler->onDemand(true);
-            _debugger.Debug(_component, "Allocating buffer for %d pixels (%d x %d)", pixelCount, _width, _height);
+            _debugger.Debug(_component, "Allocating buffer for %s%d%s pixels (%s%d x %d%s)", COL_BLUE, pixelCount, COL_RESET, COL_BLUE, _width, _height, COL_RESET);
             uint16_t pixelNum = 0;
             _pixBuf = new uint16_t*[_height];
             _oldBuf = new uint16_t*[_height];
@@ -62,7 +62,7 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
             _cpuScaler->onDemand(false);
 
             buffSize = ramBefore - ESP.getFreeHeap();
-            _debugger.Debug(_component, "Allocated %dKB to double-buffer", buffSize / 1024);
+            _debugger.Debug(_component, "Allocated %s%dKB%s to double-buffer", COL_RED, buffSize / 1024, COL_RESET);
         }
 
         void loop() {
