@@ -33,16 +33,18 @@ private:
 
 JsonConfigFile * FileSystem::loadJsonArray(JsonConfigFile * config, String fileName)
 {
-    delay(500);
+    _debugger.Debug(_component, "Reading %s%s%s from %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED, COL_RESET);
+    delay(50);
     if (!SPIFFS.begin(true)){
         _debugger.Debug(_component, "loadJsonArray _spiffs.begin() for %s did not succeed", fileName.c_str());
     }
+    delay(50);
     if(!SPIFFS.exists(fileName.c_str())){
         _debugger.Debug(_component, "loadJsonArray File %s doesn't exist", fileName.c_str());
     }
+    delay(50);
     File f = SPIFFS.open(fileName.c_str(), "r");
-    if (!f)
-    {
+    if (!f) {
         _debugger.Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed", fileName.c_str());
     }
 
