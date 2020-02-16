@@ -44,15 +44,21 @@ void sDOS_CPU_SCALER::onDemand(bool ondemandStateDesired){
 
 bool sDOS_CPU_SCALER::isSlowPossible()
 {
-    /*
+#ifdef DEBUG_CPU_SCALER_DECISIONS
     _debugger.Debug(
         _component, 
-        "Is Slow Possible? Wifi: %s. Wifi Requests: %d. BlueTooth: %s",
-        _wifi->canSleep() ? "yes" : "no", 
+        "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s",
+        _wifi->canSleep() ? COL_GREEN : COL_RED,
+        _wifi->canSleep() ? F("possible") : F("NOT POSSIBLE"),
+        COL_RESET,
+        _wifi->getRequestCount() > 0 ? COL_RED : COL_GREEN,
         _wifi->getRequestCount(),
-        _bluetooth->canSleep() ? "yes" : "no"
+        COL_RESET,
+        _bluetooth->canSleep() ? COL_GREEN : COL_RED,
+        _bluetooth->canSleep() ? F("possible") : F("NOT POSSIBLE"),
+        COL_RESET
     );
-    */
+#endif
     return _wifi->canSleep() && _bluetooth->canSleep() && _isOnDemand == false;
 }
 
