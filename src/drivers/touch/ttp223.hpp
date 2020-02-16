@@ -77,7 +77,8 @@ void sDOS_TTP223::loop()
         _events.trigger("TTP223_down");
     }
     if (sDOS_TTP223::hasInterruptOccuredButtonUp()) {
-        _events.trigger("TTP223_up", interruptDownOccured / 1000);
+        unsigned int heldDownMs = interruptDownOccured / 1000;
+        _events.trigger("TTP223_up", heldDownMs);
     }
 };
 
