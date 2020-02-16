@@ -37,77 +37,77 @@ void EventsManager::loop()
 void EventsManager::trigger(String event, DateTime &payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %s", event.c_str(), payload.toStr());
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, const __FlashStringHelper *payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %s", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, String payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %s", event.c_str(), payload.c_str());
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, char *payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %s", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %s%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, long payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, double payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, uint32_t payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, int payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %d", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, bool payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %d", event.c_str(), payload ? "true" : "false");
+    _debugger.Debug(_component, "%s%s : boolean(%s)%s", COL_GREY, event.c_str(), payload ? "TRUE" : "FALSE", COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event, byte payload)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s : %#04x", event.c_str(), payload);
+    _debugger.Debug(_component, "%s%s : %#04x%s", COL_GREY, event.c_str(), payload, COL_RESET);
 #endif
 };
 
 void EventsManager::trigger(String event)
 {
 #ifdef DEBUG_EVENTS
-    _debugger.Debug(_component, "%s", event.c_str());
+    _debugger.Debug(_component, "%s%s%s", COL_GREY, event.c_str(), COL_RESET);
 #endif
 };
 #endif

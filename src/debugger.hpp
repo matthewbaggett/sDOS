@@ -11,6 +11,7 @@
 #define COL_YELLOW "\033[1;33m"
 #define COL_BLUE  "\033[1;34m"
 #define COL_PINK  "\033[1;35m"
+#define COL_GREY  "\033[1;90m"
 #define DEBUG_SERIAL_BUFFER_SIZE 255
 
 bool sdos_is_wifi_active();
