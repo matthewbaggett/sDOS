@@ -17,6 +17,7 @@ private:
     static bool hasInterruptOccuredButtonUp();
     static bool interruptTriggeredButtonDown;
     static bool interruptTriggeredButtonUp;
+    static uint64_t interruptDownOccured;
     String _component = "ttp223";
     Debugger _debugger;
     EventsManager _events;
@@ -24,16 +25,17 @@ private:
 
 bool sDOS_TTP223::interruptTriggeredButtonDown = false;
 bool sDOS_TTP223::interruptTriggeredButtonUp = false;
+uint64_t sDOS_TTP223::interruptDownOccured = 0;
 
 sDOS_TTP223::sDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager)
 {}
 
-void sDOS_TTP223::setup(){
-#ifdef PIN_POWER_TTP223
-// If we have a power pin to drive this sensor, enable it
-    pinMode(PIN_POWER_TTP223, OUTPUT);
-    enable();
-#endif
+void sDOS_TTP223::setup() {
+    #ifdef PIN_POWER_TTP223
+        // If we have a power pin to drive this sensor, enable it
+        pinMode(PIN_POWER_TTP223, OUTPUT);
+        enable();
+    #endif
     pinMode(PIN_INTERRUPT_TTP223, INPUT);
     attachInterrupt(PIN_INTERRUPT_TTP223, sDOS_TTP223::interrupt, CHANGE);
     gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
@@ -51,9 +53,9 @@ void sDOS_TTP223::interrupt()
 
 bool sDOS_TTP223::hasInterruptOccuredButtonDown()
 {
-    if (interruptTriggeredButtonDown)
-    {
+    if (interruptTriggeredButtonDown) {
         interruptTriggeredButtonDown = false;
+        interruptDownOccured = micros();
         return true;
     }
     return false;
@@ -61,8 +63,8 @@ bool sDOS_TTP223::hasInterruptOccuredButtonDown()
 
 bool sDOS_TTP223::hasInterruptOccuredButtonUp()
 {
-    if (interruptTriggeredButtonUp)
-    {
+    if (interruptTriggeredButtonUp) {
+        interruptDownOccured = micros() - interruptDownOccured;
         interruptTriggeredButtonUp = false;
         return true;
     }
@@ -71,13 +73,11 @@ bool sDOS_TTP223::hasInterruptOccuredButtonUp()
 
 void sDOS_TTP223::loop()
 {
-    if (sDOS_TTP223::hasInterruptOccuredButtonDown())
-    {
+    if (sDOS_TTP223::hasInterruptOccuredButtonDown()) {
         _events.trigger("TTP223_down");
     }
-    if (sDOS_TTP223::hasInterruptOccuredButtonUp())
-    {
-        _events.trigger("TTP223_up");
+    if (sDOS_TTP223::hasInterruptOccuredButtonUp()) {
+        _events.trigger("TTP223_up", interruptDownOccured / 1000);
     }
 };
 
