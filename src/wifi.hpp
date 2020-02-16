@@ -124,6 +124,7 @@ void WiFiManager::loadWifiConfigs() {
 }
 
 void WiFiManager::scanWifiAps() {
+    return;
   _debugger.Debug(_component, "Scanning for WiFi APs");
   int numberFound = WiFi.scanNetworks();
   if(numberFound == 0){
