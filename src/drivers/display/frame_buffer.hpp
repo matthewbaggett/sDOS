@@ -4,7 +4,8 @@
 #include "abstracts/driver.hpp"
 #include "abstracts/display.hpp"
 #include "services/cpu_scaler.hpp"
-#include <vector> // for 2D vector 
+#include <vector> // for 2D vector
+#include <colours.h>
 using namespace std; 
 
 class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
@@ -18,7 +19,7 @@ class sDOS_FrameBuffer : public sDOS_Abstract_Driver{
 
         void init(
             uint16_t width, 
-            uint16_t height, 
+            uint16_t height,
             sDOS_FrameBuffer::ColourDepth colourDepth = ColourDepth::DEPTH_16_BIT
         ){
             _width = width;
