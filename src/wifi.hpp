@@ -20,13 +20,11 @@ class WiFiManager : public sDOS_Abstract_Driver {
     const unsigned int MAX_WIFI_CREDENTIALS = 10;
 
 public:
-    WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events);
+    WiFiManager(Debugger &debugger, FileSystem * fileSystem, EventsManager &events);
 
     void setup();
 
     void loop();
-
-    bool hasRequests();
 
     void addRequestActive();
 
@@ -44,14 +42,12 @@ public:
 
 private:
     Debugger _debugger;
-    FileSystem _fileSystem;
+    FileSystem * _fileSystem;
     EventsManager _events;
     const String _component = "WiFi";
     const String _fileWifiCredentials = "/wifi.json";
 
     void loadWifiConfigs();
-
-    void scanWifiAps();
 
     enum WifiState _wifiClientState = WIFI_DISCONNECTED;
     enum WifiState _wifiClientStatePrevious = WIFI_DISCONNECTED;
@@ -74,24 +70,17 @@ private:
 
     static uint _numLoadedSSIDs;
 
-    String getCurrentWifiMode();
 
-    static bool _connectionDesired;
     static bool _powerOnState;
 };
 
-bool WiFiManager::_connectionDesired = false;
 unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
 bool WiFiManager::_powerOnState = false;
 
 
-WiFiManager::WiFiManager(Debugger &debugger, FileSystem &fileSystem, EventsManager &events)
+WiFiManager::WiFiManager(Debugger &debugger, FileSystem * fileSystem, EventsManager &events)
         : _debugger(debugger), _fileSystem(fileSystem), _events(events) {}
-
-bool WiFiManager::hasRequests() {
-    return WiFiManager::_requestsActive > 0;
-}
 
 void WiFiManager::setup() {
 #ifdef ESP32
@@ -125,7 +114,7 @@ void WiFiManager::updateState() {
 void WiFiManager::loadWifiConfigs() {
     delay(100);
     JsonConfigFile wifiCreds[MAX_WIFI_CREDENTIALS];
-    _fileSystem.loadJsonArray(wifiCreds, _fileWifiCredentials);
+    _fileSystem->loadJsonArray(wifiCreds, _fileWifiCredentials);
     delay(100);
     for (int i = 0; i < MAX_WIFI_CREDENTIALS; i++) {
         std::map<std::string, std::string> row = wifiCreds[i].data;
@@ -139,19 +128,6 @@ void WiFiManager::loadWifiConfigs() {
                     row["ssid"].c_str());
         }
         yield();
-    }
-}
-
-void WiFiManager::scanWifiAps() {
-    return;
-    _debugger.Debug(_component, "Scanning for WiFi APs");
-    int numberFound = WiFi.scanNetworks();
-    if (numberFound == 0) {
-        _debugger.Debug(_component, "No WiFi found");
-    } else {
-        for (int i = 0; i < numberFound; i++) {
-            _debugger.Debug(_component, "WiFi AP Found: %s (%s)", WiFi.SSID(numberFound), WiFi.RSSI(numberFound));
-        }
     }
 }
 
@@ -191,25 +167,6 @@ long WiFiManager::getSignalStrength() {
     return quality;
 }
 
-String WiFiManager::getCurrentWifiMode() {
-#ifdef ESP32
-    switch (WiFi.getMode()) {
-        case WIFI_MODE_NULL:
-            return "Null";
-        case WIFI_MODE_STA:
-            return "Station";
-        case WIFI_MODE_AP:
-            return "Access Point";
-        case WIFI_MODE_APSTA:
-            return "Access Point + Station";
-        case WIFI_MODE_MAX:
-            return "Max";
-        default:
-            return "Invalid Mode";
-    }
-#endif
-}
-
 void WiFiManager::powerOn() {
     if (WiFiManager::_powerOnState) {
         return;
@@ -239,7 +196,6 @@ void WiFiManager::powerOn() {
     }
     #endif
     */
-    scanWifiAps();
 }
 
 void WiFiManager::powerOff() {
