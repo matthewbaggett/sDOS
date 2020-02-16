@@ -143,12 +143,11 @@ private:
     void repaintEntireBuf() {
         _cpuScaler->onDemand(true);
         _display->beginRedraw();
-
-        for (uint16_t x = 0; x < _width; x++) {
+        for (uint16_t x = 0; x < _height; x++) {
             _display->setCursor(x, 0);
-            _display->writePixels(_pixBuf[x], _height, true, true);
-            yield();
+            _display->writePixels(_pixBuf[x], _width, true, true);
         }
+        yield();
         _display->commitRedraw();
         _cpuScaler->onDemand(false);
     };
