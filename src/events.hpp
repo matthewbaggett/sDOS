@@ -69,6 +69,12 @@ class EventsManager
             #endif
             findCallbacks(event, String(static_cast<char>(payload)));
         };
+        void trigger(String event, uint64_t payload) {
+            #ifdef DEBUG_EVENTS
+                    _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
+            #endif
+            findCallbacks(event, String(static_cast<char>(payload)));
+        };
         void trigger(String event, int payload) {
             #ifdef DEBUG_EVENTS
                     _debugger.Debug(_component, "%s%s : %d%s", COL_GREY, event.c_str(), payload, COL_RESET);
