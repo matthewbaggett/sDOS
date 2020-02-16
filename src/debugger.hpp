@@ -17,7 +17,7 @@ bool sdos_is_bluetooth_active();
 
 #if SDOS_SERIAL_DEBUG_ENABLED == true
     using namespace std;
-    using handlersList = std::list<void(*)(String message)>;
+    using debugHandlersList = std::list<void(*)(String message)>;
 #endif
 
 #ifndef SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG
@@ -27,8 +27,7 @@ bool sdos_is_bluetooth_active();
 class Debugger
 {
     public:
-        Debugger()
-        {
+        Debugger() {
             #if SDOS_SERIAL_DEBUG_ENABLED == true
                 _serial = Serial;
                 _serial.begin(SERIAL_BAUD);
@@ -43,8 +42,7 @@ class Debugger
                 return Debugger::_stepCount;
             #endif
         };
-        void addHandler(void (*newHandler)(String message))
-        {
+        void addHandler(void (*newHandler)(String message)) {
             #if SDOS_SERIAL_DEBUG_ENABLED == true
                 Debugger::_handlers.push_back(newHandler);
             #endif
@@ -56,7 +54,7 @@ class Debugger
             static String lastComponent;
             static char lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
             static int duplicates;
-            static handlersList  _handlers;
+            static debugHandlersList  _handlers;
             static unsigned int _stepCount;
         #endif
 };
@@ -64,7 +62,7 @@ class Debugger
     String Debugger::lastComponent;
     char Debugger::lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
     int Debugger::duplicates = 0;
-    handlersList Debugger::_handlers;
+    debugHandlersList Debugger::_handlers;
     unsigned int Debugger::_stepCount;
 #endif
 
