@@ -283,6 +283,13 @@ void WiFiManager::updateRequestedActivity(){
 }
 
 bool WiFiManager::isActive() {
+  if (WiFi.isConnected()) {
+    #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
+      _debugger.Debug(_component, "isActive: No. Wifi is not connected to anything");
+    #endif
+    return true;
+  }
+
   if (getCpuFrequencyMhz() < 80) {
     #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
       _debugger.Debug(_component, "isActive: No. CPU frequency too low");
@@ -303,11 +310,6 @@ bool WiFiManager::isActive() {
     #endif
     return false;
   }
-
-  //if (!WiFi.isConnected()) {
-    //_debugger.Debug(_component, "isActive: No. Wifi is not connected to anything");
-  //  return false;
-  //}
 
   #ifdef DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS
     _debugger.Debug(_component, "isActive: Yes!");
