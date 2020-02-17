@@ -61,7 +61,9 @@ public:
     };
 
     void loop() {
-        updateBacklight();
+        if(_backlightLevelUpdateNeeded) {
+            updateBacklight();
+        }
     };
 
     void beginRedraw() {
@@ -74,19 +76,24 @@ public:
 
     void updateBacklight() {
         ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7735::_displayOn ? sDOS_DISPLAY_ST7735::_backlightBrightness : 0);
-        //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7735::_backlightBrightness);
+        _backlightLevelUpdateNeeded = false;
     };
 
     String getName() { return _component; };
 
     bool isActive() {
-        return sDOS_DISPLAY_ST7735::_displayOn && sDOS_DISPLAY_ST7735::_backlightBrightness > 0;
+        return sDOS_DISPLAY_ST7735::_displayOn && sDOS_DISPLAY_ST7735::_backlightBrightness > 0 && _backlightLevelUpdateNeeded;
     };
 
-    void setBacklight(unsigned int backlight){
+    void setBacklight(unsigned int backlight) {
+        // This is a workaround until I can work out how to implement pwm with the ULP because 
+        // pwm doesn't work in lightsleep.
+        backlight = backlight > 0 ? 255 : 0; 
         sDOS_DISPLAY_ST7735::_backlightBrightness = backlight;
+        _backlightLevelUpdateNeeded = true;
     };
-    void setEnabled(bool on){
+
+    void setEnabled(bool on) {
         sDOS_DISPLAY_ST7735::_displayOn = on;
     };
 
@@ -107,6 +114,7 @@ protected:
     const uint16_t _Display_Color_Yellow = 0xFFE0;
     const uint16_t _Display_Color_White = 0xFFFF;
     int _pwmChannel = sDOS_DISPLAY_ST7735::getUnusedPWMChannel();
+    bool _backlightLevelUpdateNeeded = false;
 };
 
 unsigned int sDOS_DISPLAY_ST7735::_backlightBrightness = 255;
