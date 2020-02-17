@@ -10,6 +10,11 @@
 
 using namespace std;
 
+struct sDOS_FrameBuffer_DirtyPixel{
+    uint16_t x;
+    uint16_t y;
+};
+
 class sDOS_FrameBuffer : public sDOS_Abstract_Driver {
 public:
     enum class ColourDepth {
@@ -36,8 +41,11 @@ public:
         uint16_t pixelCount = _width * _height;
         uint32_t buffSize = 0;
         _cpuScaler->onDemand(true);
-        _debugger.Debug(_component, "Allocating buffer for %s%d%s pixels (%s%d x %d%s)", COL_BLUE, pixelCount,
-                        COL_RESET, COL_BLUE, _width, _height, COL_RESET);
+        _debugger.Debug(
+                _component,
+                "Allocating buffer for %s%d%s pixels (%s%d x %d%s)",
+                COL_BLUE, pixelCount, COL_RESET, COL_BLUE, _width, _height, COL_RESET
+        );
         uint16_t pixelNum = 0;
         _pixBuf = new uint16_t *[_height];
         _oldBuf = new uint16_t *[_height];
@@ -67,7 +75,7 @@ public:
             }
             //_debugger.Debug(_component, "Allocated row %d of %d, %dKB ram free", x, _height, ESP.getFreeHeap() / 1024);
         }
-        _isDirty = true;
+        _everyPixelDirty = true;
         _cpuScaler->onDemand(false);
 
         buffSize = ramBefore - ESP.getFreeHeap();
@@ -75,7 +83,17 @@ public:
     }
 
     void loop() {
-        scanForChanges();
+        if(_dirtyPixels.size() > 0) {
+            _debugger.Debug(_component, "There are %d pixels that need updating", _dirtyPixels.size());
+            std::list<sDOS_FrameBuffer_DirtyPixel>::iterator it;
+            for (it = _dirtyPixels.begin(); it != _dirtyPixels.end(); ++it) {
+                repaintPixel(it->x, it->y);
+            }
+            _dirtyPixels.clear();
+        }
+        if (_everyPixelDirty) {
+            repaintEntireBuf();
+        }
     };
 
     virtual String getName() { return "fbuff"; };
@@ -85,8 +103,11 @@ public:
      * this does not trigger a repaint.
      */
     void setPixel(uint16_t x, uint16_t y, uint16_t colour565) {
+        sDOS_FrameBuffer_DirtyPixel dirtyPixel;
+        dirtyPixel.x = x;
+        dirtyPixel.y = y;
+        _dirtyPixels.push_back(dirtyPixel);
         _pixBuf[x][y] = colour565;
-        _isDirty = true;
     };
 
     void setPixel(uint16_t x, uint16_t y, uint8_t red, uint8_t green, uint8_t blue) {
@@ -106,14 +127,18 @@ public:
             yield();
         }
         _cpuScaler->onDemand(false);
-        _isDirty = true;
+        _everyPixelDirty = true;
     };
 
     void setAll(uint8_t red, uint8_t green, uint8_t blue) {
         setAll(packColour565(red, green, blue));
     };
 
-    bool isActive() { return _isDirty && _display->isActive(); };
+    bool isActive() {
+        return true;
+        return (_everyPixelDirty || _dirtyPixels.size() > 0)
+                && _display->isActive();
+    };
 
 private:
     Debugger _debugger;
@@ -126,7 +151,8 @@ private:
     uint16_t _height;
     uint16_t **_pixBuf;
     uint16_t **_oldBuf;
-    bool _isDirty = false;
+    bool _everyPixelDirty = false;
+    std::list<sDOS_FrameBuffer_DirtyPixel> _dirtyPixels;
 
     void repaintPixel(uint16_t x, uint16_t y) {
         //_debugger.Debug(_component, "Update Pixel %dx%d on %s", x, y, _display->getName());
@@ -150,43 +176,12 @@ private:
         yield();
         _display->commitRedraw();
         _cpuScaler->onDemand(false);
+        _everyPixelDirty = false;
     };
 
     uint16_t packColour565(uint8_t red, uint8_t green, uint8_t blue) {
         return ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3);
     }
-
-    bool scanForChanges() {
-        repaintEntireBuf();
-        return true;
-
-        /*
-        bool startedWriteSession = false;
-        for(uint16_t x = 0; x < _height; x++) {
-            for(uint16_t y = 0; y < _width; y++) {
-                //_debugger.Debug(_component, "Pixel: %dx%d = %u", w, h, _pixBuf[w][h]);
-                if(_pixBuf[x][y] != _oldBuf[x][y]) {
-                    if(!startedWriteSession) {
-                        _cpuScaler->onDemand(true);
-                        _display->beginRedraw();
-                        startedWriteSession = true;
-                    }
-                    repaintPixelRow(x);
-                    //repaintPixel(x, y);
-                }
-                yield();
-            }
-            yield();
-        }
-        _isDirty = false;
-        if(startedWriteSession){
-            _display->commitRedraw();
-            _cpuScaler->onDemand(false);
-            return true;
-        }
-        return false;
-        */
-    };
 };
 
 #endif
