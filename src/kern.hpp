@@ -279,9 +279,6 @@ void sDOS::Loop() {
 #ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
 #else
-            if(runTimeMS > 200) {
-                _debugger.Debug(_component, "%s%s Driver loop took %dms, slow!%s", COL_RED, runTimeMS, COL_RESET);
-            }
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
@@ -303,9 +300,6 @@ void sDOS::Loop() {
 #ifdef DEBUG_LOOP_RUNNING
             _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
 #else
-            if(runTimeMS > 200) {
-                _debugger.Debug(_component, "%s%s Service loop took %dms, slow!%s", COL_RED, runTimeMS, COL_RESET);
-            }
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
