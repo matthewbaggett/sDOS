@@ -105,9 +105,6 @@ bool sDOS_NTP::talkNTP() {
     unsigned long epoch = _timeClient->getEpochTime();
     DateTime newEpoch(epoch);
     sDOS_NTP::_lastSuccessfulUpdateEpoch = newEpoch.unixtime();
-    //Serial.printf("Updated: %s\n", newEpoch.toStr());
     _rtc->setTime(newEpoch);
-
-    _rtc->setAlarmInSeconds(5);
     return true;
 }
