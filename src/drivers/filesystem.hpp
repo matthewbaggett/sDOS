@@ -1,4 +1,4 @@
-#include "kern_inc.h"
+#include "../kern_inc.h"
 #include <ArduinoJson.h>
 #include <FS.h>
 
@@ -9,7 +9,7 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <abstracts/driver.hpp>
+#include "../abstracts/driver.hpp"
 
 using namespace std;
 

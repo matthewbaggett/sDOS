@@ -8,8 +8,8 @@ unsigned int _loopCount = 0;
 #include <colours.h>
 #include <debugger.hpp>
 #include <events.hpp>
-#include <filesystem.hpp>
-#include <wifi.hpp>
+#include <drivers/filesystem.hpp>
+#include <drivers/wifi.hpp>
 
 #ifdef ESP32
 

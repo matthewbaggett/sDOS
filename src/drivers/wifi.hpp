@@ -1,8 +1,8 @@
 #ifndef SDOS_WIFI_HPP
 #define SDOS_WIFI_HPP
 
-#include "kern_inc.h"
-#include "abstracts/driver.hpp"
+#include "../kern_inc.h"
+#include "../abstracts/driver.hpp"
 
 using namespace std;
 
