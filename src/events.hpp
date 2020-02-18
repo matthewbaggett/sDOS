@@ -123,8 +123,8 @@ private:
             int diff = strcmp(handler.name.c_str(), eventName.c_str());
             if (diff == 0) {
                 handler.callback(payload);
-                _debugger.Debug(_component, "%sEvent detected: %s. Handler matches %s%s.", COL_GREEN, eventName.c_str(),
-                                handler.name.c_str(), COL_RESET);
+                //_debugger.Debug(_component, "%sEvent detected: %s. Handler matches %s%s.", COL_GREEN, eventName.c_str(),
+                //                handler.name.c_str(), COL_RESET);
             }
         }
     };
