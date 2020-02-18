@@ -104,7 +104,9 @@ protected:
 #ifdef ESP32
     BluetoothManager *_driver_BT = new BluetoothManager(_debugger, _events);
 #endif
-#if defined(ENABLE_RTC)
+#if defined(ENABLE_RTC) && defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
+    sDOS_PCF8563 * _driver_RTC;
+#elif defined(ENABLE_RTC)
     AbstractRTC * _driver_RTC;
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
