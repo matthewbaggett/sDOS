@@ -142,14 +142,14 @@ void sDOS_SLEEPTUNE::oncePerSecond() {
         if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION &&
             _sleepMs <= 750 - _tuningStep) {
             _sleepMs = _sleepMs + _tuningStep;
-            _debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.",
-                            _loopPerSecondCount, _sleepMs);
+            //_debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.",
+            //                _loopPerSecondCount, _sleepMs);
             _events.trigger("sleeptune_adjust", _sleepMs);
-        } else if (_loopPerSecondCount < SLEEPTUNE_LOOPS_PER_SECOND - SLEEPTUNE_LOOPS_PER_SECOND_VARIATION) {
+        } else if (_loopPerSecondCount < SLEEPTUNE_LOOPS_PER_SECOND - SLEEPTUNE_LOOPS_PER_SECOND_VARIATION && _sleepMs > 0) {
             _sleepMs = _sleepMs - _tuningStep;
             _sleepMs = max(_sleepMs, 0);
-            _debugger.Debug(_component, "Loop per second: %d/s (too slow). Decreasing tuned sleep to %dms.",
-                            _loopPerSecondCount, _sleepMs);
+            //_debugger.Debug(_component, "Loop per second: %d/s (too slow). Decreasing tuned sleep to %dms.",
+            //                _loopPerSecondCount, _sleepMs);
             _events.trigger("sleeptune_adjust", _sleepMs);
         }
     }
