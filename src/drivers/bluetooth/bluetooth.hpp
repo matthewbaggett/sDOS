@@ -24,8 +24,8 @@ BLECharacteristic *pTxCharacteristic;
 BLECharacteristic *pRxCharacteristic;
 BluetoothState bluetoothState;
 
-#include "bluetooth/BLECharacteristicCallbacks.hpp"
-#include "bluetooth/BLEServerCallbacks.hpp"
+#include "./BLECharacteristicCallbacks.hpp"
+#include "./BLEServerCallbacks.hpp"
 
 using namespace std;
 

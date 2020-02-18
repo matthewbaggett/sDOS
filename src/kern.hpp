@@ -13,7 +13,7 @@ unsigned int _loopCount = 0;
 
 #ifdef ESP32
 
-#include <bluetooth/bluetooth.hpp>
+#include <drivers/bluetooth/bluetooth.hpp>
 
 #endif
 
