@@ -208,6 +208,10 @@ public:
         setAll(packColour565(red, green, blue));
     };
 
+    void setAll(sDOS_FrameBuffer::Colour colour){
+        setAll(colour._565);
+    }
+
     bool isActive() {
         return true;
         return (_everyPixelDirty || _dirtyPixels.size() > 0)
