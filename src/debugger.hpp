@@ -47,6 +47,10 @@ public:
 #endif
     };
 
+    HardwareSerial getSerial(){
+        return _serial;
+    }
+
 private:
 #if SDOS_SERIAL_DEBUG_ENABLED == true
     HardwareSerial _serial = Serial;
