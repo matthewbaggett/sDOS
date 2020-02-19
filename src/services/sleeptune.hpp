@@ -55,7 +55,7 @@ bool sDOS_SLEEPTUNE::isActive() {
 }
 
 bool sDOS_SLEEPTUNE::isSleepPossible() {
-    return _wifi->canSleep() && _bluetooth->canSleep();
+    return _wifi->canSleep() && !(bluetoothState != BT_DISABLED) && BluetoothManager::getRequestCount() == 0;
 }
 
 void sDOS_SLEEPTUNE::loop() {

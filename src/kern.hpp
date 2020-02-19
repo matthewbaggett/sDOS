@@ -9,11 +9,11 @@ unsigned int _loopCount = 0;
 #include <debugger.hpp>
 #include <events.hpp>
 #include <drivers/filesystem.hpp>
-#include <drivers/wifi.hpp>
+#include <drivers/WiFiManager.hpp>
 
 #ifdef ESP32
 
-#include <drivers/bluetooth/bluetooth.hpp>
+#include <drivers/BluetoothManager.hpp>
 
 #endif
 

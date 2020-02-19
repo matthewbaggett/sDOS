@@ -65,7 +65,10 @@ bool sDOS_CPU_SCALER::isSlowPossible() {
         COL_RESET
     );
 #endif
-    return _wifi->canSleep() && _bluetooth->canSleep() && _isOnDemand == false;
+    return  _wifi->canSleep()
+            && !(bluetoothState != BT_DISABLED)
+            && BluetoothManager::getRequestCount() == 0
+            && !_isOnDemand;
 }
 
 void sDOS_CPU_SCALER::loop() {
