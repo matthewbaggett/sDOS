@@ -4,7 +4,8 @@
 class sDOS_POWER : public sDOS_Abstract_Driver {
 public:
 
-    sDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_POWER(Debugger &debugger, EventsManager &eventsManager) :
+        _debugger(debugger), _events(eventsManager) {};
 
     void setup() override {
 #ifdef POWER_MONITOR_VBATT
