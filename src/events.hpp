@@ -7,6 +7,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <abstracts/service.hpp>
 
 using namespace std;
 
@@ -17,14 +18,15 @@ struct EventHandler {
 
 using eventHandlersList = std::list<EventHandler>;
 
-class EventsManager {
+class EventsManager : public sDOS_Abstract_Service {
 public:
-    EventsManager(Debugger &debugger)
+    explicit EventsManager(Debugger &debugger)
             : _debugger(debugger) {};
 
-    void loop() {};
+    void setup() override {};
+    void loop() override {};
 
-    void on(String event, std::function<void(String payload)> newHandler) {
+    static void on(String event, std::function<void(String payload)> newHandler) {
         EventHandler eventHandler;
         eventHandler.name = event;
         eventHandler.callback = newHandler;

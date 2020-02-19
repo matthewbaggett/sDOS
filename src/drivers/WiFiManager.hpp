@@ -35,7 +35,7 @@ public:
     WiFiManager(Debugger &debugger, FileSystem *fileSystem, EventsManager &events)
             : _debugger(debugger), _fileSystem(fileSystem), _events(events) {};
 
-    void setup() {
+    void setup() override {
 #ifdef ESP32
         esp_wifi_deinit();
 #endif
@@ -44,7 +44,7 @@ public:
         WiFiManager::_requestsActive = 0;
     };
 
-    void loop() {
+    void loop() override {
         //_debugger.Debug(_component, "Active? %s", isActive() ? "yes" : "no");
         updateState();
         _wifiSignalStrength = WiFi.isConnected() ? getSignalStrength() : 0;
@@ -54,23 +54,27 @@ public:
 
     void addRequestActive() {
         if (WiFiManager::_numLoadedSSIDs == 0) return;
+        _debugger.Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
         WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 1 : WiFiManager::_requestsActive + 1;
     }
 
-    void removeRequestActive() { WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 0 : WiFiManager::_requestsActive - 1; }
+    void removeRequestActive() {
+        _debugger.Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
+        WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 0 : WiFiManager::_requestsActive - 1;
+    }
 
     static unsigned int getRequestCount() { return _requestsActive; };
 
-    bool canSleep() { return !(WiFiManager::_requestsActive > 0 || WiFi.isConnected()); }
+    static bool canSleep() { return !(WiFiManager::_requestsActive > 0 || WiFi.isConnected()); }
 
-    bool isConnected() { return WiFi.isConnected(); };
+    static bool isConnected() { return WiFi.isConnected(); };
 
-    bool isActive() {
+    bool isActive() override {
         return !(getCpuFrequencyMhz() < 80 && WiFiManager::_numLoadedSSIDs == 0
                  && WiFiManager::_requestsActive == 0 && !WiFi.isConnected());
     };
 
-    String getName() { return _component; };
+    String getName() override { return _component; };
 
 protected:
 
@@ -118,7 +122,7 @@ protected:
         }
     };
 
-    long getSignalStrength() {
+    static long getSignalStrength() {
         long dBm = WiFi.RSSI();
         long quality;
         if (dBm <= -100)
@@ -160,7 +164,7 @@ protected:
     };
 
     void powerOff() {
-        if (WiFiManager::_powerOnState == false) {
+        if (!WiFiManager::_powerOnState) {
             return;
         }
         _debugger.Debug(_component, "powerOff()");
@@ -176,7 +180,6 @@ protected:
 #ifdef ESP32
         WiFi.mode(WIFI_MODE_NULL);
 #endif
-        return;
     };
 
 
