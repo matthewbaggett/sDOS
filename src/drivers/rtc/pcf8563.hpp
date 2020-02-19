@@ -60,25 +60,25 @@ private:
     String _component = "rtc";
 
     static void interrupt(){
-        interruptTriggered = true;
+        _interruptTriggered = true;
     };
 
     static bool hasInterruptOccured(){
-        if (interruptTriggered) {
-            interruptTriggered = false;
+        if (_interruptTriggered) {
+            _interruptTriggered = false;
             return true;
         }
         return false;
     };
 
-    static bool interruptTriggered;
+    static bool _interruptTriggered;
     Debugger _debugger;
     EventsManager _events;
     sDOS_I2C *_i2c;
     PCF8563 _rtc;
 };
 
-bool sDOS_PCF8563::interruptTriggered = false;
+bool sDOS_PCF8563::_interruptTriggered = false;
 
 
 

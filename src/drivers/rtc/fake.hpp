@@ -3,66 +3,39 @@
 #include <RTClib.h>
 
 class sDOS_FAKE_RTC : public AbstractRTC {
-public:
-    sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager);
-
-    void setup();
-
-    void loop();
-
-    void setAlarmInMinutes(int minutes);
-
-    void setAlarmInSeconds(int seconds);
-
-    void setTime(DateTime &newTime);
-
-    DateTime getTime();
-
-    String getName() { return _component; };
-
 private:
     String _component = "fakertc";
-
-    static void interrupt();
-
-    static bool hasInterruptOccured();
-
-    static bool interruptTriggered;
     Debugger _debugger;
     EventsManager _events;
     RTC_Millis _rtc;
-};
+public:
+    sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager)
+        : _debugger(debugger), _events(eventsManager) {};
 
-bool sDOS_FAKE_RTC::interruptTriggered = false;
+    void setup(){
+        DateTime buildTime = DateTime(__DATE__, __TIME__);
+        _events.trigger(F("rtc_enable"));
+        _rtc.begin(buildTime);
+        _events.trigger(F("rtc_ready"));
+        _debugger.Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
+    };
 
-sDOS_FAKE_RTC::sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager)
-        : _debugger(debugger), _events(eventsManager) {}
+    void loop(){};
 
-void sDOS_FAKE_RTC::setTime(DateTime &newTime) {
-    _rtc.adjust(newTime);
-    _events.trigger("rtc_set", String(newTime.toStr()));
-}
+    void setAlarmInMinutes(int minutes){};
 
-DateTime sDOS_FAKE_RTC::getTime() {
-    return _rtc.now();
-}
+    void setAlarmInSeconds(int seconds){};
 
-void sDOS_FAKE_RTC::setup() {
-    DateTime buildTime = DateTime(__DATE__, __TIME__);
-    _events.trigger(F("rtc_enable"));
-    _rtc.begin(buildTime);
-    _events.trigger(F("rtc_ready"));
-    _debugger.Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
-};
+    void setTime(DateTime &newTime){
+        _rtc.adjust(newTime);
+        _events.trigger("rtc_set", String(newTime.toStr()));
+    };
 
-void sDOS_FAKE_RTC::setAlarmInMinutes(int minutes) {
+    DateTime getTime(){ return _rtc.now(); };
 
-};
+    String getName() { return _component; };
 
-void sDOS_FAKE_RTC::setAlarmInSeconds(int seconds) {
 
 };
 
-void sDOS_FAKE_RTC::loop() {
 
-};
