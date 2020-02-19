@@ -1,73 +1,104 @@
-#ifndef SDOS_DEBUGGER_HPP
-#define SDOS_DEBUGGER_HPP
-
+#pragma once
 #include "kern_inc.h"
 #include <algorithm>
 #include <iostream>
 #include <list>
 
+
 #define DEBUG_SERIAL_BUFFER_SIZE 255
 
-#ifndef SDOS_SERIAL_DEBUG_ENABLED
-#define SDOS_SERIAL_DEBUG_ENABLED true
-#endif
-
-#if SDOS_SERIAL_DEBUG_ENABLED == true
 using namespace std;
 using debugHandlersList = std::list<void (*)(String message)>;
-#endif
 
 #ifndef SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG
 #define SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG false
 #endif
 
 class Debugger {
+private:
+    HardwareSerial _serial = Serial;
+    static String _lastComponent;
+    static char _lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
+    static int _duplicates;
+    static debugHandlersList _handlers;
+    static bool isBluetoothPoweredOn();
+    static bool isWifiPoweredOn();
+    static int isPowerCharging();
 public:
     Debugger() {
-#if SDOS_SERIAL_DEBUG_ENABLED == true
         _serial = Serial;
         _serial.begin(SERIAL_BAUD);
         _serial.setDebugOutput(SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG);
-#endif
     };
 
-    void Debug(String component, String message, ...);
+    void Debug(String component, const String& format, ...){
+        char buff[DEBUG_SERIAL_BUFFER_SIZE];
+        va_list args;
+        va_start(args, format.c_str());
+        vsprintf(buff, format.c_str(), args);
 
-    unsigned int Step() {
-#if SDOS_SERIAL_DEBUG_ENABLED == true
-        Debugger::_stepCount++;
-        Debugger::Debug("step", "%d", Debugger::_stepCount);
-        return Debugger::_stepCount;
+        if (Debugger::_lastComponent.equals(component) && strcmp(buff, Debugger::_lastBuff) == 0) {
+            Debugger::_duplicates++;
+            _serial.printf("\t\t(repeated %d times)\r", Debugger::_duplicates);
+            return;
+        }
+
+        component.toUpperCase();
+
+        char outputBuffer[sizeof(buff)];
+        snprintf(
+                outputBuffer,
+                sizeof(outputBuffer),
+                "%s[%s%04d %s%-7.7s %s%dMhz %s%s %s%s %s%.1fV %s%dK%s] %s\n",
+                Debugger::getDuplicates() > 0 ? "\n" : "",
+                COL_BLUE,
+                _loopCount,
+                COL_YELLOW,
+                component.c_str(),
+                getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN,
+                getCpuFrequencyMhz(),
+                Debugger::isWifiPoweredOn() ? COL_RED : COL_GREEN,
+                Debugger::isWifiPoweredOn() ? "W+" : "W-",
+#if defined(ENABLE_BLUETOOTH) && defined(ESP32)
+                Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN,
+                Debugger::isBluetoothPoweredOn() ? "B+" : "B-",
+#else
+                NULL, NULL,
 #endif
+#if defined(ENABLE_POWER)
+                Debugger::isPowerCharging()  ? COL_BLUE : COL_PINK,
+                ((float) Debugger::isPowerCharging()) / 1000,
+#else
+                NULL, NULL,
+#endif
+                ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE,
+                ESP.getFreeHeap() / 1024,
+                COL_RESET,
+                buff
+        );
+
+        _serial.print(outputBuffer);
+
+        for (auto const &it : Debugger::_handlers) {
+            it(outputBuffer);
+        }
+
+        memcpy(Debugger::_lastBuff, buff, sizeof(Debugger::_lastBuff));
+        Debugger::_lastComponent = component;
+        Debugger::_duplicates = 0;
+        return;
     };
 
-    void addHandler(void (*newHandler)(String message)) {
-#if SDOS_SERIAL_DEBUG_ENABLED == true
+    static void addHandler(void (*newHandler)(String message)) {
         Debugger::_handlers.push_back(newHandler);
-#endif
     };
-
     HardwareSerial getSerial(){
         return _serial;
     }
-
-private:
-#if SDOS_SERIAL_DEBUG_ENABLED == true
-    HardwareSerial _serial = Serial;
-    static String lastComponent;
-    static char lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
-    static int duplicates;
-    static debugHandlersList _handlers;
-    static unsigned int _stepCount;
-#endif
+    static int getDuplicates() { return Debugger::_duplicates; };
 };
 
-#if SDOS_SERIAL_DEBUG_ENABLED == true
-String Debugger::lastComponent;
-char Debugger::lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
-int Debugger::duplicates = 0;
+String Debugger::_lastComponent;
+char Debugger::_lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
+int Debugger::_duplicates = 0;
 debugHandlersList Debugger::_handlers;
-unsigned int Debugger::_stepCount;
-#endif
-
-#endif

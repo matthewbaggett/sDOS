@@ -12,9 +12,7 @@ unsigned int _loopCount = 0;
 #include <drivers/WiFiManager.hpp>
 
 #ifdef ESP32
-
 #include <drivers/BluetoothManager.hpp>
-
 #endif
 
 #include <abstracts/driver.hpp>
@@ -315,65 +313,5 @@ void sDOS::Loop() {
     _events.loop();
     yield();
 }
-
-void Debugger::Debug(String component, String format, ...) {
-#if defined(SDOS_SERIAL_DEBUG_ENABLED) && SDOS_SERIAL_DEBUG_ENABLED == true
-    char buff[DEBUG_SERIAL_BUFFER_SIZE];
-    va_list args;
-    va_start(args, format.c_str());
-    vsprintf(buff, format.c_str(), args);
-
-    if (Debugger::lastComponent.equals(component) && strcmp(buff, Debugger::lastBuff) == 0) {
-        Debugger::duplicates++;
-        _serial.printf("\t\t(repeated %d times)\r", Debugger::duplicates);
-        return;
-    }
-
-    component.toUpperCase();
-
-    char outputBuffer[sizeof(buff)];
-    snprintf(
-            outputBuffer,
-            sizeof(outputBuffer),
-            "%s[%s%04d %s%-7.7s %s%dMhz %s%s %s%s %s%.1fV %s%dK%s] %s\n",
-            Debugger::duplicates > 0 ? "\n" : "",
-            COL_BLUE,
-            _loopCount,
-            COL_YELLOW,
-            component.c_str(),
-            getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN,
-            getCpuFrequencyMhz(),
-            WiFi.isConnected() ? COL_RED : COL_GREEN,
-            WiFi.isConnected() ? "W+" : "W-",
-#if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-            BluetoothManager::isPoweredOn() ? COL_RED : COL_GREEN,
-            BluetoothManager::isPoweredOn() ? "B+" : "B-",
-#else
-            NULL, NULL,
-#endif
-#if defined(ENABLE_POWER)
-    sDOS_POWER::isCharging() ? COL_BLUE : COL_PINK,
-    ((float) sDOS_POWER::getVbattMv()) / 1000,
-#else
-            NULL, NULL,
-#endif
-            ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE,
-            ESP.getFreeHeap() / 1024,
-            COL_RESET,
-            buff
-    );
-
-    _serial.print(outputBuffer);
-
-    for (auto const &it : Debugger::_handlers) {
-        it(outputBuffer);
-    }
-
-    memcpy(Debugger::lastBuff, buff, sizeof(Debugger::lastBuff));
-    Debugger::lastComponent = component;
-    Debugger::duplicates = 0;
-    return;
-#endif
-};
 
 #endif

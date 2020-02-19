@@ -1,5 +1,4 @@
-#ifndef SDOS_BLUETOOTH_HPP
-#define SDOS_BLUETOOTH_HPP
+#pragma once
 
 #include <kern_inc.h>
 #include "abstracts/driver.hpp"
@@ -12,6 +11,8 @@
 #include <BLE2902.h>
 #include <esp_bt_main.h>
 #include <esp_bt_device.h>
+#include <debugger.hpp>
+#include <events.hpp>
 
 enum BluetoothState {
     BT_DISABLED,
@@ -171,4 +172,4 @@ private:
 };
 unsigned int BluetoothManager::_requestsActive = 0;
 
-#endif
+bool Debugger::isBluetoothPoweredOn() { return BluetoothManager::isPoweredOn(); }

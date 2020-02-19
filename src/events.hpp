@@ -2,6 +2,7 @@
 #define SDOS_EVENTS_HPP
 
 #include "kern_inc.h"
+#include "debugger.hpp"
 #include <RTClib.h> // Required for DateTime class
 #include <functional>
 #include <iostream>

@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 #define CHARGE_DETECT_THRESHOLD_MV 3000
@@ -101,8 +102,6 @@ int sDOS_POWER::_mon_mv_vbatt_previous = 0;
 int sDOS_POWER::_mon_mv_vbus = 0;
 int sDOS_POWER::_mon_mv_vbus_previous = 0;
 #endif
-;
 
-
-
+int Debugger::isPowerCharging() { return sDOS_POWER::isCharging() ? sDOS_POWER::getVbattMv() : 0; }
 

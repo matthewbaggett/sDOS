@@ -1,6 +1,4 @@
-#ifndef SDOS_WIFI_HPP
-#define SDOS_WIFI_HPP
-
+#pragma once
 #include "../kern_inc.h"
 #include "../abstracts/driver.hpp"
 
@@ -206,4 +204,5 @@ unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
 bool WiFiManager::_powerOnState = false;
 
-#endif
+bool Debugger::isWifiPoweredOn() { return WiFi.isConnected(); }
+
