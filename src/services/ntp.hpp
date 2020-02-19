@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/service.hpp"
 #include <NTPClient.h>
