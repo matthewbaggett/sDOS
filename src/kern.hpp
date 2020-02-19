@@ -357,7 +357,7 @@ void Debugger::Debug(String component, String format, ...) {
 #else
             NULL, NULL,
 #endif
-            COL_BLUE,
+            ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE,
             ESP.getFreeHeap() / 1024,
             COL_RESET,
             buff

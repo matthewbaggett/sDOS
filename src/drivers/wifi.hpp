@@ -206,5 +206,4 @@ unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
 bool WiFiManager::_powerOnState = false;
 
-
 #endif

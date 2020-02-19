@@ -104,7 +104,7 @@ public:
         _cpuScaler->onDemand(false);
 
         buffSize = ramBefore - ESP.getFreeHeap();
-        _debugger.Debug(_component, "Allocated %s%dKB%s to double-buffer", COL_RED, buffSize / 1024, COL_RESET);
+        _debugger.Debug(_component, "Allocated %s%dKB%s to framebuffer", COL_RED, buffSize / 1024, COL_RESET);
     }
 
     void loop() {
@@ -135,6 +135,7 @@ public:
     };
 
     void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t colour565){
+        yield();
         _cpuScaler->onDemand(true);
         _debugger.Debug(_component, "drawLine(%d,%d,%d,%d)", x0, y0, x1, y1);
         int16_t steep = abs(y1 - y0) > abs(x1 - x0);
@@ -172,6 +173,10 @@ public:
                 y0 += ystep;
                 err += dx;
             }
+            yield();
+        }
+        if(ESP.getFreeHeap() < 50000){
+            repaintDirtyPixels();
         }
         _cpuScaler->onDemand(false);
     };

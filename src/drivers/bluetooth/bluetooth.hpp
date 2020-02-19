@@ -119,7 +119,7 @@ void BluetoothManager::powerOn() {
         return;
     }
     bluetoothState = BluetoothState::BT_ENABLED;
-    _debugger.Debug(_component, "powerOn()");
+    _debugger.Debug(_component, "BLE powerOn");
 
     BLEDevice::init(bleHostname.c_str());
     pServer = BLEDevice::createServer();
@@ -147,6 +147,15 @@ void BluetoothManager::powerOn() {
     // Start advertising
     pService->start();
     pServer->getAdvertising()->start();
+
+    // Release some RAM used for BT Classic that we dont use
+    if(ESP_OK != esp_bt_mem_release(ESP_BT_MODE_CLASSIC_BT)){
+        _debugger.Debug(_component, "Cannot free bt memory");
+    }
+    if(ESP_OK != esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)){
+        _debugger.Debug(_component, "Cannot free bt controller memory");
+    }
+
     _events.trigger("bluetooth_on");
 }
 

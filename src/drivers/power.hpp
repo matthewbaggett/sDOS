@@ -1,8 +1,9 @@
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
-
+#define CHARGE_DETECT_THRESHOLD_MV 3000
 class sDOS_POWER : public sDOS_Abstract_Driver {
 public:
+
     sDOS_POWER(Debugger &debugger, EventsManager &eventsManager);
 
     void setup();
@@ -63,16 +64,19 @@ sDOS_POWER::sDOS_POWER(Debugger &debugger, EventsManager &eventsManager) : _debu
 
 void sDOS_POWER::setup() {
 #ifdef POWER_MONITOR_VBATT
+    _debugger.Debug(_component, "Enabled monitoring VBATT on pin #%d", POWER_MONITOR_VBATT);
     pinMode(POWER_MONITOR_VBATT, INPUT);
     analogSetPinAttenuation(POWER_MONITOR_VBATT, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_VBUS
+    _debugger.Debug(_component, "Enabled monitoring VBUS on pin #%d", POWER_MONITOR_VBUS);
     pinMode(POWER_MONITOR_VBUS, INPUT);
     analogSetPinAttenuation(POWER_MONITOR_VBUS, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_CHARGE_STATE
+    _debugger.Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
     pinMode(POWER_MONITOR_CHARGE_STATE, INPUT);
     attachInterrupt(POWER_MONITOR_CHARGE_STATE, sDOS_POWER::interrupt, CHANGE);
     _isCharging = digitalRead(POWER_MONITOR_CHARGE_STATE);
@@ -98,18 +102,22 @@ void sDOS_POWER::loop() {
 #endif
 #ifdef POWER_MONITOR_VBATT
     sDOS_POWER::_mon_mv_vbatt = analogRead(POWER_MONITOR_VBATT) * BATTERY_MAGIC_MULTIPLIER;
-    if (!(round(sDOS_POWER::_mon_mv_vbatt_previous / 100) == round(sDOS_POWER::_mon_mv_vbatt / 100))) {
-        _debugger.Debug(_component, "VBATT %dMv", sDOS_POWER::_mon_mv_vbatt);
-        sDOS_POWER::_mon_mv_vbatt_previous = sDOS_POWER::_mon_mv_vbatt;
+    if (sDOS_POWER::_mon_mv_vbatt != sDOS_POWER::_mon_mv_vbatt_previous) {
         _events.trigger(F("power_vbatt_mv"), sDOS_POWER::_mon_mv_vbatt);
+        sDOS_POWER::_mon_mv_vbatt_previous = sDOS_POWER::_mon_mv_vbatt;
     }
 #endif
 #ifdef POWER_MONITOR_VBUS
     sDOS_POWER::_mon_mv_vbus = (float) analogRead(POWER_MONITOR_VBUS) * BATTERY_MAGIC_MULTIPLIER;
-    if (!(round(sDOS_POWER::_mon_mv_vbus_previous / 100) == round(sDOS_POWER::_mon_mv_vbus / 100))) {
-        _debugger.Debug(_component, "VBUS %dMv", sDOS_POWER::_mon_mv_vbus);
-        sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
+    if (sDOS_POWER::_mon_mv_vbus != sDOS_POWER::_mon_mv_vbus_previous) {
         _events.trigger(F("power_vbus_mv"), sDOS_POWER::_mon_mv_vbus);
+        _debugger.Debug(_component, "vbus prev: %d vbus now: %d, threshold: %d", sDOS_POWER::_mon_mv_vbus_previous, sDOS_POWER::_mon_mv_vbus, CHARGE_DETECT_THRESHOLD_MV);
+        if(sDOS_POWER::_mon_mv_vbus_previous > CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus <= CHARGE_DETECT_THRESHOLD_MV){
+            _events.trigger(F("power_state"),F("unplugged"));
+        }else if(sDOS_POWER::_mon_mv_vbus_previous <= CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus > CHARGE_DETECT_THRESHOLD_MV){
+            _events.trigger(F("power_state"),F("charging"));
+        }
+        sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
     }
 #endif
 };
