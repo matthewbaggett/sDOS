@@ -3,24 +3,70 @@
 
 class sDOS_I2C : public sDOS_Abstract_Driver {
 public:
-    sDOS_I2C(Debugger &debugger, EventsManager &eventsManager);
+    sDOS_I2C(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager) {};
 
-    void setup();
+    void setup() override {
+        connect();
+        scan();
+    };
 
-    void loop();
+    void loop() override {};
 
-    //static TwoWire wire;
-    static bool isConnected();
+    bool isActive() override { return false; }
 
-    void connect();
+    static bool isConnected() { return sDOS_I2C::_isConnected; };
 
-    TwoWire getWire();
+    void connect(){
+        #ifdef ESP32
+            if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
+                _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
+                _events.trigger("i2c_ready");
+                sDOS_I2C::_isConnected = true;
+            } else {
+                _events.trigger("i2c_fail");
+            }
+        #endif
+        #ifdef ESP8266
+            Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
+            _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
+            _events.trigger("i2c_ready");
+            sDOS_I2C::_isConnected = true;
+        #endif
+    };
 
-    void scan();
+    TwoWire getWire(){
+        if (!sDOS_I2C::isConnected()) {
+            connect();
+        }
+        return Wire;
+    };
 
-    bool i2cDeviceExists(byte address);
+    void scan(){
+        _events.trigger("i2c_scan_begin");
 
-    String getName() { return _component; };
+        byte error, address;
+        int nDevices;
+
+        nDevices = 0;
+        for (address = 1; address < 255; address++) {
+            Wire.beginTransmission(address);
+            error = Wire.endTransmission();
+            if (error == 0) {
+                //Serial.printf("[i2c] > i2c device found at address %#04x!\n", address);
+                _events.trigger("i2c_scan_found", address);
+                nDevices++;
+            }
+        }
+
+        _events.trigger("i2c_scan_end");
+    };
+
+    static bool i2cDeviceExists(byte address) {
+        Wire.beginTransmission(address);
+        return Wire.endTransmission() == 0;
+    };
+
+    String getName() override { return _component; };
 
 private:
     String _component = "i2c";
@@ -29,79 +75,4 @@ private:
     static bool _isConnected;
 };
 
-//TwoWire sDOS_I2C::wire = Wire;
 bool sDOS_I2C::_isConnected = false;
-
-sDOS_I2C::sDOS_I2C(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger), _events(eventsManager) {
-};
-
-void sDOS_I2C::setup() {
-    connect();
-    scan();
-};
-
-bool sDOS_I2C::isConnected() {
-    return sDOS_I2C::_isConnected;
-}
-
-void sDOS_I2C::connect() {
-#ifdef ESP32
-    if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
-        _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
-        _events.trigger("i2c_ready");
-        sDOS_I2C::_isConnected = true;
-    } else {
-        _events.trigger("i2c_fail");
-    }
-#endif
-#ifdef ESP8266
-    Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
-    _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
-    _events.trigger("i2c_ready");
-    sDOS_I2C::_isConnected = true;
-#endif
-}
-
-TwoWire sDOS_I2C::getWire() {
-    if (!sDOS_I2C::isConnected()) {
-        connect();
-    }
-    return Wire;
-}
-
-void sDOS_I2C::scan() {
-    _events.trigger("i2c_scan_begin");
-
-    byte error, address;
-    int nDevices;
-
-    //Serial.println("[i2c] Scanning i2c bus...");
-    nDevices = 0;
-    for (address = 1; address < 255; address++) {
-        Wire.beginTransmission(address);
-        error = Wire.endTransmission();
-        if (error == 0) {
-            //Serial.printf("[i2c] > i2c device found at address %#04x!\n", address);
-            _events.trigger("i2c_scan_found", address);
-            nDevices++;
-        } else if (error == 4) {
-            //Serial.printf("[i2c] > Unknown error at address %#04x\n", address);
-        }
-    }
-
-    if (nDevices == 0) {
-        //Serial.println("[i2c] > No I2C devices found");
-    } else {
-        //Serial.println("[i2c] > Done!");
-    }
-    _events.trigger("i2c_scan_end");
-}
-
-bool sDOS_I2C::i2cDeviceExists(byte address) {
-    Wire.beginTransmission(address);
-    return Wire.endTransmission() == 0;
-}
-
-void sDOS_I2C::loop() {
-};
-
