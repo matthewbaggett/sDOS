@@ -64,6 +64,9 @@ unsigned int _loopCount = 0;
 #ifdef ENABLE_SERVICE_NTP
 #include "services/ntp.hpp"
 #endif
+#ifdef ENABLE_SERVICE_OTA
+#include "services/ota.hpp"
+#endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
 #include "services/sleeptune.hpp"
 #endif

@@ -150,6 +150,7 @@ protected:
         WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(true);
         _events.trigger("wifi_on");
+        return;
 #if defined(ESP32) && defined(WIFI_POWER_SAVING)
         if (WIFI_POWER_SAVING == WIFI_PS_NONE) {
             _debugger.Debug(_component, "WiFi power saving is disabled");
