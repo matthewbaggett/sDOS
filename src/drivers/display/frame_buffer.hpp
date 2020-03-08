@@ -5,11 +5,11 @@
 #include "abstracts/driver.hpp"
 #include "abstracts/display.hpp"
 #include "services/cpu_scaler.hpp"
+#include "drivers/display/pgm-ptr.h"
 #include <vector> // for 2D vector
 #include <colours.h>
 
 using namespace std;
-
 
 class sDOS_FrameBuffer : public sDOS_Abstract_Driver {
 public:
@@ -123,6 +123,10 @@ public:
      * this does not trigger a repaint.
      */
     void setPixel(uint16_t x, uint16_t y, uint16_t colour565) {
+        if(!pixelInBounds(x, y)){
+            //_debugger.Debug(_component, "Tried to write to coordinate out of bounds: %d,%d", x, y);
+            return;
+        }
         sDOS_FrameBuffer::DirtyPixel dirtyPixel{};
         dirtyPixel._x = x;
         dirtyPixel._y = y;
@@ -193,27 +197,79 @@ public:
         drawLine(a._x,a._y,b._x,b._y, colour._565);
     }
 
-    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, int16_t red, int16_t green, int16_t blue){
-        drawText(x, y, text, font, packColour565(red, green, blue));
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, int16_t red, int16_t green, int16_t blue){
+        drawText(x, y, text, gfxFont, packColour565(red, green, blue));
     }
 
-    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, sDOS_FrameBuffer::Colour colour){
-        drawText(x, y, text, font, colour._565);
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, sDOS_FrameBuffer::Colour colour){
+        drawText(x, y, text, gfxFont, colour._565);
     }
 
-    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, uint16_t colour565){
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, uint16_t colour565){
+        _cpuScaler->onDemand(true);
         _debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
         int xAdvance = 0;
         for(int charOffset = 0; charOffset < text.length(); charOffset++) {
 
-            int glyphOffset = text.charAt(charOffset) - font->first;
-            _debugger.Debug(_component, "Offset: %d, Character: %c, Hex: %x, GlyphOffset: %x", charOffset, text.charAt(charOffset), text.charAt(charOffset), glyphOffset);
-            GFXglyph glyph = font->glyph[glyphOffset];
+            int glyphOffset = text.charAt(charOffset) - gfxFont->first;
+            GFXglyph glyph = gfxFont->glyph[glyphOffset];
 
-
-
+            _debugger.Debug(
+                    _component,
+                    "Offset: %d, Character: %c, xAdvance %d",
+                    charOffset,
+                    text.charAt(charOffset),
+                    xAdvance
+            );
+            drawChar(x + xAdvance, y + gfxFont->yAdvance, text.charAt(charOffset), gfxFont, colour565);
             xAdvance = xAdvance + glyph.xAdvance;
+            yield();
         }
+        _cpuScaler->onDemand(false);
+    }
+
+    bool pixelInBounds(uint16_t x, uint16_t y){
+        return (x >= 0 && y >= 0 && x < _height && y < _width);
+    }
+
+    void drawChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont, uint16_t colour565){
+
+        _debugger.Debug(_component, "Draw Char %c", c);
+        c -= (uint8_t)pgm_read_byte(&gfxFont->first);
+        GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c);
+        uint8_t *bitmap = pgm_read_bitmap_ptr(gfxFont);
+
+        uint16_t bitmapOffset = pgm_read_word(&glyph->bitmapOffset);
+        uint8_t glyphWidth = pgm_read_byte(&glyph->width);
+        uint8_t glyphHeight = pgm_read_byte(&glyph->height);
+        int8_t xOffset = pgm_read_byte(&glyph->xOffset);
+        int8_t yOffset = pgm_read_byte(&glyph->yOffset);
+        uint8_t xx = 0;
+        uint8_t yy = 0;
+        uint8_t bits = 0;
+        uint8_t bit = 0;
+
+        uint16_t pixelChangedCount = 0;
+        for (yy = 0; yy < glyphHeight; yy++) {
+            for (xx = 0; xx < glyphWidth; xx++) {
+                if (!(bit++ & 7)) {
+                    bits = pgm_read_byte(&bitmap[bitmapOffset++]);
+                }
+                if (bits & 0x80) {
+                    int16_t pixelX = x + xOffset + xx;
+                    int16_t pixelY = y + yOffset + yy;
+
+                    if(pixelInBounds(pixelX, pixelY)) {
+                        setPixel(pixelX, pixelY, colour565);
+                        pixelChangedCount++;
+                    }else{
+                        //_debugger.Debug(_component, "setPixel(%d,%d) : %s", pixelX, pixelY, "Not in bounds");
+                    }
+                }
+                bits <<= 1;
+            }
+        }
+        _debugger.Debug(_component, "Changed %d pixels", pixelChangedCount);
     }
 
     /**
