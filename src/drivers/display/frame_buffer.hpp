@@ -182,7 +182,7 @@ public:
     };
 
     void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t red, uint16_t green, uint16_t blue){
-        drawLine(x0,y0,x1,y1, packColour565(red,green,blue));
+        drawLine(x0,y0,x1,y1, packColour565(red, green, blue));
     };
 
     void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, sDOS_FrameBuffer::Colour colour) {
@@ -191,6 +191,29 @@ public:
 
     void drawLine(sDOS_FrameBuffer::Coordinate a, sDOS_FrameBuffer::Coordinate b, sDOS_FrameBuffer::Colour colour){
         drawLine(a._x,a._y,b._x,b._y, colour._565);
+    }
+
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, int16_t red, int16_t green, int16_t blue){
+        drawText(x, y, text, font, packColour565(red, green, blue));
+    }
+
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, sDOS_FrameBuffer::Colour colour){
+        drawText(x, y, text, font, colour._565);
+    }
+
+    void drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * font, uint16_t colour565){
+        _debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
+        int xAdvance = 0;
+        for(int charOffset = 0; charOffset < text.length(); charOffset++) {
+
+            int glyphOffset = text.charAt(charOffset) - font->first;
+            _debugger.Debug(_component, "Offset: %d, Character: %c, Hex: %x, GlyphOffset: %x", charOffset, text.charAt(charOffset), text.charAt(charOffset), glyphOffset);
+            GFXglyph glyph = font->glyph[glyphOffset];
+
+
+
+            xAdvance = xAdvance + glyph.xAdvance;
+        }
     }
 
     /**
@@ -219,8 +242,6 @@ public:
 
     bool isActive() {
         return true;
-        return (_everyPixelDirty || _dirtyPixels.size() > 0)
-                && _display->isActive();
     };
 
     uint16_t packColour565(uint8_t red, uint8_t green, uint8_t blue) {
