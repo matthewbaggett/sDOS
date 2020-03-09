@@ -23,7 +23,8 @@ private:
     static debugHandlersList _handlers;
     static bool isBluetoothPoweredOn();
     static bool isWifiPoweredOn();
-    static int isPowerCharging();
+    static bool isPowerCharging();
+    static double getBatteryVolts();
 public:
     Debugger() {
         _serial = Serial;
@@ -49,7 +50,7 @@ public:
         snprintf(
                 outputBuffer,
                 sizeof(outputBuffer),
-                "%s[%s%04d %s%-7.7s %s%dMhz %s%s %s%s %s%.1fV %s%dK%s] %s\n",
+                "%s[%s%04d %s%-7.7s %s%dMhz %s%s %s%s %s%.2fv %s%dK%s] %s\n",
                 Debugger::getDuplicates() > 0 ? "\n" : "",
                 COL_BLUE,
                 _loopCount,
@@ -66,8 +67,8 @@ public:
                 NULL, NULL,
 #endif
 #if defined(ENABLE_POWER)
-                Debugger::isPowerCharging()  ? COL_BLUE : COL_PINK,
-                ((float) Debugger::isPowerCharging()) / 1000,
+                Debugger::isPowerCharging() ? COL_BLUE : COL_PINK,
+                Debugger::getBatteryVolts(),
 #else
                 NULL, NULL,
 #endif
