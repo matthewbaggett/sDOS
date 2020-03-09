@@ -146,7 +146,7 @@ private:
 
             sDOS_SLEEPTUNE::_longTermAverageMs = std::accumulate(std::begin(_awakeTimes), std::end(_awakeTimes),0) / _awakeTimes.size();
 
-            _debugger.Debug(
+            /*_debugger.Debug(
                     _component,
                     "Second took: %dms. SleepTime: %dms. Asleep: %dms. Awake: %dms. Average Awake: %dms",
                     _actualSecondLengthMs,
@@ -154,7 +154,7 @@ private:
                     _timeSpentAsleepMs,
                     _timeSpentAwakeMs,
                     _longTermAverageMs
-            );
+            );*/
 
             // Adjust sleep timing
             if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION &&
