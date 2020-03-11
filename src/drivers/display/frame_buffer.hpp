@@ -349,7 +349,6 @@ public:
     }
 
     Region boundChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont){
-
         c -= (uint8_t)pgm_read_byte(&gfxFont->first);
         GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c);
         uint8_t *bitmap = pgm_read_bitmap_ptr(gfxFont);
@@ -422,6 +421,10 @@ public:
 
     uint16_t getHeight() const {
         return _height;
+    }
+
+    void drawXBM(uint16_t x, uint16_t y, uint16_t width, uint16_t height, unsigned char xbmData){
+
     }
 
 private:
