@@ -14,8 +14,21 @@ public:
         updateFrequency();
     };
 
+    void setCPUMhz(uint32_t targetFreq) {
+        uint32_t currentFrequency = getCpuFrequencyMhz();
+
+        if(getCpuFrequencyMhz() == targetFreq) return;
+
+        setCpuFrequencyMhz(targetFreq);
+
+        if( targetFreq > currentFrequency ){
+            _events.trigger(F("cpu_scaling_increase"));
+        }else{
+            _events.trigger(F("cpu_scaling_decrease"));
+        }
+    };
+
     uint32_t updateFrequency() {
-        uint32_t currentFreq;
 #ifdef CPU_FREQ_MHZ
         uint32_t targetFreq = CPU_FREQ_MHZ;
 #ifdef CPU_FREQ_MHZ_NORADIO
@@ -23,14 +36,9 @@ public:
             targetFreq = CPU_FREQ_MHZ_NORADIO;
         }
 #endif
-        currentFreq = getCpuFrequencyMhz();
-        if (currentFreq != targetFreq) {
-            setCpuFrequencyMhz(targetFreq);
-            _debugger.Debug(_component, "CPU frequency changed from %dMhz to %dMhz", currentFreq, getCpuFrequencyMhz());
-            _events.trigger("cpu_freq_mhz", getCpuFrequencyMhz());
-        }
+        setCPUMhz(targetFreq);
 #endif
-        currentFreq = getCpuFrequencyMhz();
+        uint32_t currentFreq = getCpuFrequencyMhz();
         if (currentFreq <= CPU_FREQ_MHZ_NORADIO) {
             TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
             TIMERG0.wdt_feed = 1;
@@ -45,9 +53,9 @@ public:
         _isOnDemand = onDemandStateDesired;
         if (_isOnDemand) {
             _onDemandPreviousFrequency = getCpuFrequencyMhz();
-            setCpuFrequencyMhz(CPU_FREQ_MHZ_ONDEMAND);
+            setCPUMhz(CPU_FREQ_MHZ_ONDEMAND);
         } else {
-            setCpuFrequencyMhz(_onDemandPreviousFrequency);
+            setCPUMhz(_onDemandPreviousFrequency);
         }
         yield();
     };
