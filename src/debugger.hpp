@@ -50,7 +50,7 @@ public:
         snprintf(
                 outputBuffer,
                 sizeof(outputBuffer),
-                "%s[%s%04d %s%-7.7s %s%03dMhz %s%s %s%s %s%.2fv %s%dK%s] %s\n",
+                "%s[%s%04d %s%-7.7s %s%3dMhz %s%s %s%s %s%.2fv %s%3dK%s] %s\n",
                 Debugger::getDuplicates() > 0 ? "\n" : "",
                 COL_BLUE,
                 _loopCount,
