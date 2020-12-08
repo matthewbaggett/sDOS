@@ -21,6 +21,8 @@ public:
 
         setCpuFrequencyMhz(targetFreq);
 
+        _events.trigger(F("cpu_freq_mhz"), targetFreq);
+
         if( targetFreq > currentFrequency ){
             _events.trigger(F("cpu_scaling_increase"));
         }else{
