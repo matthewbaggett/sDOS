@@ -13,12 +13,12 @@ using namespace std;
 
 class sDOS_FrameBuffer : public sDOS_Abstract_Driver {
 public:
-    struct Colour{
+    struct Colour {
         uint8_t _red;
         uint8_t _green;
         uint8_t _blue;
         uint16_t _565;
-        Colour(uint8_t red, uint8_t green, uint8_t blue){
+        Colour(uint8_t red, uint8_t green, uint8_t blue) {
             _red = red;
             _green = green;
             _blue = blue;
@@ -26,61 +26,61 @@ public:
         }
     };
 
-    struct DirtyPixel{
+    struct DirtyPixel {
         uint16_t _x;
         uint16_t _y;
     };
 
-    struct Coordinate{
+    struct Coordinate {
         uint16_t _x;
         uint16_t _y;
-        Coordinate(uint16_t x, uint16_t y){
+        Coordinate(uint16_t x, uint16_t y) {
             _x = x;
             _y = y;
         };
-        Coordinate move(int16_t x, int16_t y){
+        Coordinate move(int16_t x, int16_t y) {
             Coordinate newCoord(_x + x, _y + y);
             return newCoord;
         }
     };
 
-    struct Region{
+    struct Region {
         uint16_t _topLeft_x;
         uint16_t _topLeft_y;
         uint16_t _bottomRight_x;
         uint16_t _bottomRight_y;
-        Region(uint16_t tl_x, uint16_t tl_y, uint16_t br_x, uint16_t br_y){
+        Region(uint16_t tl_x, uint16_t tl_y, uint16_t br_x, uint16_t br_y) {
             _topLeft_x = tl_x;
             _topLeft_y = tl_y;
             _bottomRight_x = br_x;
             _bottomRight_y = br_y;
         };
-        Region move(int16_t x, int16_t y){
+        Region move(int16_t x, int16_t y) {
             Region newRegion (_topLeft_x + x, _topLeft_y + y, _bottomRight_x + x, _bottomRight_y + y);
             return newRegion;
         }
-        String __toString(){
+        String __toString() {
             return "region from (" + String(_topLeft_x) + "," + String(_topLeft_y) + ") to (" + String(_bottomRight_x) + "," + String(_bottomRight_y) + ")";
         }
-        uint16_t getHeight(){
+        uint16_t getHeight() {
             return _bottomRight_y - _topLeft_y;
         }
-        uint16_t getWidth(){
+        uint16_t getWidth() {
             return _bottomRight_x - _topLeft_x;
         }
-        Coordinate getTopLeft(){
+        Coordinate getTopLeft() {
             return {_topLeft_x, _topLeft_y};
         }
-        Coordinate getTopRight(){
+        Coordinate getTopRight() {
             return {_topLeft_x, _bottomRight_y};
         }
-        Coordinate getBottomLeft(){
+        Coordinate getBottomLeft() {
             return {_bottomRight_x, _topLeft_y};
         }
-        Coordinate getBottomRight(){
+        Coordinate getBottomRight() {
             return {_bottomRight_x, _bottomRight_y};
         }
-        void highlight(sDOS_FrameBuffer * _frameBuffer, sDOS_FrameBuffer::Colour colour){
+        void highlight(sDOS_FrameBuffer * _frameBuffer, sDOS_FrameBuffer::Colour colour) {
             _frameBuffer->highlightRegion(this, colour);
         }
     };
@@ -91,13 +91,15 @@ public:
 
     sDOS_FrameBuffer(Debugger &debugger, EventsManager &eventsManager, AbstractDisplay *display,
                      sDOS_CPU_SCALER *cpuScaler)
-            : _debugger(debugger), _eventsManager(eventsManager), _display(display), _cpuScaler(cpuScaler) {};
+        : _debugger(debugger), _eventsManager(eventsManager), _display(display), _cpuScaler(cpuScaler) {};
 
     void setup() {};
 
-    AbstractDisplay * getDisplay(){ return _display; };
+    AbstractDisplay * getDisplay() {
+        return _display;
+    };
 
-    void highlightRegion(Region * region, Colour colour){
+    void highlightRegion(Region * region, Colour colour) {
         this->drawLine(region->getTopLeft(), region->getTopRight(), colour);
         this->drawLine(region->getTopRight(), region->getBottomRight(), colour);
         this->drawLine(region->getBottomRight(), region->getBottomLeft(), colour);
@@ -105,9 +107,9 @@ public:
     }
 
     void init(
-            uint16_t width,
-            uint16_t height,
-            sDOS_FrameBuffer::ColourDepth colourDepth = ColourDepth::DEPTH_16_BIT
+        uint16_t width,
+        uint16_t height,
+        sDOS_FrameBuffer::ColourDepth colourDepth = ColourDepth::DEPTH_16_BIT
     ) {
         _width = width;
         _height = height;
@@ -117,9 +119,9 @@ public:
         uint32_t buffSize = 0;
         _cpuScaler->onDemand(true);
         _debugger.Debug(
-                _component,
-                "Allocating buffer for %s%d%s pixels (%s%d x %d%s)",
-                COL_BLUE, pixelCount, COL_RESET, COL_BLUE, _width, _height, COL_RESET
+            _component,
+            "Allocating buffer for %s%d%s pixels (%s%d x %d%s)",
+            COL_BLUE, pixelCount, COL_RESET, COL_BLUE, _width, _height, COL_RESET
         );
         uint16_t pixelNum = 0;
         _pixBuf = new uint16_t *[_height];
@@ -157,19 +159,21 @@ public:
     void loop() {
         if (_everyPixelDirty) {
             repaintEntireFrame();
-        }else if(_dirtyPixels.size() > 0) {
+        } else if(_dirtyPixels.size() > 0) {
             repaintDirtyPixels();
         }
     };
 
-    virtual String getName() { return "fbuff"; };
+    virtual String getName() {
+        return "fbuff";
+    };
 
     /**
      * Set the pixel in the buffer.
      * this does not trigger a repaint.
      */
     void setPixel(uint16_t x, uint16_t y, uint16_t colour565) {
-        if(!pixelInBounds(x, y)){
+        if(!pixelInBounds(x, y)) {
             //_debugger.Debug(_component, "Tried to write to coordinate out of bounds: %d,%d", x, y);
             return;
         }
@@ -184,11 +188,11 @@ public:
         setPixel(x, y, packColour565(red, green, blue));
     };
 
-    void setPixel(uint16_t x, uint16_t y, Colour colour){
+    void setPixel(uint16_t x, uint16_t y, Colour colour) {
         setPixel(x,y, colour._565);
     }
 
-    void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t colour565){
+    void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t colour565) {
         yield();
         _cpuScaler->onDemand(true);
         //_debugger.Debug(_component, "drawLine(%d,%d,%d,%d)", x0, y0, x1, y1);
@@ -229,7 +233,7 @@ public:
             }
             yield();
         }
-        if(ESP.getFreeHeap() < 50000){
+        if(ESP.getFreeHeap() < 50000) {
             repaintDirtyPixels();
         }
         _cpuScaler->onDemand(false);
@@ -240,15 +244,15 @@ public:
         drawLine(x0, y0, x1, y1, colour._565);
     }
 
-    void drawLine(sDOS_FrameBuffer::Coordinate a, sDOS_FrameBuffer::Coordinate b, sDOS_FrameBuffer::Colour colour){
+    void drawLine(sDOS_FrameBuffer::Coordinate a, sDOS_FrameBuffer::Coordinate b, sDOS_FrameBuffer::Colour colour) {
         drawLine(a._x,a._y,b._x,b._y, colour._565);
     }
 
-    Region drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, sDOS_FrameBuffer::Colour colour){
+    Region drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, sDOS_FrameBuffer::Colour colour) {
         return drawText(x, y, text, gfxFont, colour._565);
     }
 
-    Region drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, uint16_t colour565){
+    Region drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, uint16_t colour565) {
         _cpuScaler->onDemand(true);
         //_debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
         int xAdvance = 0;
@@ -274,7 +278,7 @@ public:
         return {tl_x, tl_y, br_x, br_y};
     }
 
-    Region boundText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont){
+    Region boundText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont) {
         _cpuScaler->onDemand(true);
         _debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
         int xAdvance = 0;
@@ -300,11 +304,11 @@ public:
         return {tl_x, tl_y, br_x, br_y};
     }
 
-    bool pixelInBounds(uint16_t x, uint16_t y){
+    bool pixelInBounds(uint16_t x, uint16_t y) {
         return (x >= 0 && y >= 0 && x < _height && y < _width);
     }
 
-    Region drawChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont, uint16_t colour565){
+    Region drawChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont, uint16_t colour565) {
 
         c -= (uint8_t)pgm_read_byte(&gfxFont->first);
         GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c);
@@ -338,7 +342,7 @@ public:
 
                         setPixel(pixelX, pixelY, colour565);
                         pixelChangedCount++;
-                    }else{
+                    } else {
                         //_debugger.Debug(_component, "setPixel(%d,%d) : %s", pixelX, pixelY, "Not in bounds");
                     }
                 }
@@ -348,7 +352,7 @@ public:
         return {topLeftX, topLeftY, bottomRightX, bottomRightY};
     }
 
-    Region boundChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont){
+    Region boundChar(uint16_t x, uint16_t y, char c, const GFXfont * gfxFont) {
         c -= (uint8_t)pgm_read_byte(&gfxFont->first);
         GFXglyph *glyph = pgm_read_glyph_ptr(gfxFont, c);
         uint8_t *bitmap = pgm_read_bitmap_ptr(gfxFont);
@@ -388,12 +392,12 @@ public:
      * Set all pixels in the buffer to a specific colour.
      * This does not trigger a repaint.
      */
-    void fillEntireFrame(sDOS_FrameBuffer::Colour colour){
+    void fillEntireFrame(sDOS_FrameBuffer::Colour colour) {
         this->fillRegion(Region(0,0,_height -1, _width -1), colour);
         _everyPixelDirty = true;
     }
 
-    void fillRegion(sDOS_FrameBuffer::Region region, sDOS_FrameBuffer::Colour colour){
+    void fillRegion(sDOS_FrameBuffer::Region region, sDOS_FrameBuffer::Colour colour) {
         _cpuScaler->onDemand(true);
         for (uint16_t x = region._topLeft_x; x <= region._bottomRight_x; x++) {
             for (uint16_t y = region._topLeft_y; y <= region._bottomRight_y; y++) {
@@ -423,7 +427,7 @@ public:
         return _height;
     }
 
-    void drawXBM(uint16_t x, uint16_t y, uint16_t width, uint16_t height, unsigned char xbmData){
+    void drawXBM(uint16_t x, uint16_t y, uint16_t width, uint16_t height, unsigned char xbmData) {
 
     }
 
@@ -453,7 +457,7 @@ private:
     void repaintEntireFrame() {
         _cpuScaler->onDemand(true);
         _display->beginRedraw();
-        for(uint16_t y = 0; y < _width; y++){
+        for(uint16_t y = 0; y < _width; y++) {
             for (uint16_t x = 0; x < _height; x++) {
                 //_display->setCursor(x, 0);
                 //_display->writePixels(_pixBuf[x], _width, true, true);
@@ -467,7 +471,7 @@ private:
         _everyPixelDirty = false;
     };
 
-    void repaintDirtyPixels(){
+    void repaintDirtyPixels() {
         _debugger.Debug(_component, "There are %d pixels that need repainting", _dirtyPixels.size());
         std::list<sDOS_FrameBuffer::DirtyPixel>::iterator it;
         for (it = _dirtyPixels.begin(); it != _dirtyPixels.end(); ++it) {

@@ -23,9 +23,9 @@ public:
 
         _events.trigger(F("cpu_freq_mhz"), targetFreq);
 
-        if( targetFreq > currentFrequency ){
+        if( targetFreq > currentFrequency ) {
             _events.trigger(F("cpu_scaling_increase"));
-        }else{
+        } else {
             _events.trigger(F("cpu_scaling_decrease"));
         }
     };
@@ -49,9 +49,11 @@ public:
         return currentFreq;
     };
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
-    void onDemand(bool onDemandStateDesired){
+    void onDemand(bool onDemandStateDesired) {
         _isOnDemand = onDemandStateDesired;
         if (_isOnDemand) {
             _onDemandPreviousFrequency = getCpuFrequencyMhz();
@@ -69,21 +71,21 @@ private:
     WiFiManager *_wifi;
     BluetoothManager *_bluetooth;
 
-    bool isSlowPossible(){
+    bool isSlowPossible() {
 #ifdef DEBUG_CPU_SCALER_DECISIONS
         _debugger.Debug(
-        _component,
-        "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s",
-        _wifi->canSleep() ? COL_GREEN : COL_RED,
-        _wifi->canSleep() ? F("possible") : F("NOT POSSIBLE"),
-        COL_RESET,
-        _wifi->getRequestCount() > 0 ? COL_RED : COL_GREEN,
-        _wifi->getRequestCount(),
-        COL_RESET,
-        _bluetooth->canSleep() ? COL_GREEN : COL_RED,
-        _bluetooth->canSleep() ? F("possible") : F("NOT POSSIBLE"),
-        COL_RESET
-    );
+            _component,
+            "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s",
+            _wifi->canSleep() ? COL_GREEN : COL_RED,
+            _wifi->canSleep() ? F("possible") : F("NOT POSSIBLE"),
+            COL_RESET,
+            _wifi->getRequestCount() > 0 ? COL_RED : COL_GREEN,
+            _wifi->getRequestCount(),
+            COL_RESET,
+            _bluetooth->canSleep() ? COL_GREEN : COL_RED,
+            _bluetooth->canSleep() ? F("possible") : F("NOT POSSIBLE"),
+            COL_RESET
+        );
 #endif
         return  _wifi->canSleep()
                 && !(bluetoothState != BT_DISABLED)

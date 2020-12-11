@@ -10,75 +10,79 @@ public:
     sDOS_OTA_Service(Debugger &debugger, EventsManager &events, WiFiManager *wifi, sDOS_CPU_SCALER *cpuScaler)
         : _debugger(debugger), _events(events),  _wifi(wifi), _cpuScaler(cpuScaler) {};
 
-    String getName() { return _component; }
+    String getName() {
+        return _component;
+    }
 
-    void setup(){};
+    void setup() {};
 
-    void loop(){
+    void loop() {
         ArduinoOTA.begin();
         ArduinoOTA.handle();
     };
 
-    bool isActive(){ return _isActive && _wifi->isActive() && _wifi->isConnected(); }
+    bool isActive() {
+        return _isActive && _wifi->isActive() && _wifi->isConnected();
+    }
 
-    void activate(){
+    void activate() {
         _debugger.Debug(_component, "activate()");
         _isActive = true;
 
         ArduinoOTA
-                .onStart([&]() {
+        .onStart([&]() {
 
-                    _cpuScaler->onDemand(true);
-                    String type;
-                    if (ArduinoOTA.getCommand() == U_FLASH)
-                        type = "sketch";
-                    else // U_SPIFFS
-                        type = "filesystem";
+            _cpuScaler->onDemand(true);
+            String type;
+            if (ArduinoOTA.getCommand() == U_FLASH)
+                type = "sketch";
+            else // U_SPIFFS
+                type = "filesystem";
 
-                    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-                    _events.trigger(F("ota_begin"));
-                });
-
-        ArduinoOTA
-                .onEnd([&]() {
-                    _cpuScaler->onDemand(false);
-                    _events.trigger(F("ota_end"));
-                });
+            // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+            _events.trigger(F("ota_begin"));
+        });
 
         ArduinoOTA
-                .onProgress([&](unsigned int progress, unsigned int total) {
-                    _events.trigger(F("ota_progress"), progress);
-                    yield();
-                });
+        .onEnd([&]() {
+            _cpuScaler->onDemand(false);
+            _events.trigger(F("ota_end"));
+        });
 
         ArduinoOTA
-                .onError([&](ota_error_t error) {
+        .onProgress([&](unsigned int progress, unsigned int total) {
+            _events.trigger(F("ota_progress"), progress);
+            yield();
+        });
 
-                    _cpuScaler->onDemand(false);
-                    switch(error){
-                        case OTA_AUTH_ERROR:
-                            _events.trigger(F("ota_err"), F("auth error"));
-                            break;
-                        case OTA_BEGIN_ERROR:
-                            _events.trigger(F("ota_err"), F("begin error"));
-                            break;
-                        case OTA_CONNECT_ERROR:
-                            _events.trigger(F("ota_err"), F("connect error"));
-                            break;
-                        case OTA_RECEIVE_ERROR:
-                            _events.trigger(F("ota_err"), F("receive error"));
-                            break;
-                        case OTA_END_ERROR:
-                            _events.trigger(F("ota_err"), F("end error"));
-                            break;
-                    }
-                });
+        ArduinoOTA
+        .onError([&](ota_error_t error) {
+
+            _cpuScaler->onDemand(false);
+            switch(error) {
+            case OTA_AUTH_ERROR:
+                _events.trigger(F("ota_err"), F("auth error"));
+                break;
+            case OTA_BEGIN_ERROR:
+                _events.trigger(F("ota_err"), F("begin error"));
+                break;
+            case OTA_CONNECT_ERROR:
+                _events.trigger(F("ota_err"), F("connect error"));
+                break;
+            case OTA_RECEIVE_ERROR:
+                _events.trigger(F("ota_err"), F("receive error"));
+                break;
+            case OTA_END_ERROR:
+                _events.trigger(F("ota_err"), F("end error"));
+                break;
+            }
+        });
 
         _events.trigger(F("ota_enable"));
 
     }
 
-    void deactivate(){
+    void deactivate() {
         _isActive = false;
         _debugger.Debug(_component, "deactivate()");
         _events.trigger(F("ota_disable"));

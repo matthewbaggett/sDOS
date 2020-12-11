@@ -23,18 +23,22 @@ private:
     const String _component = "FS";
 
 public:
-    explicit FileSystem(Debugger &debugger) : _debugger(debugger){};
+    explicit FileSystem(Debugger &debugger) : _debugger(debugger) {};
 
-    bool isActive() override { return false; }
+    bool isActive() override {
+        return false;
+    }
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
-    void setup() override{
+    void setup() override {
         _debugger.Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
         SPIFFS.begin();
     }
 
-    void loop() override{}
+    void loop() override {}
 
     JsonConfigFile *loadJsonArray(JsonConfigFile *config, const String& fileName) {
         _debugger.Debug(_component, "Reading %s%s%s from %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,

@@ -33,7 +33,7 @@ private:
 
 public:
     WiFiManager(Debugger &debugger, FileSystem *fileSystem, EventsManager &events)
-            : _debugger(debugger), _fileSystem(fileSystem), _events(events) {};
+        : _debugger(debugger), _fileSystem(fileSystem), _events(events) {};
 
     void setup() override {
 #ifdef ESP32
@@ -63,18 +63,26 @@ public:
         WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 0 : WiFiManager::_requestsActive - 1;
     }
 
-    static unsigned int getRequestCount() { return _requestsActive; };
+    static unsigned int getRequestCount() {
+        return _requestsActive;
+    };
 
-    static bool canSleep() { return !(WiFiManager::_requestsActive > 0 || WiFi.isConnected()); }
+    static bool canSleep() {
+        return !(WiFiManager::_requestsActive > 0 || WiFi.isConnected());
+    }
 
-    static bool isConnected() { return WiFi.isConnected(); };
+    static bool isConnected() {
+        return WiFi.isConnected();
+    };
 
     bool isActive() override {
         return !(getCpuFrequencyMhz() < 80 && WiFiManager::_numLoadedSSIDs == 0
                  && WiFiManager::_requestsActive == 0 && !WiFi.isConnected());
     };
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
 protected:
 
@@ -90,9 +98,9 @@ protected:
                 WiFiManager::_numLoadedSSIDs++;
                 wifiMulti.addAP(row["ssid"].c_str(), row["psk"].c_str());
                 _debugger.Debug(
-                        _component,
-                        "Loaded Wifi Credential: %s",
-                        row["ssid"].c_str());
+                    _component,
+                    "Loaded Wifi Credential: %s",
+                    row["ssid"].c_str());
             }
             yield();
         }
@@ -208,5 +216,7 @@ unsigned int WiFiManager::_requestsActive = 0;
 uint WiFiManager::_numLoadedSSIDs = 0;
 bool WiFiManager::_powerOnState = false;
 
-bool Debugger::isWifiPoweredOn() { return WiFi.isConnected(); }
+bool Debugger::isWifiPoweredOn() {
+    return WiFi.isConnected();
+}
 

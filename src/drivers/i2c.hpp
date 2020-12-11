@@ -12,36 +12,40 @@ public:
 
     void loop() override {};
 
-    bool isActive() override { return false; }
+    bool isActive() override {
+        return false;
+    }
 
-    static bool isConnected() { return sDOS_I2C::_isConnected; };
-
-    void connect(){
-        #ifdef ESP32
-            if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
-                _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
-                _events.trigger("i2c_ready");
-                sDOS_I2C::_isConnected = true;
-            } else {
-                _events.trigger("i2c_fail");
-            }
-        #endif
-        #ifdef ESP8266
-            Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
-            _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
-            _events.trigger("i2c_ready");
-            sDOS_I2C::_isConnected = true;
-        #endif
+    static bool isConnected() {
+        return sDOS_I2C::_isConnected;
     };
 
-    TwoWire getWire(){
+    void connect() {
+#ifdef ESP32
+        if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
+            _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
+            _events.trigger("i2c_ready");
+            sDOS_I2C::_isConnected = true;
+        } else {
+            _events.trigger("i2c_fail");
+        }
+#endif
+#ifdef ESP8266
+        Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
+        _debugger.Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
+        _events.trigger("i2c_ready");
+        sDOS_I2C::_isConnected = true;
+#endif
+    };
+
+    TwoWire getWire() {
         if (!sDOS_I2C::isConnected()) {
             connect();
         }
         return Wire;
     };
 
-    void scan(){
+    void scan() {
         _events.trigger("i2c_scan_begin");
 
         byte error, address;
@@ -66,7 +70,9 @@ public:
         return Wire.endTransmission() == 0;
     };
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
 private:
     String _component = "i2c";

@@ -3,12 +3,13 @@
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <shims/Adafruit_ST7735_shim.hpp>
+
 #include <SPI.h>
 
 class sDOS_DISPLAY_ST7735 : public AbstractDisplay {
 public:
     sDOS_DISPLAY_ST7735(Debugger &debugger, EventsManager &eventsManager, sDOS_SPI *sdos_spi)
-            : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
+        : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
     void setup() {
         setupBacklight();
@@ -79,16 +80,18 @@ public:
         _backlightLevelUpdateNeeded = false;
     };
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
     bool isActive() {
         return sDOS_DISPLAY_ST7735::_displayOn && sDOS_DISPLAY_ST7735::_backlightBrightness > 0 && _backlightLevelUpdateNeeded;
     };
 
     void setBacklight(unsigned int backlight) {
-        // This is a workaround until I can work out how to implement pwm with the ULP because 
+        // This is a workaround until I can work out how to implement pwm with the ULP because
         // pwm doesn't work in lightsleep.
-        backlight = backlight > 0 ? 255 : 0; 
+        backlight = backlight > 0 ? 255 : 0;
         sDOS_DISPLAY_ST7735::_backlightBrightness = backlight;
         _backlightLevelUpdateNeeded = true;
     };

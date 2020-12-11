@@ -4,7 +4,7 @@
 class sDOS_TTP223 : public sDOS_Abstract_Driver {
 public:
     sDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger),
-                                                                    _events(eventsManager) {};
+        _events(eventsManager) {};
 
     void setup() override {
 #ifdef PIN_POWER_TTP223
@@ -42,7 +42,9 @@ public:
 #endif
     };
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
 private:
     static void interrupt() {

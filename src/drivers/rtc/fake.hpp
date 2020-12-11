@@ -12,7 +12,7 @@ public:
     sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager)
         : _debugger(debugger), _events(eventsManager) {};
 
-    void setup(){
+    void setup() {
         DateTime buildTime = DateTime(__DATE__, __TIME__);
         _events.trigger(F("rtc_enable"));
         _rtc.begin(buildTime);
@@ -20,20 +20,24 @@ public:
         _debugger.Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
     };
 
-    void loop(){};
+    void loop() {};
 
-    void setAlarmInMinutes(int minutes){};
+    void setAlarmInMinutes(int minutes) {};
 
-    void setAlarmInSeconds(int seconds){};
+    void setAlarmInSeconds(int seconds) {};
 
-    void setTime(DateTime &newTime){
+    void setTime(DateTime &newTime) {
         _rtc.adjust(newTime);
         _events.trigger("rtc_set", String(newTime.toStr()));
     };
 
-    DateTime getTime(){ return _rtc.now(); };
+    DateTime getTime() {
+        return _rtc.now();
+    };
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
 
 };

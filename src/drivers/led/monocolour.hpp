@@ -4,7 +4,7 @@
 class sDOS_LED_MONO : public sDOS_Abstract_Driver {
 public:
     sDOS_LED_MONO(Debugger &debugger, EventsManager &eventsManager, gpio_num_t gpio)
-            : _debugger(debugger), _eventsManager(eventsManager), _gpio(gpio) {};
+        : _debugger(debugger), _eventsManager(eventsManager), _gpio(gpio) {};
 
     void setup() {
         _debugger.Debug(_component, "GPIO %d, PWM Channel %d", _gpio, _pwmChannel);
@@ -31,7 +31,9 @@ public:
         updateBrightness();
     }
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
 private:
     String _component = "LEDMONO";

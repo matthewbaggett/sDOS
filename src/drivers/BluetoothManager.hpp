@@ -48,7 +48,7 @@ public:
     BluetoothManager(Debugger &debugger, EventsManager &events)
         : _debugger(debugger), _events(events) {};
 
-    void setup() override{
+    void setup() override {
         BluetoothManager::_requestsActive = 0;
         powerOff();
         _debugger.addHandler(&BluetoothManager::sendMessage);
@@ -57,7 +57,7 @@ public:
 #endif
     };
 
-    void loop() override{
+    void loop() override {
         if (BluetoothManager::getRequestCount() > 0) {
             if (getCpuFrequencyMhz() >= CPU_FREQ_MHZ_MIN_RADIO) {
                 if (!BLEDevice::getInitialized()) {
@@ -71,7 +71,7 @@ public:
         }
     };
 
-    void setHostname(const String& newHostname){
+    void setHostname(const String& newHostname) {
         _debugger.Debug(_component, "Changed BLE Hostname to %s", newHostname.c_str());
         bleHostname = newHostname;
         if ((bluetoothState != BT_DISABLED)) {
@@ -81,7 +81,7 @@ public:
         }
     };
 
-    static void sendMessage(String message){
+    static void sendMessage(String message) {
         if (bluetoothState == BluetoothState::BT_CONNECTED) {
             while (message.length() > 0) {
                 if (esp_bt_controller_is_sleeping()) {
@@ -98,24 +98,30 @@ public:
         }
     };
 
-    static unsigned int getRequestCount() { return BluetoothManager::_requestsActive; };
+    static unsigned int getRequestCount() {
+        return BluetoothManager::_requestsActive;
+    };
 
     static void addRequest() {
         BluetoothManager::_requestsActive++;
     };
 
-    static void removeRequest(){
+    static void removeRequest() {
         if(BluetoothManager::_requestsActive > 0) {
             BluetoothManager::_requestsActive--;
         }
     };
 
-    static bool isPoweredOn() { return (bluetoothState != BluetoothState::BT_DISABLED); };
+    static bool isPoweredOn() {
+        return (bluetoothState != BluetoothState::BT_DISABLED);
+    };
 
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 
 private:
-    void powerOn(){
+    void powerOn() {
         if (bluetoothState != BluetoothState::BT_DISABLED) {
             return;
         }
@@ -128,16 +134,16 @@ private:
         BLEService *pService = pServer->createService(UART_SERVICE_UUID);
 
         pTxCharacteristic = pService->createCharacteristic(
-                UART_CHARACTERISTIC_TX_UUID,
-                BLECharacteristic::PROPERTY_NOTIFY
-        );
+                                UART_CHARACTERISTIC_TX_UUID,
+                                BLECharacteristic::PROPERTY_NOTIFY
+                            );
 
         pTxCharacteristic->addDescriptor(new BLE2902());
 
         pRxCharacteristic = pService->createCharacteristic(
-                UART_CHARACTERISTIC_RX_UUID,
-                BLECharacteristic::PROPERTY_WRITE
-        );
+                                UART_CHARACTERISTIC_RX_UUID,
+                                BLECharacteristic::PROPERTY_WRITE
+                            );
 
         pRxCharacteristic->setCallbacks(new sDOS_BLECharacteristicCallbacks());
 
@@ -150,17 +156,17 @@ private:
         pServer->getAdvertising()->start();
 
         // Release some RAM used for BT Classic that we dont use
-        if(ESP_OK != esp_bt_mem_release(ESP_BT_MODE_CLASSIC_BT)){
+        if(ESP_OK != esp_bt_mem_release(ESP_BT_MODE_CLASSIC_BT)) {
             _debugger.Debug(_component, "Cannot free bt memory");
         }
-        if(ESP_OK != esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)){
+        if(ESP_OK != esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)) {
             _debugger.Debug(_component, "Cannot free bt controller memory");
         }
 
         _events.trigger("bluetooth_on");
     };
 
-    void powerOff(){
+    void powerOff() {
         if (bluetoothState == BluetoothState::BT_DISABLED) {
             return;
         }
@@ -172,4 +178,6 @@ private:
 };
 unsigned int BluetoothManager::_requestsActive = 0;
 
-bool Debugger::isBluetoothPoweredOn() { return BluetoothManager::isPoweredOn(); }
+bool Debugger::isBluetoothPoweredOn() {
+    return BluetoothManager::isPoweredOn();
+}

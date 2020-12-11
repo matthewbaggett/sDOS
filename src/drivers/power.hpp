@@ -23,12 +23,12 @@ public:
         }
     };
 
-    float voltageRead(int adcPin){
+    float voltageRead(int adcPin) {
         uint16_t v = analogRead(adcPin);
         return ((float)v / 4095.0) * 2.0 * 3.3 * (_vref / 1000.0);
     }
 
-    int voltageReadMillivolts(int adcPin){
+    int voltageReadMillivolts(int adcPin) {
         return static_cast<int>((voltageRead(adcPin)*1000));
     };
 
@@ -81,9 +81,9 @@ public:
         if (sDOS_POWER::_mon_mv_vbus != sDOS_POWER::_mon_mv_vbus_previous && std::abs(sDOS_POWER::_mon_mv_vbus - sDOS_POWER::_mon_mv_vbus_previous ) > POWER_EVENT_DELTA_TRIGGER_MV) {
             _events.trigger(F("power_vbus_mv"), sDOS_POWER::_mon_mv_vbus);
             //_debugger.Debug(_component, "vbus prev: %d vbus now: %d, threshold: %d", sDOS_POWER::_mon_mv_vbus_previous, sDOS_POWER::_mon_mv_vbus, CHARGE_DETECT_THRESHOLD_MV);
-            if(sDOS_POWER::_mon_mv_vbus_previous > CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus <= CHARGE_DETECT_THRESHOLD_MV){
+            if(sDOS_POWER::_mon_mv_vbus_previous > CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus <= CHARGE_DETECT_THRESHOLD_MV) {
                 _events.trigger(F("power_state"),F("unplugged"));
-            }else if(sDOS_POWER::_mon_mv_vbus_previous <= CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus > CHARGE_DETECT_THRESHOLD_MV){
+            } else if(sDOS_POWER::_mon_mv_vbus_previous <= CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus > CHARGE_DETECT_THRESHOLD_MV) {
                 _events.trigger(F("power_state"),F("charging"));
             }
             sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
@@ -91,15 +91,23 @@ public:
 #endif
     };
 
-    static bool isCharging(){ return sDOS_POWER::_isCharging; };
+    static bool isCharging() {
+        return sDOS_POWER::_isCharging;
+    };
 
 #ifdef POWER_MONITOR_VBATT
-    static int getVbattMv(){ return sDOS_POWER::_mon_mv_vbatt; };
+    static int getVbattMv() {
+        return sDOS_POWER::_mon_mv_vbatt;
+    };
 #endif
 #ifdef POWER_MONITOR_VBUS
-    static int getVbusMv() { return sDOS_POWER::_mon_mv_vbus; };
+    static int getVbusMv() {
+        return sDOS_POWER::_mon_mv_vbus;
+    };
 #endif
-    String getName() override { return _component; };
+    String getName() override {
+        return _component;
+    };
 private:
 #ifdef POWER_MONITOR_VBATT
     static int _mon_mv_vbatt;
@@ -128,5 +136,9 @@ int sDOS_POWER::_mon_mv_vbus = 0;
 int sDOS_POWER::_mon_mv_vbus_previous = 0;
 #endif
 
-bool Debugger::isPowerCharging() { return sDOS_POWER::isCharging(); }
-double Debugger::getBatteryVolts() { return double(sDOS_POWER::getVbattMv()) / 1000; };
+bool Debugger::isPowerCharging() {
+    return sDOS_POWER::isCharging();
+}
+double Debugger::getBatteryVolts() {
+    return double(sDOS_POWER::getVbattMv()) / 1000;
+};

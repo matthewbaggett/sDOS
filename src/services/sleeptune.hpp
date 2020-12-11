@@ -28,12 +28,12 @@ private:
 public:
     sDOS_SLEEPTUNE(Debugger &debugger, EventsManager &events, WiFiManager *wifi,
                    BluetoothManager *bluetooth)
-            : _debugger(debugger), _events(events), _wifi(wifi), _bluetooth(bluetooth) {};
+        : _debugger(debugger), _events(events), _wifi(wifi), _bluetooth(bluetooth) {};
 
 
-    void setup(){};
+    void setup() {};
 
-    void loop(){
+    void loop() {
         /*Serial.printf(
             "_micros: %d\nmicros(): %d\ncheck? %s\n",
             sDOS_SLEEPTUNE::_micros,
@@ -42,7 +42,7 @@ public:
         );*/
 
         if (sDOS_SLEEPTUNE::_micros == 0 || sDOS_SLEEPTUNE::_micros > micros() ||
-            sDOS_SLEEPTUNE::_micros + 1000000 <= micros()) {
+                sDOS_SLEEPTUNE::_micros + 1000000 <= micros()) {
             sDOS_SLEEPTUNE::_micros = micros();
             oncePerSecond();
         }
@@ -75,34 +75,34 @@ public:
                 esp_sleep_wakeup_cause_t wakeup_reason;
                 wakeup_reason = esp_sleep_get_wakeup_cause();
                 switch (wakeup_reason) {
-                    case ESP_SLEEP_WAKEUP_EXT0      :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by EXT1", timeAsleep,
-                                        _sleepMs);
-                        break;
-                    case ESP_SLEEP_WAKEUP_EXT1      :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by EXT1", timeAsleep,
-                                        _sleepMs);
-                        break;
-                    case ESP_SLEEP_WAKEUP_UART      :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by UART", timeAsleep,
-                                        _sleepMs);
-                        break;
-                    case ESP_SLEEP_WAKEUP_TIMER     :
-                        break; //_debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by timer",                 timeAsleep, sleepUS); break;
-                    case ESP_SLEEP_WAKEUP_TOUCHPAD  :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by touchpad", timeAsleep,
-                                        _sleepMs);
-                        break;
-                    case ESP_SLEEP_WAKEUP_ULP       :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by ULP program",
-                                        timeAsleep, _sleepMs);
-                        break;
-                    case ESP_SLEEP_WAKEUP_GPIO      :
-                        break; //_debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by GPIO",                  timeAsleep, sleepUS); break;
-                    default                         :
-                        _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) was not caused by light sleep",
-                                        timeAsleep, _sleepMs);
-                        break;
+                case ESP_SLEEP_WAKEUP_EXT0      :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by EXT1", timeAsleep,
+                                    _sleepMs);
+                    break;
+                case ESP_SLEEP_WAKEUP_EXT1      :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by EXT1", timeAsleep,
+                                    _sleepMs);
+                    break;
+                case ESP_SLEEP_WAKEUP_UART      :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by UART", timeAsleep,
+                                    _sleepMs);
+                    break;
+                case ESP_SLEEP_WAKEUP_TIMER     :
+                    break; //_debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by timer",                 timeAsleep, sleepUS); break;
+                case ESP_SLEEP_WAKEUP_TOUCHPAD  :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by touchpad", timeAsleep,
+                                    _sleepMs);
+                    break;
+                case ESP_SLEEP_WAKEUP_ULP       :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by ULP program",
+                                    timeAsleep, _sleepMs);
+                    break;
+                case ESP_SLEEP_WAKEUP_GPIO      :
+                    break; //_debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) caused by GPIO",                  timeAsleep, sleepUS); break;
+                default                         :
+                    _debugger.Debug(_component, "Wakeup after %dMs (scheduled for %dMs) was not caused by light sleep",
+                                    timeAsleep, _sleepMs);
+                    break;
                 }
             } else {
                 _debugger.Debug(_component, "Failed to light sleep of %dMs: %s\n", _sleepMs,
@@ -117,20 +117,22 @@ public:
 
     bool isSleepPossible() {
         return WiFiManager::canSleep()
-            && !(bluetoothState != BT_DISABLED)
-            && BluetoothManager::getRequestCount() == 0
-        ;
+               && !(bluetoothState != BT_DISABLED)
+               && BluetoothManager::getRequestCount() == 0
+               ;
     };
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
-    static unsigned int getAwakePercentagePerTick(){
+    static unsigned int getAwakePercentagePerTick() {
         return _longTermAverageMs / 10;
     };
 
 private:
 
-    void oncePerSecond(){
+    void oncePerSecond() {
         _actualSecondLengthMs = millis() - _actualSecondLengthMs;
         // Ignore when the processor shits itself and gets 1 loop out in a second.
         if (_loopPerSecondCount > 1) {
@@ -140,7 +142,7 @@ private:
             int _timeSpentAwakeMs = _actualSecondLengthMs - _timeSpentAsleepMs;
 
             _awakeTimes.push_back(_timeSpentAwakeMs);
-            if(_awakeTimes.size() > 100){
+            if(_awakeTimes.size() > 100) {
                 _awakeTimes.pop_front();
             }
 
@@ -158,7 +160,7 @@ private:
 
             // Adjust sleep timing
             if (_loopPerSecondCount > SLEEPTUNE_LOOPS_PER_SECOND + SLEEPTUNE_LOOPS_PER_SECOND_VARIATION &&
-                _sleepMs <= 750 - _tuningStep) {
+                    _sleepMs <= 750 - _tuningStep) {
                 _sleepMs = _sleepMs + _tuningStep;
                 //_debugger.Debug(_component, "Loop per second: %d/s (too fast). Increasing tuned sleep to %dms.",
                 //                _loopPerSecondCount, _sleepMs);

@@ -9,9 +9,13 @@ public:
 
     virtual void loop();
 
-    virtual bool isActive() { return true; };
+    virtual bool isActive() {
+        return true;
+    };
 
-    virtual String getName() { return "bad service"; };
+    virtual String getName() {
+        return "bad service";
+    };
 };
 
 #endif

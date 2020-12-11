@@ -16,7 +16,7 @@
 class sDOS_DISPLAY_ST7789 : public AbstractDisplay {
 public:
     sDOS_DISPLAY_ST7789(Debugger &debugger, EventsManager &eventsManager, sDOS_SPI *sdos_spi)
-            : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
+        : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
     void setup() {
         _debugger.Debug(_component, "setup()");
@@ -74,14 +74,16 @@ public:
         //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);
     };
 
-    void setBacklight(unsigned int backlight){
+    void setBacklight(unsigned int backlight) {
         sDOS_DISPLAY_ST7789::_backlightBrightness = backlight;
     };
-    void setEnabled(bool on){
+    void setEnabled(bool on) {
         sDOS_DISPLAY_ST7789::_displayOn = on;
     };
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
 
 protected:

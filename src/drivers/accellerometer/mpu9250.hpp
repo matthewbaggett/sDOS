@@ -14,7 +14,9 @@ public:
 
     void disable();
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
 private:
     String _component = "MPU9250";
@@ -46,7 +48,7 @@ private:
 bool sDOS_MPU9250::interruptTriggered = false;
 
 sDOS_MPU9250::sDOS_MPU9250(Debugger &debugger, EventsManager &eventsManager) : _debugger(debugger),
-                                                                               _events(eventsManager) {
+    _events(eventsManager) {
 }
 
 void sDOS_MPU9250::setup() {
@@ -67,11 +69,11 @@ void sDOS_MPU9250::setup() {
 
 
     // Enabe Wake On Motion low power mode with a threshold of 40 mg and
-    // an accelerometer data rate of 15.63 Hz. 
+    // an accelerometer data rate of 15.63 Hz.
     // Only accelerometer is enabled in LP mode
     // The interrupt is 50us pulse.
     // @todo work out why this doesn't work
-    //if (mpu_lp_motion_interrupt(1,0,2) != INV_SUCCESS) {    
+    //if (mpu_lp_motion_interrupt(1,0,2) != INV_SUCCESS) {
     // Failed to initialize MPU-9250, report somehow
     //Serial.println(F("IMU set up failed. Please check installed IMU IC."));
     //}
@@ -167,24 +169,24 @@ void sDOS_MPU9250::handleTap() {
     unsigned char tapDir = _imu.getTapDir();
     //unsigned char tapCnt = _imu.getTapCount();
     switch (tapDir) {
-        case TAP_X_UP:
-            _events.trigger("mpu9250_tap", F("X+"));
-            break;
-        case TAP_X_DOWN:
-            _events.trigger("mpu9250_tap", F("X-"));
-            break;
-        case TAP_Y_UP:
-            _events.trigger("mpu9250_tap", F("Y+"));
-            break;
-        case TAP_Y_DOWN:
-            _events.trigger("mpu9250_tap", F("Y-"));
-            break;
-        case TAP_Z_UP:
-            _events.trigger("mpu9250_tap", F("Z+"));
-            break;
-        case TAP_Z_DOWN:
-            _events.trigger("mpu9250_tap", F("Z-"));
-            break;
+    case TAP_X_UP:
+        _events.trigger("mpu9250_tap", F("X+"));
+        break;
+    case TAP_X_DOWN:
+        _events.trigger("mpu9250_tap", F("X-"));
+        break;
+    case TAP_Y_UP:
+        _events.trigger("mpu9250_tap", F("Y+"));
+        break;
+    case TAP_Y_DOWN:
+        _events.trigger("mpu9250_tap", F("Y-"));
+        break;
+    case TAP_Z_UP:
+        _events.trigger("mpu9250_tap", F("Z+"));
+        break;
+    case TAP_Z_DOWN:
+        _events.trigger("mpu9250_tap", F("Z-"));
+        break;
     }
 }
 

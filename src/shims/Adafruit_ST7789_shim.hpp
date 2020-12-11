@@ -9,14 +9,14 @@
 class sDOS_Adafruit_ST7789_Shim : public Adafruit_ST7789 {
 public:
     sDOS_Adafruit_ST7789_Shim(int8_t cs, int8_t dc, int8_t mosi, int8_t sclk, int8_t rst = -1)
-            : Adafruit_ST7789(cs, dc, mosi, sclk, rst) {};
+        : Adafruit_ST7789(cs, dc, mosi, sclk, rst) {};
 
     sDOS_Adafruit_ST7789_Shim(int8_t cs, int8_t dc, int8_t rst)
-            : Adafruit_ST7789(cs, dc, rst) {};
+        : Adafruit_ST7789(cs, dc, rst) {};
 #if !defined(ESP8266)
 
     sDOS_Adafruit_ST7789_Shim(SPIClass *spiClass, int8_t cs, int8_t dc, int8_t rst)
-            : Adafruit_ST7789(spiClass, cs, dc, rst) {};
+        : Adafruit_ST7789(spiClass, cs, dc, rst) {};
 #endif // end !ESP8266
 
     void setColumnOffset(int offset) {

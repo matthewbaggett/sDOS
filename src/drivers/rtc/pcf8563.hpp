@@ -7,7 +7,7 @@ public:
     sDOS_PCF8563(Debugger &debugger, EventsManager &eventsManager, sDOS_I2C *i2c)
         : _debugger(debugger), _events(eventsManager), _i2c(i2c) {};
 
-    void setup(){
+    void setup() {
         _events.trigger(F("rtc_enable"));
         pinMode(PIN_INTERRUPT_PCF8563, INPUT);
         attachInterrupt(PIN_INTERRUPT_PCF8563, sDOS_PCF8563::interrupt, FALLING);
@@ -25,7 +25,7 @@ public:
         }
     };
 
-    void loop(){
+    void loop() {
         if (sDOS_PCF8563::hasInterruptOccured()) {
             _events.trigger(F("rtc_interrupt"));
         }
@@ -47,23 +47,27 @@ public:
         _rtc.on_alarm();
     };
 
-    void setTime(DateTime &newTime){
+    void setTime(DateTime &newTime) {
         _rtc.adjust(newTime);
         _events.trigger("rtc_set", String(newTime.toStr()));
     };
 
-    DateTime getTime() { return _rtc.now(); }
+    DateTime getTime() {
+        return _rtc.now();
+    }
 
-    String getName() { return _component; };
+    String getName() {
+        return _component;
+    };
 
 private:
     String _component = "rtc";
 
-    static void interrupt(){
+    static void interrupt() {
         _interruptTriggered = true;
     };
 
-    static bool hasInterruptOccured(){
+    static bool hasInterruptOccured() {
         if (_interruptTriggered) {
             _interruptTriggered = false;
             return true;

@@ -21,7 +21,7 @@ using eventHandlersList = std::list<EventHandler>;
 class EventsManager : public sDOS_Abstract_Service {
 public:
     explicit EventsManager(Debugger &debugger)
-            : _debugger(debugger) {};
+        : _debugger(debugger) {};
 
     void setup() override {};
     void loop() override {};
