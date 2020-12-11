@@ -1,8 +1,8 @@
 #include "kern_inc.h"
-#include "abstracts/rtc.hpp"
+#include "rtc.hpp"
 #include <RTClib.h>
 
-class sDOS_PCF8563 : public AbstractRTC {
+class sDOS_PCF8563 : public sDOS_RTC {
 public:
     sDOS_PCF8563(Debugger &debugger, EventsManager &eventsManager, sDOS_I2C *i2c)
         : _debugger(debugger), _events(eventsManager), _i2c(i2c) {};

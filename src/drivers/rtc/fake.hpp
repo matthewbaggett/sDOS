@@ -1,5 +1,5 @@
 #include "kern_inc.h"
-#include "abstracts/rtc.hpp"
+#include "rtc.hpp"
 #include <RTClib.h>
 
 class sDOS_FAKE_RTC : public AbstractRTC {
