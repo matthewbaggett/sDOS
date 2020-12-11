@@ -7,7 +7,6 @@ void setup() {
     Serial.setDebugOutput(SERIAL_DEBUG_ENABLE);
     delay(300);
     Serial.println("Alive?");
-    instance.Setup();
 }
 
 void loop() {

@@ -82,8 +82,6 @@ class sDOS {
 public:
     sDOS();
 
-    void Setup();
-
     void Loop();
 
     void add(sDOS_Abstract_Service *service);
@@ -132,9 +130,6 @@ protected:
 };
 
 
-sDOS::sDOS() {
-
-};
 
 void sDOS::add(sDOS_Abstract_Service *service) {
     _services.push_back(service);
@@ -144,7 +139,7 @@ void sDOS::add(sDOS_Abstract_Driver *driver) {
     _drivers.push_back(driver);
 }
 
-void sDOS::Setup() {
+sDOS::sDOS() {
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
