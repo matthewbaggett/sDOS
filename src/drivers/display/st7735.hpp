@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/display.hpp"
 #include <Adafruit_GFX.h>  // Core graphics library

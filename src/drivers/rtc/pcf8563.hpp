@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "rtc.hpp"
 #include <RTClib.h>
@@ -83,8 +84,3 @@ private:
 };
 
 bool sDOS_PCF8563::_interruptTriggered = false;
-
-
-
-
-

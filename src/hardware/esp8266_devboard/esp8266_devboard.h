@@ -1,3 +1,5 @@
+#pragma once
+#include "driver/gpio.h"
 // Hardware to enable:
 // WiFi power saving:
 #define WIFI_POWER_SAVING WIFI_PS_MAX_MODEM

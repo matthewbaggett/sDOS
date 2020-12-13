@@ -1,5 +1,4 @@
-#ifndef includes_h
-#define includes_h
+#pragma once
 
 #include "Arduino.h"
 #include "hardware/all.h"
@@ -43,5 +42,3 @@ ESP8266WiFiMulti wifiMulti;
 #endif
 
 #include "defaults.h"
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef kern_hpp
-#define kern_hpp
+#pragma once
 
 #include "kern_inc.h"
 
@@ -311,5 +310,3 @@ void sDOS::Loop() {
     _events.loop();
     yield();
 }
-
-#endif

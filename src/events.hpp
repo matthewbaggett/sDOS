@@ -1,5 +1,4 @@
-#ifndef SDOS_EVENTS_HPP
-#define SDOS_EVENTS_HPP
+#pragma once
 
 #include "kern_inc.h"
 #include "debugger.hpp"
@@ -134,5 +133,3 @@ private:
 };
 
 eventHandlersList EventsManager::_handlers;
-
-#endif

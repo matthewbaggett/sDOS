@@ -1,5 +1,4 @@
-#ifndef SDOS_FRAMEBUFFER_HPP
-#define SDOS_FRAMEBUFFER_HPP
+#pragma once
 
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
@@ -502,5 +501,3 @@ sDOS_FrameBuffer::Colour FB_PINK = sDOS_FrameBuffer::Colour(255,0,255);
 sDOS_FrameBuffer::Colour FB_WHITE = sDOS_FrameBuffer::Colour(255,255,255);
 sDOS_FrameBuffer::Colour FB_DARK_GREY = sDOS_FrameBuffer::Colour(50,50,50);
 sDOS_FrameBuffer::Colour FB_BLACK = sDOS_FrameBuffer::Colour(0,0,0);
-
-#endif

@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "driver.hpp"
 

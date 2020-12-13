@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef SERIAL_BAUD
 #define SERIAL_BAUD 115200
 #endif

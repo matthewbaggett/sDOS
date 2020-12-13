@@ -1,8 +1,9 @@
+#pragma once
 #include "kern_inc.h"
 #include "rtc.hpp"
 #include <RTClib.h>
 
-class sDOS_FAKE_RTC : public AbstractRTC {
+class sDOS_FAKE_RTC : public sDOS_RTC {
 private:
     String _component = "fakertc";
     Debugger _debugger;

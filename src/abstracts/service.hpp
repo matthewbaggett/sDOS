@@ -1,6 +1,4 @@
-#ifndef ABSTRACT_sDOS_SERVICE_h
-#define ABSTRACT_sDOS_SERVICE_h
-
+#pragma once
 #include "kern_inc.h"
 
 class sDOS_Abstract_Service {
@@ -17,5 +15,3 @@ public:
         return "bad service";
     };
 };
-
-#endif

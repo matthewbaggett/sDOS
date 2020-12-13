@@ -1,5 +1,4 @@
-#ifndef BLUETOOTH_BLECHARACTERISTICCALLBACKS_HPP
-#define BLUETOOTH_BLECHARACTERISTICCALLBACKS_HPP
+#pragma once
 
 #include "kern_inc.h"
 
@@ -46,5 +45,3 @@ class sDOS_BLECharacteristicCallbacks : public BLECharacteristicCallbacks {
         return "I recieved an incoming message";
     }
 };
-
-#endif

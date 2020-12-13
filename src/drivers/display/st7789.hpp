@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/display.hpp"
 #include <Adafruit_GFX.h>  // Core graphics library
@@ -53,6 +54,14 @@ public:
     void writePixel(uint16_t x, uint16_t y, uint16_t updatedValue) {
         //_debugger.Debug(_component, "writePixel(%d,%d,%d)", x, y, updatedValue);
         _tft.writePixel(x, y, updatedValue);
+    };
+
+    virtual void writePixels(uint16_t *colors, uint32_t len, bool block = true, bool bigEndian = false) {
+        _tft.writePixels(colors, len, block, bigEndian);
+    };
+
+    virtual void setCursor(int16_t x, int16_t y) {
+        _tft.setCursor(x, y);
     };
 
     void loop() {

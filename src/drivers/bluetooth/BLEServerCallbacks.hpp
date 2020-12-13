@@ -1,5 +1,4 @@
-#ifndef BLUETOOTH_BLESERVERCALLBACKS_H
-#define BLUETOOTH_BLESERVERCALLBACKS_H
+#pragma once
 
 #include "kern_inc.h"
 
@@ -20,5 +19,3 @@ class sDOS_BLEServerCallbacks : public BLEServerCallbacks {
         bluetoothState = BluetoothState::BT_ENABLED;
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef ADAFRUIT_ST7735_SHIM_HPP
-#define ADAFRUIT_ST7735_SHIM_HPP
+#pragma once
 
 #include <Adafruit_GFX.h>  // Core graphics library
 #include <Adafruit_ST77xx.h>
@@ -40,5 +39,3 @@ public:
         setRotation(0);
     }
 };
-
-#endif

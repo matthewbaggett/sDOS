@@ -1,5 +1,4 @@
-#ifndef ABSTRACT_DISPLAY_H
-#define ABSTRACT_DISPLAY_H
+#pragma once
 
 #include "kern_inc.h"
 #include "driver.hpp"
@@ -20,5 +19,3 @@ public:
 
     virtual void setEnabled(bool on) = 0;
 };
-
-#endif

@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/accellerometer.hpp"
 #include <SparkFunMPU9250-DMP.h>

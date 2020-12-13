@@ -1,5 +1,4 @@
-#ifndef ASBTRACT_SERVICE_H
-#define ASBTRACT_SERVICE_H
+#pragma once
 
 #include "kern_inc.h"
 #include "driver.hpp"
@@ -14,5 +13,3 @@ public:
 
     virtual DateTime getTime();
 };
-
-#endif

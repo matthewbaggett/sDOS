@@ -1,3 +1,4 @@
+#pragma once
 #include "../kern_inc.h"
 #include <ArduinoJson.h>
 #include <FS.h>

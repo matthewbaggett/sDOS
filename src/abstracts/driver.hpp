@@ -1,5 +1,4 @@
-#ifndef ABSTRACT_sDOS_DRIVER_H
-#define ABSTRACT_sDOS_DRIVER_H
+#pragma once
 
 #include "kern_inc.h"
 
@@ -27,4 +26,3 @@ private:
 };
 
 int sDOS_Abstract_Driver::_allocatedPWMCount = -1;
-#endif

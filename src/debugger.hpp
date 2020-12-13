@@ -4,7 +4,6 @@
 #include <iostream>
 #include <list>
 
-
 #define DEBUG_SERIAL_BUFFER_SIZE 255
 
 using namespace std;

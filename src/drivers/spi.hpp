@@ -1,3 +1,4 @@
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 #include <SPI.h>
