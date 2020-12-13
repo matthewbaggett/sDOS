@@ -121,7 +121,7 @@ public:
     };
 
     bool canSleep() {
-        return BluetoothManager::_requestsActive == 0
+        return BluetoothManager::_requestsActive == 0;
     }
 
 private:
