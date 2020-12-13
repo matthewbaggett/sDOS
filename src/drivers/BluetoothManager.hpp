@@ -120,6 +120,10 @@ public:
         return _component;
     };
 
+    bool canSleep() {
+        return BluetoothManager::_requestsActive == 0
+    }
+
 private:
     void powerOn() {
         if (bluetoothState != BluetoothState::BT_DISABLED) {
