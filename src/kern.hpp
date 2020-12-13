@@ -162,62 +162,78 @@ sDOS::sDOS() {
 #endif
 
 #if defined(ENABLE_I2C)
+    _debugger.Debug(_component, "ENABLE I2C");
     delay(1);
     sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
     _drivers.push_back(_driver_I2C);
 #endif
 #if defined(ENABLE_SPI)
+    _debugger.Debug(_component, "ENABLE SPI");
     sDOS_SPI * _driver_SPI = new sDOS_SPI(_debugger, _events);
     _drivers.push_back(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
+    _debugger.Debug(_component, "ENABLE ST7735");
     _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
+    _debugger.Debug(_component, "ENABLE ST7789");
     _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
+    _debugger.Debug(_component, "ENABLE MONOCOLOUR_LED");
     _drivers.push_back(_mono_led);
 #endif
 #if defined(ENABLE_BUTTON)
+    _debugger.Debug(_component, "ENABLE BUTTON");
     _drivers.push_back(_button);
 #endif
 #if defined(ENABLE_TTP223)
+    _debugger.Debug(_component, "ENABLE TTP223");
     _drivers.push_back(_button_ttp223);
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
+    _debugger.Debug(_component, "ENABLE PCF8563");
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
+    _debugger.Debug(_component, "ENABLE FAKE_RTC");
     _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
+    _debugger.Debug(_component, "ENABLE MPU9250");
     _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
 #endif
 #if defined(ENABLE_DISPLAY)
+    _debugger.Debug(_component, "ENABLE DISPLAY");
     _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _drivers.push_back(_driver_FrameBuffer);
 #endif
 
 #if defined(ENABLE_WIFI)
+    _debugger.Debug(_component, "ENABLE WIFI");
     _drivers.push_back(_driver_WiFi);
 #endif
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
+    _debugger.Debug(_component, "ENABLE BLUETOOTH");
     _drivers.push_back(_driver_BT);
 #endif
 
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
+    _debugger.Debug(_component, "ENABLE CPU_SCALER");
     _services.push_back(_cpuScaler);
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
+    _debugger.Debug(_component, "ENABLE SLEEPTUNE");
     _services.push_back(new sDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
+    _debugger.Debug(_component, "ENABLE NTP");
     _services.push_back(new sDOS_NTP(_debugger, _events, _driver_RTC, _driver_WiFi));
 #endif
 
