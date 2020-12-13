@@ -104,8 +104,8 @@ protected:
 #endif
 #if defined(ENABLE_RTC) && defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
     sDOS_PCF8563 * _driver_RTC;
-#elif defined(ENABLE_RTC)
-    AbstractRTC * _driver_RTC;
+#elif defined(ENABLE_RTC) && defined(ENABLE_FAKE_RTC)
+    sDOS_FAKE_RTC * _driver_RTC;
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
     AbstractDisplay * _display;
