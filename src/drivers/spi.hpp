@@ -5,7 +5,7 @@
 
 class sDOS_SPI : public sDOS_Abstract_Driver {
 public:
-    sDOS_SPI(Debugger &debugger, EventsManager &eventsManager)
+    sDOS_SPI(Debugger *debugger, EventsManager *eventsManager)
         : _debugger(debugger),
           _eventsManager(eventsManager) {};
 
@@ -19,7 +19,7 @@ public:
 
 private:
     String _component = "SPI";
-    Debugger _debugger;
-    EventsManager _eventsManager;
+    Debugger * _debugger;
+    EventsManager * _eventsManager;
     SPIClass *_spi;
 };

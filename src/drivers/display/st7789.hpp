@@ -16,11 +16,11 @@
 
 class sDOS_DISPLAY_ST7789 : public AbstractDisplay {
 public:
-    sDOS_DISPLAY_ST7789(Debugger &debugger, EventsManager &eventsManager, sDOS_SPI *sdos_spi)
+    sDOS_DISPLAY_ST7789(Debugger *debugger, EventsManager *eventsManager, sDOS_SPI *sdos_spi)
         : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
 
     void setup() {
-        _debugger.Debug(_component, "setup()");
+        _debugger->Debug(_component, "setup()");
         setupBacklight();
         setupReset();
         setupScreen();
@@ -52,7 +52,7 @@ public:
     };
 
     void writePixel(uint16_t x, uint16_t y, uint16_t updatedValue) {
-        //_debugger.Debug(_component, "writePixel(%d,%d,%d)", x, y, updatedValue);
+        //_debugger->Debug(_component, "writePixel(%d,%d,%d)", x, y, updatedValue);
         _tft.writePixel(x, y, updatedValue);
     };
 
@@ -69,18 +69,18 @@ public:
     };
 
     void beginRedraw() {
-        _debugger.Debug(_component, "beginRedraw()");
+        _debugger->Debug(_component, "beginRedraw()");
         _tft.startWrite();
     };
 
     void commitRedraw() {
-        _debugger.Debug(_component, "commitRedraw()");
+        _debugger->Debug(_component, "commitRedraw()");
         _tft.endWrite();
     };
 
     void updateBacklight() {
         ledcWrite(_pwmChannel, sDOS_DISPLAY_ST7789::_displayOn ? sDOS_DISPLAY_ST7789::_backlightBrightness : 0);
-        //_debugger.Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);
+        //_debugger->Debug(_component, "Backlight %d%%", sDOS_DISPLAY_ST7789::_backlightBrightness);
     };
 
     void setBacklight(unsigned int backlight) {
@@ -97,8 +97,8 @@ public:
 
 protected:
     String _component = "ST7789";
-    Debugger _debugger;
-    EventsManager _eventsManager;
+    Debugger * _debugger;// @todo refactor into base class
+    EventsManager * _eventsManager;// @todo refactor into base class
     sDOS_SPI *_sdos_spi;
     static bool _displayOn;
     static unsigned int _backlightBrightness;   // 0-255 brightness

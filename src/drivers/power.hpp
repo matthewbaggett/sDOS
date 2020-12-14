@@ -8,18 +8,18 @@
 class sDOS_POWER : public sDOS_Abstract_Driver {
 public:
 
-    sDOS_POWER(Debugger &debugger, EventsManager &eventsManager) :
+    sDOS_POWER(Debugger * debugger, EventsManager * eventsManager) :
         _debugger(debugger), _events(eventsManager) {
         esp_adc_cal_characteristics_t adc_chars;
         esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
         //Check type of calibration value used to characterize ADC
         if (val_type == ESP_ADC_CAL_VAL_EFUSE_VREF) {
-            _debugger.Debug(_component, "eFuse Vref:%u mV", adc_chars.vref);
+            _debugger->Debug(_component, "eFuse Vref:%u mV", adc_chars.vref);
             _vref = adc_chars.vref;
         } else if (val_type == ESP_ADC_CAL_VAL_EFUSE_TP) {
-            _debugger.Debug(_component, "Two Point --> coeff_a:%umV coeff_b:%umV", adc_chars.coeff_a, adc_chars.coeff_b);
+            _debugger->Debug(_component, "Two Point --> coeff_a:%umV coeff_b:%umV", adc_chars.coeff_a, adc_chars.coeff_b);
         } else {
-            _debugger.Debug(_component, "Default Vref: 1100mV");
+            _debugger->Debug(_component, "Default Vref: 1100mV");
         }
     };
 
@@ -34,19 +34,19 @@ public:
 
     void setup() override {
 #ifdef POWER_MONITOR_VBATT
-        _debugger.Debug(_component, "Enabled monitoring VBATT on pin #%d", POWER_MONITOR_VBATT);
+        _debugger->Debug(_component, "Enabled monitoring VBATT on pin #%d", POWER_MONITOR_VBATT);
         pinMode(POWER_MONITOR_VBATT, INPUT);
         //analogSetPinAttenuation(POWER_MONITOR_VBATT, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_VBUS
-        _debugger.Debug(_component, "Enabled monitoring VBUS on pin #%d", POWER_MONITOR_VBUS);
+        _debugger->Debug(_component, "Enabled monitoring VBUS on pin #%d", POWER_MONITOR_VBUS);
         pinMode(POWER_MONITOR_VBUS, INPUT);
         //analogSetPinAttenuation(POWER_MONITOR_VBUS, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_CHARGE_STATE
-        _debugger.Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
+        _debugger->Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
         pinMode(POWER_MONITOR_CHARGE_STATE, INPUT_PULLUP);
         attachInterrupt(POWER_MONITOR_CHARGE_STATE, [] {
             _chargingInterruptTriggered = true;
@@ -55,7 +55,7 @@ public:
             _chargingInterruptTriggered = true;
         }
 #endif
-        _events.trigger(F("power_ready"));
+        _events->trigger(F("power_ready"));
     };
 
     void loop() override {
@@ -64,27 +64,27 @@ public:
             sDOS_POWER::_chargingInterruptTriggered = false;
             sDOS_POWER::_isCharging = digitalRead(POWER_MONITOR_CHARGE_STATE) == LOW;
 
-            _debugger.Debug(_component, "Charging status changed to %s",
+            _debugger->Debug(_component, "Charging status changed to %s",
                             sDOS_POWER::_isCharging ? "charging" : "discharging");
-            _events.trigger(F("power_charging"), sDOS_POWER::_isCharging ? "yes" : "no");
+            _events->trigger(F("power_charging"), sDOS_POWER::_isCharging ? "yes" : "no");
         }
 #endif
 #ifdef POWER_MONITOR_VBATT
         sDOS_POWER::_mon_mv_vbatt = voltageReadMillivolts(POWER_MONITOR_VBATT);
         if (sDOS_POWER::_mon_mv_vbatt != sDOS_POWER::_mon_mv_vbatt_previous  && std::abs(sDOS_POWER::_mon_mv_vbatt - sDOS_POWER::_mon_mv_vbatt_previous ) > POWER_EVENT_DELTA_TRIGGER_MV) {
-            _events.trigger(F("power_vbatt_mv"), sDOS_POWER::_mon_mv_vbatt);
+            _events->trigger(F("power_vbatt_mv"), sDOS_POWER::_mon_mv_vbatt);
             sDOS_POWER::_mon_mv_vbatt_previous = sDOS_POWER::_mon_mv_vbatt;
         }
 #endif
 #ifdef POWER_MONITOR_VBUS
         sDOS_POWER::_mon_mv_vbus = voltageReadMillivolts(POWER_MONITOR_VBUS);
         if (sDOS_POWER::_mon_mv_vbus != sDOS_POWER::_mon_mv_vbus_previous && std::abs(sDOS_POWER::_mon_mv_vbus - sDOS_POWER::_mon_mv_vbus_previous ) > POWER_EVENT_DELTA_TRIGGER_MV) {
-            _events.trigger(F("power_vbus_mv"), sDOS_POWER::_mon_mv_vbus);
-            //_debugger.Debug(_component, "vbus prev: %d vbus now: %d, threshold: %d", sDOS_POWER::_mon_mv_vbus_previous, sDOS_POWER::_mon_mv_vbus, CHARGE_DETECT_THRESHOLD_MV);
+            _events->trigger(F("power_vbus_mv"), sDOS_POWER::_mon_mv_vbus);
+            //_debugger->Debug(_component, "vbus prev: %d vbus now: %d, threshold: %d", sDOS_POWER::_mon_mv_vbus_previous, sDOS_POWER::_mon_mv_vbus, CHARGE_DETECT_THRESHOLD_MV);
             if(sDOS_POWER::_mon_mv_vbus_previous > CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus <= CHARGE_DETECT_THRESHOLD_MV) {
-                _events.trigger(F("power_state"),F("unplugged"));
+                _events->trigger(F("power_state"),F("unplugged"));
             } else if(sDOS_POWER::_mon_mv_vbus_previous <= CHARGE_DETECT_THRESHOLD_MV && sDOS_POWER::_mon_mv_vbus > CHARGE_DETECT_THRESHOLD_MV) {
-                _events.trigger(F("power_state"),F("charging"));
+                _events->trigger(F("power_state"),F("charging"));
             }
             sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
         }
@@ -117,8 +117,8 @@ private:
     static int _mon_mv_vbus;
     static int _mon_mv_vbus_previous;
 #endif
-    Debugger _debugger;
-    EventsManager _events;
+    Debugger * _debugger;
+    EventsManager * _events;
     static bool _isCharging;
     static bool _chargingInterruptTriggered;
     String _component = "PWRMGMT";

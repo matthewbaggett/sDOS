@@ -88,7 +88,7 @@ public:
         DEPTH_1_BIT, DEPTH_16_BIT
     };
 
-    sDOS_FrameBuffer(Debugger &debugger, EventsManager &eventsManager, AbstractDisplay *display,
+    sDOS_FrameBuffer(Debugger * debugger, EventsManager * eventsManager, AbstractDisplay *display,
                      sDOS_CPU_SCALER *cpuScaler)
         : _debugger(debugger), _eventsManager(eventsManager), _display(display), _cpuScaler(cpuScaler) {};
 
@@ -117,7 +117,7 @@ public:
         uint16_t pixelCount = _width * _height;
         uint32_t buffSize = 0;
         _cpuScaler->onDemand(true);
-        _debugger.Debug(
+        _debugger->Debug(
             _component,
             "Allocating buffer for %s%d%s pixels (%s%d x %d%s)",
             COL_BLUE, pixelCount, COL_RESET, COL_BLUE, _width, _height, COL_RESET
@@ -146,13 +146,13 @@ public:
                 pixelNum++;
                 yield();
             }
-            //_debugger.Debug(_component, "Allocated row %d of %d, %dKB ram free", x, _height, ESP.getFreeHeap() / 1024);
+            //_debugger->Debug(_component, "Allocated row %d of %d, %dKB ram free", x, _height, ESP.getFreeHeap() / 1024);
         }
         _everyPixelDirty = true;
         _cpuScaler->onDemand(false);
 
         buffSize = ramBefore - ESP.getFreeHeap();
-        _debugger.Debug(_component, "Allocated %s%dKB%s to framebuffer", COL_RED, buffSize / 1024, COL_RESET);
+        _debugger->Debug(_component, "Allocated %s%dKB%s to framebuffer", COL_RED, buffSize / 1024, COL_RESET);
     }
 
     void loop() {
@@ -173,7 +173,7 @@ public:
      */
     void setPixel(uint16_t x, uint16_t y, uint16_t colour565) {
         if(!pixelInBounds(x, y)) {
-            //_debugger.Debug(_component, "Tried to write to coordinate out of bounds: %d,%d", x, y);
+            //_debugger->Debug(_component, "Tried to write to coordinate out of bounds: %d,%d", x, y);
             return;
         }
         sDOS_FrameBuffer::DirtyPixel dirtyPixel{};
@@ -194,7 +194,7 @@ public:
     void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t colour565) {
         yield();
         _cpuScaler->onDemand(true);
-        //_debugger.Debug(_component, "drawLine(%d,%d,%d,%d)", x0, y0, x1, y1);
+        //_debugger->Debug(_component, "drawLine(%d,%d,%d,%d)", x0, y0, x1, y1);
         int16_t steep = abs(y1 - y0) > abs(x1 - x0);
         if (steep) {
             _swap_int16_t(x0, y0);
@@ -253,7 +253,7 @@ public:
 
     Region drawText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont, uint16_t colour565) {
         _cpuScaler->onDemand(true);
-        //_debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
+        //_debugger->Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
         int xAdvance = 0;
 
         uint16_t tl_x = UINT16_MAX, tl_y = UINT16_MAX, br_x = 0, br_y =0;
@@ -279,7 +279,7 @@ public:
 
     Region boundText(uint16_t x, uint16_t y, const String& text, const GFXfont * gfxFont) {
         _cpuScaler->onDemand(true);
-        _debugger.Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
+        _debugger->Debug(_component, "Write %s at %d,%d", text.c_str(), x, y);
         int xAdvance = 0;
 
         uint16_t tl_x = UINT16_MAX, tl_y = UINT16_MAX, br_x = 0, br_y =0;
@@ -342,7 +342,7 @@ public:
                         setPixel(pixelX, pixelY, colour565);
                         pixelChangedCount++;
                     } else {
-                        //_debugger.Debug(_component, "setPixel(%d,%d) : %s", pixelX, pixelY, "Not in bounds");
+                        //_debugger->Debug(_component, "setPixel(%d,%d) : %s", pixelX, pixelY, "Not in bounds");
                     }
                 }
                 bits <<= 1;
@@ -431,8 +431,8 @@ public:
     }
 
 private:
-    Debugger _debugger;
-    EventsManager _eventsManager;
+    Debugger * _debugger;
+    EventsManager * _eventsManager;
     AbstractDisplay *_display;
     sDOS_CPU_SCALER *_cpuScaler;
     String _component = "fbuff";
@@ -444,7 +444,7 @@ private:
     std::list<sDOS_FrameBuffer::DirtyPixel> _dirtyPixels;
 
     void repaintPixel(uint16_t x, uint16_t y) {
-        //_debugger.Debug(_component, "Update Pixel %dx%d on %s", x, y, _display->getName());
+        //_debugger->Debug(_component, "Update Pixel %dx%d on %s", x, y, _display->getName());
         _display->writePixel(x, y, _pixBuf[x][y]);
     };
 
@@ -471,7 +471,7 @@ private:
     };
 
     void repaintDirtyPixels() {
-        _debugger.Debug(_component, "There are %d pixels that need repainting", _dirtyPixels.size());
+        _debugger->Debug(_component, "There are %d pixels that need repainting", _dirtyPixels.size());
         std::list<sDOS_FrameBuffer::DirtyPixel>::iterator it;
         for (it = _dirtyPixels.begin(); it != _dirtyPixels.end(); ++it) {
             repaintPixel(it->_x, it->_y);

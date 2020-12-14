@@ -15,10 +15,10 @@ public:
 
     void setup() {
         DateTime buildTime = DateTime(__DATE__, __TIME__);
-        _events.trigger(F("rtc_enable"));
+        _events->trigger(F("rtc_enable"));
         _rtc.begin(buildTime);
-        _events.trigger(F("rtc_ready"));
-        _debugger.Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
+        _events->trigger(F("rtc_ready"));
+        _debugger->Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
     };
 
     void loop() {};
@@ -29,7 +29,7 @@ public:
 
     void setTime(DateTime &newTime) {
         _rtc.adjust(newTime);
-        _events.trigger("rtc_set", String(newTime.toStr()));
+        _events->trigger("rtc_set", String(newTime.toStr()));
     };
 
     DateTime getTime() {

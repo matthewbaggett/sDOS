@@ -5,7 +5,7 @@
 class sDOS_CPU_SCALER : public sDOS_Abstract_Service {
 
 public:
-    sDOS_CPU_SCALER(Debugger &debugger, EventsManager &eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth)
+    sDOS_CPU_SCALER(Debugger * debugger, EventsManager * eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth)
         : _debugger(debugger), _events(eventsManager), _wifi(wifi), _bluetooth(bluetooth) {};
 
     void setup() override {};
@@ -21,12 +21,12 @@ public:
 
         setCpuFrequencyMhz(targetFreq);
 
-        _events.trigger(F("cpu_freq_mhz"), targetFreq);
+        _events->trigger(F("cpu_freq_mhz"), targetFreq);
 
         if( targetFreq > currentFrequency ) {
-            _events.trigger(F("cpu_scaling_increase"));
+            _events->trigger(F("cpu_scaling_increase"));
         } else {
-            _events.trigger(F("cpu_scaling_decrease"));
+            _events->trigger(F("cpu_scaling_decrease"));
         }
     };
 
@@ -66,14 +66,14 @@ public:
 
 private:
     String _component = "SCALER";
-    Debugger _debugger;
-    EventsManager _events;
+    Debugger * _debugger;
+    EventsManager * _events;
     WiFiManager *_wifi;
     BluetoothManager *_bluetooth;
 
     bool isSlowPossible() {
 #ifdef DEBUG_CPU_SCALER_DECISIONS
-        _debugger.Debug(
+        _debugger->Debug(
             _component,
             "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s",
             _wifi->canSleep() ? COL_GREEN : COL_RED,

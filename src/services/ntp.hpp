@@ -10,7 +10,7 @@
 class sDOS_NTP : public sDOS_Abstract_Service {
 
 public:
-    sDOS_NTP(Debugger &debugger, EventsManager &events, AbstractRTC *rtc, WiFiManager *wifi)
+    sDOS_NTP(Debugger * debugger, EventsManager * events, AbstractRTC *rtc, WiFiManager *wifi)
         : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi) {
         _timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
         DateTime initialDateTime(1990, 6, 1);
@@ -29,7 +29,7 @@ public:
         }
 
         if (!sDOS_NTP::_hasRequestedWifi) {
-            _debugger.Debug(_component, "Requested wifi on.");
+            _debugger->Debug(_component, "Requested wifi on.");
             _wifi->addRequestActive();
             sDOS_NTP::_hasRequestedWifi = true;
             return;
@@ -38,7 +38,7 @@ public:
         if (_wifi->isConnected()) {
             bool successfulUpdate = talkNTP();
             if (successfulUpdate) {
-                _debugger.Debug(_component, "Requested wifi off.");
+                _debugger->Debug(_component, "Requested wifi off.");
                 _wifi->removeRequestActive();
                 sDOS_NTP::_hasRequestedWifi = false;
             }
@@ -55,8 +55,8 @@ public:
 
 private:
     String _component = "NTP";
-    Debugger _debugger;
-    EventsManager _events;
+    Debugger *_debugger;
+    EventsManager *_events;
     AbstractRTC *_rtc;
     WiFiManager *_wifi;
     WiFiUDP _ntpUDP = WiFiUDP();
@@ -68,7 +68,7 @@ private:
             return false;
         }
 
-        _debugger.Debug(_component, "Time updated: %s", _timeClient->getFormattedTime().c_str());
+        _debugger->Debug(_component, "Time updated: %s", _timeClient->getFormattedTime().c_str());
 
         unsigned long epoch = _timeClient->getEpochTime();
         DateTime newEpoch(epoch);

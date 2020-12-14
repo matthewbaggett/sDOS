@@ -4,7 +4,7 @@
 
 class sDOS_TTP223 : public sDOS_BUTTON {
 public:
-    sDOS_TTP223(Debugger &debugger, EventsManager &eventsManager) : sDOS_BUTTON(_debugger, _eventsManager) {};
+    sDOS_TTP223(Debugger *debugger, EventsManager *eventsManager) : sDOS_BUTTON(_debugger, _eventsManager) {};
 
     void setup() override {
 #ifdef PIN_POWER_TTP223
@@ -15,28 +15,28 @@ public:
         pinMode(PIN_INTERRUPT_TTP223, INPUT);
         attachInterrupt(PIN_INTERRUPT_TTP223, sDOS_TTP223::interrupt, CHANGE);
         gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
-        _eventsManager.trigger("TTP223_ready");
+        _eventsManager->trigger("TTP223_ready");
     };
 
     void loop() override {
         if (sDOS_TTP223::hasInterruptOccuredButtonDown()) {
-            _eventsManager.trigger("TTP223_down");
+            _eventsManager->trigger("TTP223_down");
         }
         if (sDOS_TTP223::hasInterruptOccuredButtonUp()) {
             unsigned int heldDownMs = _interruptDownOccurred / 1000;
-            _eventsManager.trigger("TTP223_up", heldDownMs);
+            _eventsManager->trigger("TTP223_up", heldDownMs);
         }
     };
 
     void enable() {
-        _eventsManager.trigger("TTP223_enable");
+        _eventsManager->trigger("TTP223_enable");
 #ifdef PIN_POWER_TTP223
         digitalWrite(PIN_POWER_TTP223, HIGH);
 #endif
     };
 
     void disable() {
-        _eventsManager.trigger("TTP223_disable");
+        _eventsManager->trigger("TTP223_disable");
 #ifdef PIN_POWER_TTP223
         digitalWrite(PIN_POWER_TTP223, LOW);
 #endif

@@ -33,8 +33,8 @@ using namespace std;
 
 class BluetoothManager : public sDOS_Abstract_Driver {
 private:
-    Debugger _debugger;
-    EventsManager _events;
+    Debugger * _debugger;
+    EventsManager * _events;
     String _component = "Bluetoof";
     String bleHostname = "sDOS device";
     static unsigned int _requestsActive;
@@ -45,13 +45,13 @@ public:
     const BLEUUID UART_CHARACTERISTIC_RX_UUID = BLEUUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
     const BLEUUID UART_CHARACTERISTIC_TX_UUID = BLEUUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
 
-    BluetoothManager(Debugger &debugger, EventsManager &events)
+    BluetoothManager(Debugger * debugger, EventsManager * events)
         : _debugger(debugger), _events(events) {};
 
     void setup() override {
         BluetoothManager::_requestsActive = 0;
         powerOff();
-        _debugger.addHandler(&BluetoothManager::sendMessage);
+        _debugger->addHandler(&BluetoothManager::sendMessage);
 #if defined(BT_BLE_UART_DEBUG) && BT_BLE_UART_DEBUG == true
         addRequested();
 #endif
@@ -72,10 +72,10 @@ public:
     };
 
     void setHostname(const String& newHostname) {
-        _debugger.Debug(_component, "Changed BLE Hostname to %s", newHostname.c_str());
+        _debugger->Debug(_component, "Changed BLE Hostname to %s", newHostname.c_str());
         bleHostname = newHostname;
         if ((bluetoothState != BT_DISABLED)) {
-            _debugger.Debug(_component, "Restarting BLE");
+            _debugger->Debug(_component, "Restarting BLE");
             powerOff();
             powerOn();
         }
@@ -130,7 +130,7 @@ private:
             return;
         }
         bluetoothState = BluetoothState::BT_ENABLED;
-        _debugger.Debug(_component, "BLE powerOn");
+        _debugger->Debug(_component, "BLE powerOn");
 
         BLEDevice::init(bleHostname.c_str());
         pServer = BLEDevice::createServer();
@@ -161,13 +161,13 @@ private:
 
         // Release some RAM used for BT Classic that we dont use
         if(ESP_OK != esp_bt_mem_release(ESP_BT_MODE_CLASSIC_BT)) {
-            _debugger.Debug(_component, "Cannot free bt memory");
+            _debugger->Debug(_component, "Cannot free bt memory");
         }
         if(ESP_OK != esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT)) {
-            _debugger.Debug(_component, "Cannot free bt controller memory");
+            _debugger->Debug(_component, "Cannot free bt controller memory");
         }
 
-        _events.trigger("bluetooth_on");
+        _events->trigger("bluetooth_on");
     };
 
     void powerOff() {
@@ -176,8 +176,8 @@ private:
         }
         bluetoothState = BluetoothState::BT_DISABLED;
 
-        _debugger.Debug(_component, "powerOff()");
-        _events.trigger("bluetooth_off");
+        _debugger->Debug(_component, "powerOff()");
+        _events->trigger("bluetooth_off");
     };
 };
 unsigned int BluetoothManager::_requestsActive = 0;

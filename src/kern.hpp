@@ -95,9 +95,9 @@ protected:
 
     void _configure();
 
-    Debugger _debugger = Debugger();
+    Debugger *_debugger = new Debugger();
     FileSystem *_fileSystem = new FileSystem(_debugger);
-    EventsManager _events = EventsManager(_debugger);
+    EventsManager * _events = new EventsManager(_debugger);
     WiFiManager *_driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
 #ifdef ESP32
     BluetoothManager *_driver_BT = new BluetoothManager(_debugger, _events);
@@ -128,8 +128,6 @@ protected:
     long _lastTimeStampUS = 0;
 };
 
-
-
 void sDOS::add(sDOS_Abstract_Service *service) {
     _services.push_back(service);
 }
@@ -139,6 +137,19 @@ void sDOS::add(sDOS_Abstract_Driver *driver) {
 }
 
 sDOS::sDOS() {
+#if defined(DEBUG_EVENTS)
+    _debugger->Debug(_component, F("Compiled with DEBUG_EVENTS enabled"));
+#endif
+#if defined(DEBUG_LOOP_RUNNING)
+    _debugger->Debug(_component, F("Compiled with DEBUG_LOOP_RUNNING enabled"));
+#endif
+#if defined(DEBUG_CPU_SCALER_DECISIONS)
+    _debugger->Debug(_component, F("Compiled with DEBUG_CPU_SCALER_DECISIONS enabled"));
+#endif
+#if defined(DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS)
+    _debugger->Debug(_component, F("Compiled with DEBUG_WIFIMANAGER_ISACTIVE_DECISIONS enabled"));
+#endif
+
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
@@ -149,114 +160,119 @@ sDOS::sDOS() {
     _drivers.push_back(new sDOS_POWER(_debugger, _events));
 #endif
 
-    _debugger.Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
-    _debugger.Debug(_component, F("Built with %slove%s on %s at %s."), COL_RED, COL_RESET, F(__DATE__), F(__TIME__));
+    _debugger->Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
+    _debugger->Debug(_component, F("Built with %slove%s on %s at %s."), COL_RED, COL_RESET, F(__DATE__), F(__TIME__));
 #ifdef ESP32
     _chip_id = ESP.getEfuseMac();
-    _debugger.Debug(_component, F("Hardware ID: %s%04X%08X%s"), COL_PINK, (uint16_t) (_chip_id >> 32),
+    _debugger->Debug(_component, F("Hardware ID: %s%04X%08X%s"), COL_PINK, (uint16_t) (_chip_id >> 32),
                     (uint32_t) (_chip_id), COL_RESET);
 #endif
 #ifdef ESP8266
     _chip_id = ESP.getChipId();
-    _debugger.Debug(_component, F("Hardware ID: %s%08X%s"), COL_PINK, (uint32_t)(_chip_id), COL_RESET);
+    _debugger->Debug(_component, F("Hardware ID: %s%08X%s"), COL_PINK, (uint32_t)(_chip_id), COL_RESET);
 #endif
 
 #if defined(ENABLE_I2C)
-    _debugger.Debug(_component, "ENABLE I2C");
+    _debugger->Debug(_component, "ENABLE I2C");
     delay(1);
     sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
     _drivers.push_back(_driver_I2C);
 #endif
 #if defined(ENABLE_SPI)
-    _debugger.Debug(_component, "ENABLE SPI");
+    _debugger->Debug(_component, "ENABLE SPI");
     sDOS_SPI * _driver_SPI = new sDOS_SPI(_debugger, _events);
     _drivers.push_back(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
-    _debugger.Debug(_component, "ENABLE ST7735");
+    _debugger->Debug(_component, "ENABLE ST7735");
     _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
-    _debugger.Debug(_component, "ENABLE ST7789");
+    _debugger->Debug(_component, "ENABLE ST7789");
     _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    _debugger.Debug(_component, "ENABLE MONOCOLOUR_LED");
+    _debugger->Debug(_component, "ENABLE MONOCOLOUR_LED");
     _drivers.push_back(_mono_led);
 #endif
 #if defined(ENABLE_BUTTON)
-    _debugger.Debug(_component, "ENABLE BUTTON");
+    _debugger->Debug(_component, "ENABLE BUTTON");
     _drivers.push_back(_button);
 #endif
 #if defined(ENABLE_TTP223)
-    _debugger.Debug(_component, "ENABLE TTP223");
+    _debugger->Debug(_component, "ENABLE TTP223");
     _drivers.push_back(_button_ttp223);
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
-    _debugger.Debug(_component, "ENABLE PCF8563");
+    _debugger->Debug(_component, "ENABLE PCF8563");
     _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
-    _debugger.Debug(_component, "ENABLE FAKE_RTC");
+    _debugger->Debug(_component, "ENABLE FAKE_RTC");
     _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
-    _debugger.Debug(_component, "ENABLE MPU9250");
+    _debugger->Debug(_component, "ENABLE MPU9250");
     _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
 #endif
-#if defined(ENABLE_DISPLAY)
-    _debugger.Debug(_component, "ENABLE DISPLAY");
+#if defined(ENABLE_DISPLAY) && defined(ESP32)
+    _debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), _events->getName(), _cpuScaler->getName());
     _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
+    _debugger->Debug(_component, "ENABLE DISPLAY B (%sx%s)", DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    _debugger->Debug(_component, "ENABLE DISPLAY C");
     _drivers.push_back(_driver_FrameBuffer);
+    _debugger->Debug(_component, "ENABLE DISPLAY COMPLETE");
 #endif
 
 #if defined(ENABLE_WIFI)
-    _debugger.Debug(_component, "ENABLE WIFI");
+    _debugger->Debug(_component, "ENABLE WIFI");
     _drivers.push_back(_driver_WiFi);
 #endif
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-    _debugger.Debug(_component, "ENABLE BLUETOOTH");
+    _debugger->Debug(_component, "ENABLE BLUETOOTH");
     _drivers.push_back(_driver_BT);
 #endif
 
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-    _debugger.Debug(_component, "ENABLE CPU_SCALER");
+    _debugger->Debug(_component, "ENABLE CPU_SCALER");
     _services.push_back(_cpuScaler);
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
-    _debugger.Debug(_component, "ENABLE SLEEPTUNE");
+    _debugger->Debug(_component, "ENABLE SLEEPTUNE");
     _services.push_back(new sDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
-    _debugger.Debug(_component, "ENABLE NTP");
+    _debugger->Debug(_component, "ENABLE NTP");
     _services.push_back(new sDOS_NTP(_debugger, _events, _driver_RTC, _driver_WiFi));
 #endif
 
     // Setup Drivers
+    _debugger->Debug(_component, "%s>>> Setup Drivers %s", COL_GREEN, COL_RESET);
     for (auto const &it : _drivers) {
 #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "%s>>> Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+        _debugger->Debug(_component, "%s>>> Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
         it->setup();
 #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "%s<<< Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+        _debugger->Debug(_component, "%s<<< Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
         yield();
     }
 
     // Setup Services
+    _debugger->Debug(_component, "%s>>> Setup Services %s", COL_GREEN, COL_RESET);
     for (auto const &it : _services) {
 #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "%s>>> Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+        _debugger->Debug(_component, "%s>>> Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
         it->setup();
 #ifdef DEBUG_LOOP_RUNNING
-        _debugger.Debug(_component, "%s<<< Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+        _debugger->Debug(_component, "%s<<< Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
         yield();
     }
@@ -265,9 +281,11 @@ sDOS::sDOS() {
     // To slow down the clock sooner rather than later, we call CPU_SCALERS loop here as an extra.
     _cpuScaler->loop();
 #endif
+    _debugger->Debug(_component, "%s>>> Setup Complete %s", COL_GREEN, COL_RESET);
 };
 
 void sDOS::Loop() {
+    _debugger->Debug(_component, "%s>>> Loop %s", COL_GREEN, COL_RESET);
 
     // Calculate how long it takes to iterate a loop.
     long microseconds = micros();
@@ -285,17 +303,17 @@ void sDOS::Loop() {
         if (it->isActive()) {
             uint64_t started = micros();
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s>>> Loop -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+            _debugger->Debug(_component, "%s>>> Loop -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
             it->loop();
             uint64_t runTimeMS = (micros() - started) / 1000;
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
+            _debugger->Debug(_component, "%s<<< Loop <- Driver <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
 #else
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%sxxx SKIP >< Driver >< %s%s", COL_RED, it->getName().c_str(), COL_RESET);
+            _debugger->Debug(_component, "%sxxx SKIP >< Driver >< %s%s", COL_RED, it->getName().c_str(), COL_RESET);
 #endif
         }
         yield();
@@ -306,23 +324,23 @@ void sDOS::Loop() {
         if (it->isActive()) {
             uint64_t started = micros();
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+            _debugger->Debug(_component, "%s>>> Loop -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
             it->loop();
             uint64_t runTimeMS = (micros() - started) / 1000;
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
+            _debugger->Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
 #else
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
-            _debugger.Debug(_component, "%sxxx SKIP >< Service >< %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
+            _debugger->Debug(_component, "%sxxx SKIP >< Service >< %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
 #endif
         }
         yield();
     }
 
     // Check the Events loop
-    _events.loop();
+    _events->loop();
     yield();
 }
