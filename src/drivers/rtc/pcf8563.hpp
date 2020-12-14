@@ -6,10 +6,9 @@
 class sDOS_PCF8563 : public sDOS_RTC {
 public:
     sDOS_PCF8563(Debugger * debugger, EventsManager * eventsManager, sDOS_I2C *i2c)
-        : _debugger(debugger), _events(eventsManager), _i2c(i2c) {};
+        : sDOS_RTC(debugger, eventsManager), _i2c(i2c) {
 
-    void setup() {
-        _events->trigger(F("rtc_enable"));
+        eventsManager->trigger(F("rtc_enable"));
         pinMode(PIN_INTERRUPT_PCF8563, INPUT);
         attachInterrupt(PIN_INTERRUPT_PCF8563, sDOS_PCF8563::interrupt, FALLING);
         gpio_wakeup_enable(PIN_INTERRUPT_PCF8563, GPIO_INTR_LOW_LEVEL);
@@ -18,24 +17,24 @@ public:
         _rtc.begin();
 
         if (_rtc.isrunning()) {
-            _events->trigger(F("rtc_ready"));
-            _debugger->Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
+            eventsManager->trigger(F("rtc_ready"));
+            debugger->Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
         } else {
-            _events->trigger(F("rtc_fail"));
+            eventsManager->trigger(F("rtc_fail"));
             return;
         }
     };
 
     void loop() {
         if (sDOS_PCF8563::hasInterruptOccured()) {
-            _events->trigger(F("rtc_interrupt"));
+            _eventsManager->trigger(F("rtc_interrupt"));
         }
     };
 
     void setAlarmInMinutes(int minutes) {
         DateTime alarm = _rtc.now();
         alarm.setminute(alarm.minute() + minutes);
-        _events->trigger(F("rtc_alarm_set"), alarm);
+        _eventsManager->trigger(F("rtc_alarm_set"), alarm);
         _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
         _rtc.on_alarm();
     };
@@ -43,14 +42,14 @@ public:
     void setAlarmInSeconds(int seconds) {
         DateTime alarm = _rtc.now();
         alarm.setsecond(alarm.second() + seconds);
-        _events->trigger(F("rtc_alarm_set"), alarm);
+        _eventsManager->trigger(F("rtc_alarm_set"), alarm);
         _rtc.set_alarm(alarm, {AE_M, 0, 0, 0});
         _rtc.on_alarm();
     };
 
     void setTime(DateTime &newTime) {
         _rtc.adjust(newTime);
-        _events->trigger("rtc_set", String(newTime.toStr()));
+        _eventsManager->trigger("rtc_set", String(newTime.toStr()));
     };
 
     DateTime getTime() {
@@ -61,7 +60,7 @@ public:
         return _component;
     };
 
-private:
+protected:
     String _component = "rtc";
 
     static void interrupt() {
@@ -77,8 +76,6 @@ private:
     };
 
     static bool _interruptTriggered;
-    Debugger * _debugger;
-    EventsManager * _events;
     sDOS_I2C *_i2c;
     PCF8563 _rtc;
 };

@@ -5,7 +5,7 @@
 
 class sDOS_MPU9250 : public AbstractAccellerometer {
 public:
-    sDOS_MPU9250(Debugger * debugger, EventsManager * eventsManager) : _debugger(debugger), _events(eventsManager) {}
+    sDOS_MPU9250(Debugger * debugger, EventsManager * eventsManager) : AbstractAccellerometer(debugger, eventsManager) {}
 
     void setup();
 
@@ -49,11 +49,11 @@ private:
 bool sDOS_MPU9250::interruptTriggered = false;
 
 void sDOS_MPU9250::setup() {
-    _events->trigger("MPU9250_enable");
+    _eventsManager->trigger("MPU9250_enable");
 
     // Initialise IMU
     if (_imu.begin() != INV_SUCCESS) {
-        _events->trigger("MPU9250_fail");
+        _eventsManager->trigger("MPU9250_fail");
         return;
     }
 
@@ -97,7 +97,7 @@ void sDOS_MPU9250::setup() {
     //_imu.setIntLatched(false);
 
     // All done
-    _events->trigger("MPU9250_ready");
+    _eventsManager->trigger("MPU9250_ready");
 };
 
 void sDOS_MPU9250::interrupt() {
@@ -119,7 +119,7 @@ void sDOS_MPU9250::loop() {
 
 void sDOS_MPU9250::checkInterrupt() {
     if (sDOS_MPU9250::hasInterruptOccured()) {
-        //_events->trigger("MPU9250_interrupt");
+        //_eventsManager->trigger("MPU9250_interrupt");
         checkFIFO();
     }
 }
@@ -134,7 +134,7 @@ void sDOS_MPU9250::checkFIFO() {
             yield();
             // DMP FIFO must be updated in order to update tap data
             if (_imu.dmpUpdateFifo() != INV_SUCCESS) {
-                _events->trigger("mpu9250_fifo", F("failure_to_read"));
+                _eventsManager->trigger("mpu9250_fifo", F("failure_to_read"));
             }
 
             // Check for new tap data by polling tapAvailable
@@ -167,33 +167,33 @@ void sDOS_MPU9250::handleTap() {
     //unsigned char tapCnt = _imu.getTapCount();
     switch (tapDir) {
     case TAP_X_UP:
-        _events->trigger("mpu9250_tap", F("X+"));
+        _eventsManager->trigger("mpu9250_tap", F("X+"));
         break;
     case TAP_X_DOWN:
-        _events->trigger("mpu9250_tap", F("X-"));
+        _eventsManager->trigger("mpu9250_tap", F("X-"));
         break;
     case TAP_Y_UP:
-        _events->trigger("mpu9250_tap", F("Y+"));
+        _eventsManager->trigger("mpu9250_tap", F("Y+"));
         break;
     case TAP_Y_DOWN:
-        _events->trigger("mpu9250_tap", F("Y-"));
+        _eventsManager->trigger("mpu9250_tap", F("Y-"));
         break;
     case TAP_Z_UP:
-        _events->trigger("mpu9250_tap", F("Z+"));
+        _eventsManager->trigger("mpu9250_tap", F("Z+"));
         break;
     case TAP_Z_DOWN:
-        _events->trigger("mpu9250_tap", F("Z-"));
+        _eventsManager->trigger("mpu9250_tap", F("Z-"));
         break;
     }
 }
 
 void sDOS_MPU9250::enable() {
-    _events->trigger("MPU9250_enable");
+    _eventsManager->trigger("MPU9250_enable");
     //@todo power management code
 }
 
 void sDOS_MPU9250::disable() {
-    _events->trigger("MPU9250_disable");
+    _eventsManager->trigger("MPU9250_disable");
     //@todo power management code
 }
 

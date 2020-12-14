@@ -3,7 +3,10 @@
 
 class sDOS_Abstract_Service {
 public:
-    virtual void setup();
+    sDOS_Abstract_Service(Debugger * debugger, EventsManager * eventsManager) {
+        _debugger = debugger;
+        _eventsManager = eventsManager;
+    }
 
     virtual void loop();
 
@@ -14,4 +17,8 @@ public:
     virtual String getName() {
         return "bad service";
     };
+
+protected:
+    Debugger * _debugger;
+    EventsManager * _eventsManager;
 };

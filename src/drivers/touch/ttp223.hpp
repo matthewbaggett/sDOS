@@ -4,9 +4,7 @@
 
 class sDOS_TTP223 : public sDOS_BUTTON {
 public:
-    sDOS_TTP223(Debugger *debugger, EventsManager *eventsManager) : sDOS_BUTTON(_debugger, _eventsManager) {};
-
-    void setup() override {
+    sDOS_TTP223(Debugger *debugger, EventsManager *eventsManager) : sDOS_BUTTON(_debugger, _eventsManager) {
 #ifdef PIN_POWER_TTP223
         // If we have a power pin to drive this sensor, enable it
         pinMode(PIN_POWER_TTP223, OUTPUT);
@@ -15,7 +13,7 @@ public:
         pinMode(PIN_INTERRUPT_TTP223, INPUT);
         attachInterrupt(PIN_INTERRUPT_TTP223, sDOS_TTP223::interrupt, CHANGE);
         gpio_wakeup_enable(PIN_INTERRUPT_TTP223, GPIO_INTR_HIGH_LEVEL);
-        _eventsManager->trigger("TTP223_ready");
+        eventsManager->trigger("TTP223_ready");
     };
 
     void loop() override {

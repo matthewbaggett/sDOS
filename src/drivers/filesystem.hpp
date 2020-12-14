@@ -24,7 +24,10 @@ private:
     const String _component = "FS";
 
 public:
-    explicit FileSystem(Debugger *debugger) : _debugger(debugger) {};
+    explicit FileSystem(Debugger * debugger, EventsManager * eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
+        debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
+        SPIFFS.begin();
+    };
 
     bool isActive() override {
         return false;
@@ -33,11 +36,6 @@ public:
     String getName() override {
         return _component;
     };
-
-    void setup() override {
-        _debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
-        SPIFFS.begin();
-    }
 
     void loop() override {}
 

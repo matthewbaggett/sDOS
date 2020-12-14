@@ -10,7 +10,7 @@
 class sDOS_DISPLAY_ST7735 : public AbstractDisplay {
 public:
     sDOS_DISPLAY_ST7735(Debugger *debugger, EventsManager *eventsManager, sDOS_SPI *sdos_spi)
-        : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
+        : AbstractDisplay(debugger, eventsManager), _sdos_spi(sdos_spi) {};
 
     void setup() {
         setupBacklight();

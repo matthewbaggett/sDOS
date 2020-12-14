@@ -11,13 +11,11 @@ class sDOS_NTP : public sDOS_Abstract_Service {
 
 public:
     sDOS_NTP(Debugger * debugger, EventsManager * events, AbstractRTC *rtc, WiFiManager *wifi)
-        : _debugger(debugger), _events(events), _rtc(rtc), _wifi(wifi) {
+        : sDOS_Abstract_Service(debugger, events), _rtc(rtc), _wifi(wifi) {
         _timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
         DateTime initialDateTime(1990, 6, 1);
         sDOS_NTP::_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
     };
-
-    void setup() override {};
 
     void loop() override {
         update();

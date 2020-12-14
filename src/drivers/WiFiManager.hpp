@@ -32,10 +32,10 @@ private:
     static bool _powerOnState;
 
 public:
-    WiFiManager(Debugger * debugger, FileSystem *fileSystem, EventsManager * events)
-        : _debugger(debugger), _fileSystem(fileSystem), _events(events) {};
+    WiFiManager(Debugger * debugger, FileSystem *fileSystem, EventsManager * eventsManager)
+        : sDOS_Abstract_Driver(debugger, eventsManager)  {
+        _fileSystem = fileSystem;
 
-    void setup() override {
 #ifdef ESP32
         esp_wifi_deinit();
 #endif
@@ -111,12 +111,12 @@ protected:
             if (_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED) {
                 _debugger->Debug(_component, "Connected to %s as %s", WiFi.SSID().c_str(),
                                 WiFi.localIP().toString().c_str());
-                _events->trigger("wifi_connect", WiFi.SSID());
-                _events->trigger("wifi_ip_set", WiFi.localIP().toString());
+                _eventsManager->trigger("wifi_connect", WiFi.SSID());
+                _eventsManager->trigger("wifi_ip_set", WiFi.localIP().toString());
             } else if (_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED) {
                 _debugger->Debug(_component, "Disconnected from Wifi.");
-                _events->trigger("wifi_disconnect");
-                _events->trigger("wifi_ip_unset");
+                _eventsManager->trigger("wifi_disconnect");
+                _eventsManager->trigger("wifi_ip_unset");
             }
             _wifiClientStatePrevious = _wifiClientState;
         }
@@ -126,7 +126,7 @@ protected:
             _wifiSignalStrengthPrevious = _wifiSignalStrength;
 
             //_debugger->Debug(_component, "Signal Strength changed to %d%%", _wifiSignalStrength);
-            //_events->trigger("wifi_signal", _wifiSignalStrength);
+            //_eventsManager->trigger("wifi_signal", _wifiSignalStrength);
         }
     };
 
@@ -157,17 +157,17 @@ protected:
         WiFi.persistent(false);
         WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(true);
-        _events->trigger("wifi_on");
+        _eventsManager->trigger("wifi_on");
         return;
 #if defined(ESP32) && defined(WIFI_POWER_SAVING)
         if (WIFI_POWER_SAVING == WIFI_PS_NONE) {
             _debugger->Debug(_component, "WiFi power saving is disabled");
         } else if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK) {
             _debugger->Debug(_component, "Enabled WiFi power saving successfully");
-            _events->trigger("wifi_powersave", F("okay"));
+            _eventsManager->trigger("wifi_powersave", F("okay"));
         } else {
             _debugger->Debug(_component, "Failed to enable WiFi power saving");
-            _events->trigger("wifi_powersave", F("fail"));
+            _eventsManager->trigger("wifi_powersave", F("fail"));
         }
 #endif
     };
@@ -184,7 +184,7 @@ protected:
         if (!WiFi.disconnect()) {
             _debugger->Debug(_component, "Failed calling WiFi.disconnect()");
         } else {
-            _events->trigger("wifi_off");
+            _eventsManager->trigger("wifi_off");
         }
 #ifdef ESP32
         WiFi.mode(WIFI_MODE_NULL);

@@ -6,9 +6,7 @@ class sDOS_CPU_SCALER : public sDOS_Abstract_Service {
 
 public:
     sDOS_CPU_SCALER(Debugger * debugger, EventsManager * eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth)
-        : _debugger(debugger), _events(eventsManager), _wifi(wifi), _bluetooth(bluetooth) {};
-
-    void setup() override {};
+        : sDOS_Abstract_Service(debugger, eventsManager), _wifi(wifi), _bluetooth(bluetooth) {};
 
     void loop() override {
         updateFrequency();
@@ -21,12 +19,12 @@ public:
 
         setCpuFrequencyMhz(targetFreq);
 
-        _events->trigger(F("cpu_freq_mhz"), targetFreq);
+        _eventsManager->trigger(F("cpu_freq_mhz"), targetFreq);
 
         if( targetFreq > currentFrequency ) {
-            _events->trigger(F("cpu_scaling_increase"));
+            _eventsManager->trigger(F("cpu_scaling_increase"));
         } else {
-            _events->trigger(F("cpu_scaling_decrease"));
+            _eventsManager->trigger(F("cpu_scaling_decrease"));
         }
     };
 
@@ -64,10 +62,8 @@ public:
         yield();
     };
 
-private:
+protected:
     String _component = "SCALER";
-    Debugger * _debugger;
-    EventsManager * _events;
     WiFiManager *_wifi;
     BluetoothManager *_bluetooth;
 

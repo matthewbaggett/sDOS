@@ -6,7 +6,6 @@
 #include <functional>
 #include <iostream>
 #include <vector>
-#include <abstracts/service.hpp>
 
 using namespace std;
 
@@ -17,13 +16,12 @@ struct EventHandler {
 
 using eventHandlersList = std::list<EventHandler>;
 
-class EventsManager : public sDOS_Abstract_Service {
+class EventsManager {
 public:
     explicit EventsManager(Debugger * debugger)
         : _debugger(debugger) {};
 
-    void setup() override {};
-    void loop() override {};
+    void loop(){};
 
     String getName() {
         return "EventsManager";

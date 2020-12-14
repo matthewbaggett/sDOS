@@ -1,10 +1,12 @@
 #pragma once
-
 #include "kern_inc.h"
 
 class sDOS_Abstract_Driver {
 public:
-    virtual void setup() = 0;
+    sDOS_Abstract_Driver(Debugger * debugger, EventsManager * eventsManager) {
+        _debugger = debugger;
+        _eventsManager = eventsManager;
+    }
 
     virtual void loop() = 0;
 
@@ -23,6 +25,9 @@ public:
 
 private:
     static int _allocatedPWMCount;
+protected:
+    Debugger * _debugger;
+    EventsManager * _eventsManager;
 };
 
 int sDOS_Abstract_Driver::_allocatedPWMCount = -1;

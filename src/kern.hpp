@@ -96,11 +96,11 @@ protected:
     void _configure();
 
     Debugger *_debugger = new Debugger();
-    FileSystem *_fileSystem = new FileSystem(_debugger);
-    EventsManager * _events = new EventsManager(_debugger);
-    WiFiManager *_driver_WiFi = new WiFiManager(_debugger, _fileSystem, _events);
+    EventsManager * _eventsManager = new EventsManager(_debugger);
+    FileSystem *_fileSystem = new FileSystem(_debugger, _eventsManager);
+    WiFiManager *_driver_WiFi = new WiFiManager(_debugger, _fileSystem, _eventsManager);
 #ifdef ESP32
-    BluetoothManager *_driver_BT = new BluetoothManager(_debugger, _events);
+    BluetoothManager *_driver_BT = new BluetoothManager(_debugger, _eventsManager);
 #endif
 #if defined(ENABLE_RTC) && defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
     sDOS_PCF8563 * _driver_RTC;
@@ -112,16 +112,16 @@ protected:
     sDOS_FrameBuffer * _driver_FrameBuffer;
 #endif
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-    sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _events, _driver_WiFi, _driver_BT);
+    sDOS_CPU_SCALER *_cpuScaler = new sDOS_CPU_SCALER(_debugger, _eventsManager, _driver_WiFi, _driver_BT);
 #endif
 #if defined(ENABLE_BUTTON)
-    sDOS_BUTTON * _button = new sDOS_BUTTON(_debugger, _events);
+    sDOS_BUTTON * _button = new sDOS_BUTTON(_debugger, _eventsManager);
 #endif
 #if defined(ENABLE_TTP223)
-    sDOS_TTP223 * _button_ttp223 = new sDOS_TTP223(_debugger, _events);
+    sDOS_TTP223 * _button_ttp223 = new sDOS_TTP223(_debugger, _eventsManager);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    sDOS_LED_MONO * _mono_led = new sDOS_LED_MONO(_debugger, _events, ENABLE_MONOCOLOUR_LED);
+    sDOS_LED_MONO * _mono_led = new sDOS_LED_MONO(_debugger, _eventsManager, ENABLE_MONOCOLOUR_LED);
 #endif
 
     long _lastCycleTimeMS = 0;
@@ -157,7 +157,7 @@ sDOS::sDOS() {
     _drivers.push_back(_fileSystem);
 
 #if defined(ENABLE_POWER)
-    _drivers.push_back(new sDOS_POWER(_debugger, _events));
+    _drivers.push_back(new sDOS_POWER(_debugger, _eventsManager));
 #endif
 
     _debugger->Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
@@ -175,22 +175,22 @@ sDOS::sDOS() {
 #if defined(ENABLE_I2C)
     _debugger->Debug(_component, "ENABLE I2C");
     delay(1);
-    sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _events);
+    sDOS_I2C * _driver_I2C = new sDOS_I2C(_debugger, _eventsManager);
     _drivers.push_back(_driver_I2C);
 #endif
 #if defined(ENABLE_SPI)
     _debugger->Debug(_component, "ENABLE SPI");
-    sDOS_SPI * _driver_SPI = new sDOS_SPI(_debugger, _events);
+    sDOS_SPI * _driver_SPI = new sDOS_SPI(_debugger, _eventsManager);
     _drivers.push_back(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
     _debugger->Debug(_component, "ENABLE ST7735");
-    _display = new sDOS_DISPLAY_ST7735(_debugger, _events, _driver_SPI);
+    _display = new sDOS_DISPLAY_ST7735(_debugger, _eventsManager, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
     _debugger->Debug(_component, "ENABLE ST7789");
-    _display = new sDOS_DISPLAY_ST7789(_debugger, _events, _driver_SPI);
+    _display = new sDOS_DISPLAY_ST7789(_debugger, _eventsManager, _driver_SPI);
     _drivers.push_back(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
@@ -207,21 +207,21 @@ sDOS::sDOS() {
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
     _debugger->Debug(_component, "ENABLE PCF8563");
-    _driver_RTC = new sDOS_PCF8563(_debugger, _events, _driver_I2C);
+    _driver_RTC = new sDOS_PCF8563(_debugger, _eventsManager, _driver_I2C);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
     _debugger->Debug(_component, "ENABLE FAKE_RTC");
-    _driver_RTC = new sDOS_FAKE_RTC(_debugger, _events);
+    _driver_RTC = new sDOS_FAKE_RTC(_debugger, _eventsManager);
     _drivers.push_back(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
     _debugger->Debug(_component, "ENABLE MPU9250");
-    _drivers.push_back(new sDOS_MPU9250(_debugger, _events));
+    _drivers.push_back(new sDOS_MPU9250(_debugger, _eventsManager));
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
-    _debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), _events->getName(), _cpuScaler->getName());
-    _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _events, _display, _cpuScaler);
+    _debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), _eventsManager->getName(), _cpuScaler->getName());
+    _driver_FrameBuffer = new sDOS_FrameBuffer(_debugger, _eventsManager, _display, _cpuScaler);
     _debugger->Debug(_component, "ENABLE DISPLAY B (%sx%s)", DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     _debugger->Debug(_component, "ENABLE DISPLAY C");
@@ -244,38 +244,12 @@ sDOS::sDOS() {
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
     _debugger->Debug(_component, "ENABLE SLEEPTUNE");
-    _services.push_back(new sDOS_SLEEPTUNE(_debugger, _events, _driver_WiFi, _driver_BT));
+    _services.push_back(new sDOS_SLEEPTUNE(_debugger, _eventsManager, _driver_WiFi, _driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
     _debugger->Debug(_component, "ENABLE NTP");
-    _services.push_back(new sDOS_NTP(_debugger, _events, _driver_RTC, _driver_WiFi));
+    _services.push_back(new sDOS_NTP(_debugger, _eventsManager, _driver_RTC, _driver_WiFi));
 #endif
-
-    // Setup Drivers
-    _debugger->Debug(_component, "%s>>> Setup Drivers %s", COL_GREEN, COL_RESET);
-    for (auto const &it : _drivers) {
-#ifdef DEBUG_LOOP_RUNNING
-        _debugger->Debug(_component, "%s>>> Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-#endif
-        it->setup();
-#ifdef DEBUG_LOOP_RUNNING
-        _debugger->Debug(_component, "%s<<< Setup -> Driver -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-#endif
-        yield();
-    }
-
-    // Setup Services
-    _debugger->Debug(_component, "%s>>> Setup Services %s", COL_GREEN, COL_RESET);
-    for (auto const &it : _services) {
-#ifdef DEBUG_LOOP_RUNNING
-        _debugger->Debug(_component, "%s>>> Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-#endif
-        it->setup();
-#ifdef DEBUG_LOOP_RUNNING
-        _debugger->Debug(_component, "%s<<< Setup -> Service -> %s%s", COL_GREEN, it->getName().c_str(), COL_RESET);
-#endif
-        yield();
-    }
 
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     // To slow down the clock sooner rather than later, we call CPU_SCALERS loop here as an extra.
@@ -341,6 +315,6 @@ void sDOS::Loop() {
     }
 
     // Check the Events loop
-    _events->loop();
+    _eventsManager->loop();
     yield();
 }

@@ -90,7 +90,12 @@ public:
 
     sDOS_FrameBuffer(Debugger * debugger, EventsManager * eventsManager, AbstractDisplay *display,
                      sDOS_CPU_SCALER *cpuScaler)
-        : _debugger(debugger), _eventsManager(eventsManager), _display(display), _cpuScaler(cpuScaler) {};
+        : sDOS_Abstract_Driver(debugger, eventsManager), _display(display), _cpuScaler(cpuScaler) {
+        _debugger->Debug(_component, "Yo.");
+        this->setup();
+
+
+    };
 
     void setup() {};
 
@@ -430,9 +435,7 @@ public:
 
     }
 
-private:
-    Debugger * _debugger;
-    EventsManager * _eventsManager;
+protected:
     AbstractDisplay *_display;
     sDOS_CPU_SCALER *_cpuScaler;
     String _component = "fbuff";
