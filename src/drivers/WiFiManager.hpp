@@ -32,10 +32,12 @@ private:
     static bool _powerOnState;
 
 public:
-    WiFiManager(Debugger * debugger, FileSystem *fileSystem, EventsManager * eventsManager)
-        : sDOS_Abstract_Driver(debugger, eventsManager)  {
-        _fileSystem = fileSystem;
+    WiFiManager(Debugger * debugger, FileSystem * fileSystem, EventsManager * eventsManager)
+        : sDOS_Abstract_Driver(debugger, eventsManager), _fileSystem(fileSystem) {
+        debugger->Debug(_component, "Construct");
+    };
 
+    void setup() override {
 #ifdef ESP32
         esp_wifi_deinit();
 #endif
@@ -80,7 +82,7 @@ public:
                  && WiFiManager::_requestsActive == 0 && !WiFi.isConnected());
     };
 
-    String getName() override {
+    String getName() {
         return _component;
     };
 

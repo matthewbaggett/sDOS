@@ -3,20 +3,18 @@
 
 class sDOS_Abstract_Driver {
 public:
-    sDOS_Abstract_Driver(Debugger * debugger, EventsManager * eventsManager) {
-        _debugger = debugger;
-        _eventsManager = eventsManager;
+    sDOS_Abstract_Driver(Debugger * debugger, EventsManager * eventsManager) : _debugger(debugger), _eventsManager(eventsManager){
     }
 
-    virtual void loop() = 0;
+    virtual void setup(){};
+
+    virtual void loop(){};
 
     virtual bool isActive() {
         return true;
     }
 
-    virtual String getName() {
-        return "bad driver";
-    };
+    virtual String getName() = 0;
 
     static int getUnusedPWMChannel() {
         sDOS_Abstract_Driver::_allocatedPWMCount++;

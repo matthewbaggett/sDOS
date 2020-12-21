@@ -11,6 +11,10 @@ public:
     sDOS_POWER(Debugger * debugger, EventsManager * eventsManager)
         : sDOS_Abstract_Driver(debugger, eventsManager)
     {
+        debugger->Debug(_component, "Construct");
+    };
+
+    void setup() {
         esp_adc_cal_characteristics_t adc_chars;
         esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
         //Check type of calibration value used to characterize ADC
@@ -24,19 +28,19 @@ public:
         }
 
 #ifdef POWER_MONITOR_VBATT
-        debugger->Debug(_component, "Enabled monitoring VBATT on pin #%d", POWER_MONITOR_VBATT);
+        _debugger->Debug(_component, "Enabled monitoring VBATT on pin #%d", POWER_MONITOR_VBATT);
         pinMode(POWER_MONITOR_VBATT, INPUT);
         //analogSetPinAttenuation(POWER_MONITOR_VBATT, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_VBUS
-        debugger->Debug(_component, "Enabled monitoring VBUS on pin #%d", POWER_MONITOR_VBUS);
+        _debugger->Debug(_component, "Enabled monitoring VBUS on pin #%d", POWER_MONITOR_VBUS);
         pinMode(POWER_MONITOR_VBUS, INPUT);
         //analogSetPinAttenuation(POWER_MONITOR_VBUS, ADC_0db);
 #endif
 
 #ifdef POWER_MONITOR_CHARGE_STATE
-        debugger->Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
+        _debugger->Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
         pinMode(POWER_MONITOR_CHARGE_STATE, INPUT_PULLUP);
         attachInterrupt(POWER_MONITOR_CHARGE_STATE, [] {
             _chargingInterruptTriggered = true;
@@ -105,7 +109,7 @@ public:
         return sDOS_POWER::_mon_mv_vbus;
     };
 #endif
-    String getName() override {
+    String getName() {
         return _component;
     };
 private:

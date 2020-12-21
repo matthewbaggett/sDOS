@@ -11,7 +11,9 @@ private:
     RTC_Millis _rtc;
 public:
     sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager)
-        : _debugger(debugger), _events(eventsManager) {};
+        : _debugger(debugger), _events(eventsManager) {
+        debugger->Debug(_component, "Construct");
+    };
 
     void setup() {
         DateTime buildTime = DateTime(__DATE__, __TIME__);

@@ -22,12 +22,14 @@ class FileSystem : public sDOS_Abstract_Driver {
 private:
     Debugger * _debugger;
     const String _component = "FS";
+    bool firstLoop = true;
 
 public:
     explicit FileSystem(Debugger * debugger, EventsManager * eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
-        debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
-        SPIFFS.begin();
+        debugger->Debug(_component, "Construct");
     };
+
+    void setup() override {}
 
     bool isActive() override {
         return false;
@@ -37,7 +39,14 @@ public:
         return _component;
     };
 
-    void loop() override {}
+    void loop() override {
+        if (firstLoop) {
+            _debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
+            SPIFFS.begin();
+            _debugger->Debug(_component, "Starting %sSPIFFS%s complete!", COL_RED, COL_RESET);
+            firstLoop = false;
+        }
+    }
 
     JsonConfigFile *loadJsonArray(JsonConfigFile *config, const String& fileName) {
         _debugger->Debug(_component, "Reading %s%s%s from %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,

@@ -5,7 +5,9 @@
 
 class sDOS_MPU9250 : public AbstractAccellerometer {
 public:
-    sDOS_MPU9250(Debugger * debugger, EventsManager * eventsManager) : AbstractAccellerometer(debugger, eventsManager) {}
+    sDOS_MPU9250(Debugger * debugger, EventsManager * eventsManager) : AbstractAccellerometer(debugger, eventsManager) {
+        debugger->Debug(_component, "Construct");
+    }
 
     void setup();
 
@@ -15,11 +17,11 @@ public:
 
     void disable();
 
-    String getName() {
+    String getName() override {
         return _component;
-    };
+    }
 
-private:
+protected:
     String _component = "MPU9250";
 
     static void interrupt();

@@ -7,8 +7,12 @@ class sDOS_PCF8563 : public sDOS_RTC {
 public:
     sDOS_PCF8563(Debugger * debugger, EventsManager * eventsManager, sDOS_I2C *i2c)
         : sDOS_RTC(debugger, eventsManager), _i2c(i2c) {
+        debugger->Debug(_component, "Construct");
+    }
 
-        eventsManager->trigger(F("rtc_enable"));
+    void setup() {
+        sDOS_RTC::setup();
+        _eventsManager->trigger(F("rtc_enable"));
         pinMode(PIN_INTERRUPT_PCF8563, INPUT);
         attachInterrupt(PIN_INTERRUPT_PCF8563, sDOS_PCF8563::interrupt, FALLING);
         gpio_wakeup_enable(PIN_INTERRUPT_PCF8563, GPIO_INTR_LOW_LEVEL);
@@ -17,15 +21,16 @@ public:
         _rtc.begin();
 
         if (_rtc.isrunning()) {
-            eventsManager->trigger(F("rtc_ready"));
-            debugger->Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
+            _eventsManager->trigger(F("rtc_ready"));
+            _debugger->Debug(_component, "RTC Startup time: %s", _rtc.now().toStr());
         } else {
-            eventsManager->trigger(F("rtc_fail"));
+            _eventsManager->trigger(F("rtc_fail"));
             return;
         }
     };
 
     void loop() {
+        sDOS_RTC::loop();
         if (sDOS_PCF8563::hasInterruptOccured()) {
             _eventsManager->trigger(F("rtc_interrupt"));
         }

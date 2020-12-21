@@ -28,7 +28,9 @@ private:
 public:
     sDOS_SLEEPTUNE(Debugger *debugger, EventsManager *events, WiFiManager *wifi,
                    BluetoothManager *bluetooth)
-        : sDOS_Abstract_Service(debugger, events), _wifi(wifi), _bluetooth(bluetooth) {};
+        : sDOS_Abstract_Service(debugger, events), _wifi(wifi), _bluetooth(bluetooth) {
+        debugger->Debug(_component, "Construct");
+    };
 
     void setup() {};
 

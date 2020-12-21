@@ -6,9 +6,16 @@ class sDOS_CPU_SCALER : public sDOS_Abstract_Service {
 
 public:
     sDOS_CPU_SCALER(Debugger * debugger, EventsManager * eventsManager, WiFiManager *wifi, BluetoothManager *bluetooth)
-        : sDOS_Abstract_Service(debugger, eventsManager), _wifi(wifi), _bluetooth(bluetooth) {};
+        : sDOS_Abstract_Service(debugger, eventsManager), _wifi(wifi), _bluetooth(bluetooth) {
+        debugger->Debug(_component, "Construct");
+    };
+
+    void setup() override {
+        sDOS_Abstract_Service::setup();
+    }
 
     void loop() override {
+        sDOS_Abstract_Service::loop();
         updateFrequency();
     };
 

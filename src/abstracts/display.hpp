@@ -5,7 +5,8 @@
 
 class AbstractDisplay : public sDOS_Abstract_Driver {
 public:
-    AbstractDisplay(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {}
+    AbstractDisplay(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
+    }
 
     virtual void writePixel(uint16_t x, uint16_t y, uint16_t value) = 0;
 

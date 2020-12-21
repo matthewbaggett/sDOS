@@ -29,6 +29,8 @@ public:
         _serial = Serial;
         _serial.begin(SERIAL_BAUD);
         _serial.setDebugOutput(SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG);
+        sleep(1000);
+        _serial.println("Debugger OK");
     };
 
     void Debug(String component, const String& format, ...) {

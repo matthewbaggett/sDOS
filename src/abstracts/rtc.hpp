@@ -5,7 +5,8 @@
 
 class AbstractRTC : public sDOS_Abstract_Driver {
 public:
-    AbstractRTC(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {}
+    AbstractRTC(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
+    }
 
     virtual void setTime(DateTime &newTime) = 0;
 
@@ -14,4 +15,11 @@ public:
     virtual void setAlarmInSeconds(int seconds);
 
     virtual DateTime getTime();
+
+    virtual void loop() override {
+        sDOS_Abstract_Driver::loop();
+    }
+    virtual void setup() override{
+        sDOS_Abstract_Driver::setup();
+    }
 };

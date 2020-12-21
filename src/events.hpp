@@ -19,7 +19,9 @@ using eventHandlersList = std::list<EventHandler>;
 class EventsManager {
 public:
     explicit EventsManager(Debugger * debugger)
-        : _debugger(debugger) {};
+        : _debugger(debugger) {
+        _debugger->Debug(_component, "Construct");
+    };
 
     void loop(){};
 
