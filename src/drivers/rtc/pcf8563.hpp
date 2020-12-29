@@ -7,7 +7,7 @@ class sDOS_PCF8563 : public sDOS_RTC {
 public:
     sDOS_PCF8563(Debugger * debugger, EventsManager * eventsManager, sDOS_I2C *i2c)
         : sDOS_RTC(debugger, eventsManager), _i2c(i2c) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     }
 
     void setup() {

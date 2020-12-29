@@ -18,9 +18,8 @@ using eventHandlersList = std::list<EventHandler>;
 
 class EventsManager {
 public:
-    explicit EventsManager(Debugger * debugger)
+    EventsManager(Debugger * debugger)
         : _debugger(debugger) {
-        _debugger->Debug(_component, "Construct");
     };
 
     void loop(){};
@@ -119,7 +118,7 @@ public:
 #endif
         findCallbacks(event, "");
     };
-private:
+protected:
     Debugger * _debugger;
     String _component = "Events";
     static eventHandlersList _handlers;

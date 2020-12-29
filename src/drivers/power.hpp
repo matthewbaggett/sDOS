@@ -11,7 +11,7 @@ public:
     sDOS_POWER(Debugger * debugger, EventsManager * eventsManager)
         : sDOS_Abstract_Driver(debugger, eventsManager)
     {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
         sDOS_POWER::_chargingInterruptTriggered = false;
         sDOS_POWER::_isCharging = false;
     };

@@ -47,7 +47,7 @@ public:
 
     BluetoothManager(Debugger * debugger, EventsManager * events)
         : sDOS_Abstract_Driver(debugger, events) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     }
 
     void setup() {

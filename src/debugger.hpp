@@ -14,7 +14,7 @@ using debugHandlersList = std::list<void (*)(String message)>;
 #endif
 
 class Debugger {
-private:
+protected:
     HardwareSerial _serial = Serial;
     static String _lastComponent;
     static char _lastBuff[DEBUG_SERIAL_BUFFER_SIZE];
@@ -25,13 +25,7 @@ private:
     static bool isPowerCharging();
     static double getBatteryVolts();
 public:
-    Debugger() {
-        _serial = Serial;
-        _serial.begin(SERIAL_BAUD);
-        _serial.setDebugOutput(SDOS_SERIAL_DEBUG_UNDERLYING_SYSTEM_DEBUG);
-        sleep(1000);
-        _serial.println("Debugger OK");
-    };
+    Debugger() : _serial(Serial){};
 
     void Debug(String component, const String& format, ...) {
         char buff[DEBUG_SERIAL_BUFFER_SIZE];
@@ -48,38 +42,22 @@ public:
         component.toUpperCase();
 
         char outputBuffer[sizeof(buff)];
-        snprintf(
-            outputBuffer,
-            sizeof(outputBuffer),
-            "%s[%s%04d %s%-7.7s %s%3dMhz %s%s %s%s %s%.2fv %s%3dK%s] %s\n",
-            Debugger::getDuplicates() > 0 ? "\n" : "",
-            COL_BLUE,
-            _loopCount,
-            COL_YELLOW,
-            component.c_str(),
-            getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN,
-            getCpuFrequencyMhz(),
-            Debugger::isWifiPoweredOn() ? COL_RED : COL_GREEN,
-            Debugger::isWifiPoweredOn() ? "W+" : "W-",
+        _serial.print(Debugger::getDuplicates() > 0 ? "\n" : "");
+        _serial.print("[");
+        _serial.printf("%s%04d ", COL_BLUE, _loopCount);
+        _serial.printf("%s%-7.7s ", COL_YELLOW, component.c_str());
+        _serial.printf("%s%3dMhz ", getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN, getCpuFrequencyMhz());
+        _serial.printf("%s%s ",Debugger::isWifiPoweredOn() ? COL_RED : COL_GREEN, Debugger::isWifiPoweredOn() ? "W+" : "W-");
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-            Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN,
-            Debugger::isBluetoothPoweredOn() ? "B+" : "B-",
-#else
-            NULL, NULL,
+        _serial.printf("%s%s ", Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN, Debugger::isBluetoothPoweredOn() ? "B+" : "B-");
 #endif
 #if defined(ENABLE_POWER)
-            Debugger::isPowerCharging() ? COL_BLUE : COL_PINK,
-            Debugger::getBatteryVolts(),
-#else
-            NULL, NULL,
+        _serial.printf("%s%.2fv ", Debugger::isPowerCharging() ? COL_BLUE : COL_PINK, Debugger::getBatteryVolts();
 #endif
-            ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE,
-            ESP.getFreeHeap() / 1024,
-            COL_RESET,
-            buff
-        );
-
-        _serial.print(outputBuffer);
+        _serial.printf("%s%3dK", ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE, ESP.getFreeHeap() / 1024);
+        _serial.printf("%s] ", COL_RESET);
+        _serial.println(buff);
+        _serial.flush();
 
         for (auto const &it : Debugger::_handlers) {
             it(outputBuffer);

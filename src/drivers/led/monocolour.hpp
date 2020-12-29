@@ -5,7 +5,7 @@ class sDOS_LED_MONO : public sDOS_Abstract_Driver {
 public:
     sDOS_LED_MONO(Debugger * debugger, EventsManager * eventsManager, gpio_num_t gpio)
         : sDOS_Abstract_Driver(debugger, eventsManager), _gpio(gpio) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     };
 
     void setup() {

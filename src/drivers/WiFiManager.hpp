@@ -34,7 +34,7 @@ private:
 public:
     WiFiManager(Debugger * debugger, FileSystem * fileSystem, EventsManager * eventsManager)
         : sDOS_Abstract_Driver(debugger, eventsManager), _fileSystem(fileSystem) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     };
 
     void setup() override {

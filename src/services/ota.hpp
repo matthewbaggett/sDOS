@@ -9,7 +9,7 @@ class sDOS_OTA_Service : public sDOS_Abstract_Service {
 public:
     sDOS_OTA_Service(Debugger *debugger, EventsManager *eventsManager, WiFiManager *wifi, sDOS_CPU_SCALER *cpuScaler)
         : sDOS_Abstract_Service(debugger, eventsManager),  _wifi(wifi), _cpuScaler(cpuScaler) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     };
 
     String getName() {

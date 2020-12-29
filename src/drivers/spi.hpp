@@ -6,7 +6,7 @@
 class sDOS_SPI : public sDOS_Abstract_Driver {
 public:
     sDOS_SPI(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     };
 
     void setup() override {};

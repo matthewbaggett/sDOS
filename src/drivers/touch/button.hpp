@@ -8,7 +8,7 @@ class sDOS_BUTTON : public sDOS_Abstract_Driver {
 public:
     sDOS_BUTTON(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
         _eventsManager->trigger("button_ready");
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     }
 
     void loop() override {};

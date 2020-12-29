@@ -12,7 +12,7 @@ class sDOS_NTP : public sDOS_Abstract_Service {
 public:
     sDOS_NTP(Debugger * debugger, EventsManager * events, AbstractRTC *rtc, WiFiManager *wifi)
         : sDOS_Abstract_Service(debugger, events), _rtc(rtc), _wifi(wifi) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     }
 
     void setup() {

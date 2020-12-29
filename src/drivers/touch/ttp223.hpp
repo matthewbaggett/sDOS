@@ -5,7 +5,7 @@
 class sDOS_TTP223 : public sDOS_BUTTON {
 public:
     sDOS_TTP223(Debugger *debugger, EventsManager *eventsManager) : sDOS_BUTTON(_debugger, _eventsManager) {
-        debugger->Debug(_component, "Construct");
+        //debugger->Debug(_component, "Construct");
     }
 
     void setup() {
