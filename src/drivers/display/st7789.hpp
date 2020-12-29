@@ -17,7 +17,7 @@
 class sDOS_DISPLAY_ST7789 : public AbstractDisplay {
 public:
     sDOS_DISPLAY_ST7789(Debugger *debugger, EventsManager *eventsManager, sDOS_SPI *sdos_spi)
-        : _debugger(debugger), _eventsManager(eventsManager), _sdos_spi(sdos_spi) {};
+        : AbstractDisplay(debugger, eventsManager), _sdos_spi(sdos_spi) {};
 
     void setup() {
         _debugger->Debug(_component, "setup()");
@@ -97,8 +97,6 @@ public:
 
 protected:
     String _component = "ST7789";
-    Debugger * _debugger;// @todo refactor into base class
-    EventsManager * _eventsManager;// @todo refactor into base class
     sDOS_SPI *_sdos_spi;
     static bool _displayOn;
     static unsigned int _backlightBrightness;   // 0-255 brightness

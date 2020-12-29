@@ -4,15 +4,12 @@
 #include <RTClib.h>
 
 class sDOS_FAKE_RTC : public sDOS_RTC {
-private:
+protected:
     String _component = "fakertc";
-    Debugger _debugger;
-    EventsManager _events;
     RTC_Millis _rtc;
 public:
-    sDOS_FAKE_RTC(Debugger &debugger, EventsManager &eventsManager)
-        : _debugger(debugger), _events(eventsManager) {
-        debugger->Debug(_component, "Construct");
+    sDOS_FAKE_RTC(Debugger * debugger, EventsManager * eventsManager)
+        : sDOS_RTC(debugger, eventsManager) {
     };
 
     void setup() {

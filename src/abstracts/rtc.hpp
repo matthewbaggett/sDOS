@@ -5,8 +5,9 @@
 
 class AbstractRTC : public sDOS_Abstract_Driver {
 public:
-    AbstractRTC(Debugger *debugger, EventsManager *eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
-    }
+    AbstractRTC(Debugger *debugger, EventsManager *eventsManager)
+        : sDOS_Abstract_Driver(debugger, eventsManager) {
+    };
 
     virtual void setTime(DateTime &newTime) = 0;
 
