@@ -4,16 +4,14 @@
 class sDOS_LED_MONO : public sDOS_Abstract_Driver {
 public:
     sDOS_LED_MONO(Debugger * debugger, EventsManager * eventsManager, gpio_num_t gpio)
-        : sDOS_Abstract_Driver(debugger, eventsManager), _gpio(gpio) {
-        //debugger->Debug(_component, "Construct");
-    };
+        : sDOS_Abstract_Driver(debugger, eventsManager), _gpio(gpio) {};
 
     void setup() {
-        _debugger->Debug(_component, "GPIO %d, PWM Channel %d", _gpio, _pwmChannel);
+        this->_debugger->Debug(_component, "GPIO %d, PWM Channel %d", _gpio, _pwmChannel);
         pinMode(_gpio, OUTPUT);
         ledcSetup(_pwmChannel, 5000, 8);
         ledcAttachPin(_gpio, _pwmChannel);
-        _debugger->Debug(_component, "setup() complete");
+        this->_debugger->Debug(_component, "setup() complete");
     };
 
     bool isActive() {
@@ -40,8 +38,6 @@ public:
 
 private:
     String _component = "LEDMONO";
-    Debugger * _debugger;
-    EventsManager * _eventsManager;
     gpio_num_t _gpio;
     int _pwmChannel = sDOS_LED_MONO::getUnusedPWMChannel();
     static unsigned int _brightness;   // 0-255 brightness

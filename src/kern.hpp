@@ -164,7 +164,7 @@ void sDOS::setup() {
     //this->_button_ttp223 = new sDOS_TTP223(this->_debugger, this->_eventsManager);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    //this->_mono_led = new sDOS_LED_MONO(this->_debugger, this->_eventsManager, ENABLE_MONOCOLOUR_LED);
+    this->_mono_led = new sDOS_LED_MONO(this->_debugger, this->_eventsManager, ENABLE_MONOCOLOUR_LED);
 #endif
 
 #if defined(DEBUG_EVENTS)
@@ -271,6 +271,26 @@ void sDOS::setup() {
     // To slow down the clock sooner rather than later, we call CPU_SCALERS loop here as an extra.
     this->_cpuScaler->loop();
 #endif
+
+    // Loop over Drivers
+    this->_debugger->Debug(_component, "calling drivers setup()");
+
+    for (auto const &it : this->_drivers) {
+        this->_debugger->Debug(_component, "inside iterator %s", it->getName());
+        it->setup();
+        yield();
+    }
+    this->_debugger->Debug(_component, "calling drivers setup() finished");
+
+    this->_debugger->Debug(_component, "calling services setup()");
+
+    // Loop over Services
+    for (auto const &it : this->_services) {
+        it->setup();
+        yield();
+    }
+    this->_debugger->Debug(_component, "calling services setup() finished");
+
     this->_debugger->Debug(_component, "%s>>> Setup Complete %s", COL_GREEN, COL_RESET);
 };
 
