@@ -12,21 +12,27 @@ class sDOS_NTP : public sDOS_Abstract_Service {
 public:
     sDOS_NTP(Debugger * debugger, EventsManager * events, AbstractRTC *rtc, WiFiManager *wifi)
         : sDOS_Abstract_Service(debugger, events), _rtc(rtc), _wifi(wifi) {
-        //debugger->Debug(_component, "Construct");
     }
 
-    void setup() {
-        _timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
+    void setup() override {
+
+        Serial.println("sDOS_NTP::setup() A");
+        Serial.flush();
+        this->_timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
+        Serial.println("sDOS_NTP::setup() B");
+        Serial.flush();
         DateTime initialDateTime(1990, 6, 1);
-        sDOS_NTP::_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
+        Serial.println("sDOS_NTP::setup() C");
+        Serial.flush();
+        this->_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
+        Serial.println("sDOS_NTP::setup() D");
+        Serial.flush();
     };
 
     void loop() override {
-        update();
-    };
+        Serial.println("sDOS_NTP::loop()");
 
-    void update() {
-        if (!needsUpdate()) {
+        if (!this->needsUpdate()) {
             return;
         }
 
@@ -55,14 +61,14 @@ public:
         return needsUpdate();
     };
 
-private:
+protected:
     String _component = "NTP";
-    Debugger *_debugger;
-    EventsManager *_events;
     AbstractRTC *_rtc;
     WiFiManager *_wifi;
     WiFiUDP _ntpUDP = WiFiUDP();
     NTPClient *_timeClient;
+    int _lastSuccessfulUpdateEpoch;
+    static bool _hasRequestedWifi;
 
     bool talkNTP() {
         _timeClient->begin();
@@ -74,19 +80,15 @@ private:
 
         unsigned long epoch = _timeClient->getEpochTime();
         DateTime newEpoch(epoch);
-        sDOS_NTP::_lastSuccessfulUpdateEpoch = newEpoch.unixtime();
+        this->_lastSuccessfulUpdateEpoch = newEpoch.unixtime();
         _rtc->setTime(newEpoch);
         return true;
     };
 
     bool needsUpdate() {
-        return _rtc->getTime().unixtime() - sDOS_NTP::_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
+        return _rtc->getTime().unixtime() - this->_lastSuccessfulUpdateEpoch > NTP_UPDATE_INTERVAL_SECONDS;
     };
-
-    static int _lastSuccessfulUpdateEpoch;
-    static bool _hasRequestedWifi;
 };
 
-int sDOS_NTP::_lastSuccessfulUpdateEpoch = 0;
 bool sDOS_NTP::_hasRequestedWifi = false;
 

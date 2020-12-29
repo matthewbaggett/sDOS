@@ -93,11 +93,13 @@ public:
     void Loop();
 
     void add(sDOS_Abstract_Service *service) {
-        _services.push_back(service);
+        this->_debugger->Debug(this->_component, "Adding %s service", service->getName());
+        this->_services.push_back(service);
     }
 
     void add(sDOS_Abstract_Driver *driver) {
-        _drivers.push_back(driver);
+        this->_debugger->Debug(this->_component, "Adding %s driver", driver->getName());
+        this->_drivers.push_back(driver);
     }
 
 protected:
@@ -112,19 +114,15 @@ protected:
 
     WiFiManager *_driver_WiFi;
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-    #pragma message "Selected Bluetooth Support"
     BluetoothManager *_driver_BT;
 #endif
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-    #pragma message "Enable CPU Scaler service"
     sDOS_CPU_SCALER *_cpuScaler;
 #endif
 
 #if defined(ENABLE_RTC) && defined(ENABLE_PCF8563) && defined(ENABLE_I2C)
-    #pragma message "Selected PCF8563 RTC support"
     sDOS_PCF8563 * _driver_RTC;
 #elif defined(ENABLE_RTC) && defined(ENABLE_FAKE_RTC)
-    #pragma message "Selected Fake RTC support"
     sDOS_FAKE_RTC * _driver_RTC;
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
@@ -134,16 +132,13 @@ protected:
 #endif
 
 #if defined(ENABLE_BUTTON)
-    #pragma message "Enable Button"
-    //sDOS_BUTTON * _button;
+    sDOS_BUTTON * _button;
 #endif
 #if defined(ENABLE_TTP223)
-    #pragma message "Enable TTP223 capacitive touch"
-    //sDOS_TTP223 * _button_ttp223;
+    sDOS_TTP223 * _button_ttp223;
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    #pragma message "Enable CPU Scaler service"
-    //sDOS_LED_MONO * _mono_led;
+    sDOS_LED_MONO * _mono_led;
 #endif
 
     long _lastCycleTimeMS = 0;
@@ -188,10 +183,10 @@ void sDOS::setup() {
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
     setCpuFrequencyMhz(20);
 #endif
-    _drivers.push_back(_fileSystem);
+    this->add(_fileSystem);
 
 #if defined(ENABLE_POWER)
-    _drivers.push_back(new sDOS_POWER(this->_debugger, _eventsManager));
+    this->add(new sDOS_POWER(this->_debugger, this->_eventsManager))
 #endif
 
     this->_debugger->Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);
@@ -207,86 +202,69 @@ void sDOS::setup() {
 #endif
 
 #if defined(ENABLE_I2C)
-    this->_debugger->Debug(_component, "ENABLE I2C");
-    //delay(1);
-    //sDOS_I2C * _driver_I2C = new sDOS_I2C(this->_debugger, _eventsManager);
-    //_drivers.push_back(_driver_I2C);
+    delay(1);
+    sDOS_I2C * _driver_I2C = new sDOS_I2C(this->_debugger, _eventsManager);
+    this->add(_driver_I2C);
 #endif
 #if defined(ENABLE_SPI)
-    //this->_debugger->Debug(_component, "ENABLE SPI");
-    //sDOS_SPI * _driver_SPI = new sDOS_SPI(this->_debugger, this->_eventsManager);
-    //_drivers.push_back(_driver_SPI);
+    sDOS_SPI * _driver_SPI = new sDOS_SPI(this->_debugger, this->_eventsManager);
+    this->add(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
-    #pragma message "Enable ST7735 display support"
-    this->_debugger->Debug(_component, "ENABLE ST7735");
     //_display = new sDOS_DISPLAY_ST7735(this->_debugger, this->_eventsManager, _driver_SPI);
-    //_drivers.push_back(_display);
+    //this->add(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
-    #pragma message "Enable ST7789 display support"
-    this->_debugger->Debug(_component, "ENABLE ST7789");
     //_display = new sDOS_DISPLAY_ST7789(this->_debugger, this->_eventsManager, _driver_SPI);
-    //_drivers.push_back(_display);
+    //this->add(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
-    this->_debugger->Debug(_component, "ENABLE MONOCOLOUR_LED");
-    //_drivers.push_back(_mono_led);
+    this->add(_mono_led);
 #endif
 #if defined(ENABLE_BUTTON)
     this->_debugger->Debug(_component, "ENABLE BUTTON");
-    //_drivers.push_back(_button);
+    //this->add(_button);
 #endif
 #if defined(ENABLE_TTP223)
-    this->_debugger->Debug(_component, "ENABLE TTP223");
-    //_drivers.push_back(_button_ttp223);
+    this->add(_button_ttp223);
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
     this->_debugger->Debug(_component, "ENABLE PCF8563");
     //_driver_RTC = new sDOS_PCF8563(this->_debugger, this->_eventsManager, _driver_I2C);
-    //_drivers.push_back(_driver_RTC);
+    //this->add(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
-    this->_debugger->Debug(_component, "ENABLE FAKE_RTC");
-    //_driver_RTC = new sDOS_FAKE_RTC(this->_debugger, this->_eventsManager);
-    //_drivers.push_back(_driver_RTC);
+    _driver_RTC = new sDOS_FAKE_RTC(this->_debugger, this->_eventsManager);
+    this->add(_driver_RTC);
 #endif
 #if defined(ENABLE_MPU9250)
     this->_debugger->Debug(_component, "ENABLE MPU9250");
-    _drivers.push_back(new sDOS_MPU9250(this->_debugger, this->_eventsManager));
+    this->add(new sDOS_MPU9250(this->_debugger, this->_eventsManager));
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
-
     //this->_debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), this->_eventsManager->getName(), _cpuScaler->getName());
     //_driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, _cpuScaler);
     //this->_debugger->Debug(_component, "ENABLE DISPLAY B (%sx%s)", DISPLAY_WIDTH, DISPLAY_HEIGHT);
     //_driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     //this->_debugger->Debug(_component, "ENABLE DISPLAY C");
-    //_drivers.push_back(_driver_FrameBuffer);
+    //this->add(_driver_FrameBuffer);
     //this->_debugger->Debug(_component, "ENABLE DISPLAY COMPLETE");
-
 #endif
 
 #if defined(ENABLE_WIFI)
-    this->_debugger->Debug(_component, "ENABLE WIFI");
-    //_drivers.push_back(_driver_WiFi);
+    this->add(_driver_WiFi);
 #endif
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-    this->_debugger->Debug(_component, "ENABLE BLUETOOTH");
-    _drivers.push_back(_driver_BT);
+    this->add(_driver_BT);
 #endif
-
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-    this->_debugger->Debug(_component, "ENABLE CPU_SCALER");
-    _services.push_back(_cpuScaler);
+    this->add(_cpuScaler);
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
-    this->_debugger->Debug(_component, "ENABLE SLEEPTUNE");
-    _services.push_back(new sDOS_SLEEPTUNE(this->_debugger, this->_eventsManager, this->_driver_WiFi, this->_driver_BT));
+    this->add(new sDOS_SLEEPTUNE(this->_debugger, this->_eventsManager, this->_driver_WiFi, this->_driver_BT));
 #endif
 #if defined(ENABLE_SERVICE_NTP) && defined(ENABLE_RTC)
-    this->_debugger->Debug(_component, "ENABLE NTP");
-    _services.push_back(new sDOS_NTP(this->_debugger, this->_eventsManager, this->_driver_RTC, this->_driver_WiFi));
+    this->add(new sDOS_NTP(this->_debugger, this->_eventsManager, this->_driver_RTC, this->_driver_WiFi));
 #endif
 
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
@@ -296,10 +274,10 @@ void sDOS::setup() {
     this->_debugger->Debug(_component, "%s>>> Setup Complete %s", COL_GREEN, COL_RESET);
 };
 
-
-
 void sDOS::Loop() {
-    this->_debugger->Debug(_component, "%s>>> Loop %s", COL_GREEN, COL_RESET);
+#ifdef DEBUG_LOOP_RUNNING
+    this->_debugger->Debug(_component, "%s>>> Loop Start %s", COL_GREEN, COL_RESET);
+#endif
 
     // Calculate how long it takes to iterate a loop.
     long microseconds = micros();
@@ -332,6 +310,7 @@ void sDOS::Loop() {
         }
         yield();
     }
+    this->_debugger->Debug(_component, "Completed drivers");
 
     // Loop over Services
     for (auto const &it : _services) {
@@ -344,7 +323,6 @@ void sDOS::Loop() {
             uint64_t runTimeMS = (micros() - started) / 1000;
 #ifdef DEBUG_LOOP_RUNNING
             this->_debugger->Debug(_component, "%s<<< Loop <- Service <- %s%s (in %dms)", COL_GREEN, it->getName().c_str(), COL_RESET, runTimeMS);
-#else
 #endif
         } else {
 #ifdef DEBUG_LOOP_RUNNING
@@ -353,8 +331,19 @@ void sDOS::Loop() {
         }
         yield();
     }
+    this->_debugger->Debug(_component, "Completed services");
 
     // Check the Events loop
+#ifdef DEBUG_LOOP_RUNNING
+    this->_debugger->Debug(_component, "%s>>> Loop -> Events Manager %s", COL_GREEN, COL_RESET);
+#endif
     this->_eventsManager->loop();
     yield();
+#ifdef DEBUG_LOOP_RUNNING
+    this->_debugger->Debug(_component, "%s<<< Loop <- Events Manager %s", COL_GREEN, COL_RESET);
+#endif
+
+#ifdef DEBUG_LOOP_RUNNING
+    this->_debugger->Debug(_component, "%s<<< Loop Complete %s", COL_GREEN, COL_RESET);
+#endif
 };
