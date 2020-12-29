@@ -91,13 +91,20 @@ public:
     sDOS_FrameBuffer(Debugger * debugger, EventsManager * eventsManager, AbstractDisplay *display,
                      sDOS_CPU_SCALER *cpuScaler)
         : sDOS_Abstract_Driver(debugger, eventsManager), _display(display), _cpuScaler(cpuScaler) {
-        _debugger->Debug(_component, "Yo.");
-        this->setup();
-
-
     };
 
-    void setup() {};
+    void setup() {
+        sDOS_Abstract_Driver::setup();
+    };
+
+    void loop() {
+        sDOS_Abstract_Driver::loop();
+        if (_everyPixelDirty) {
+            repaintEntireFrame();
+        } else if(_dirtyPixels.size() > 0) {
+            repaintDirtyPixels();
+        }
+    };
 
     AbstractDisplay * getDisplay() {
         return _display;
@@ -160,13 +167,7 @@ public:
         _debugger->Debug(_component, "Allocated %s%dKB%s to framebuffer", COL_RED, buffSize / 1024, COL_RESET);
     }
 
-    void loop() {
-        if (_everyPixelDirty) {
-            repaintEntireFrame();
-        } else if(_dirtyPixels.size() > 0) {
-            repaintDirtyPixels();
-        }
-    };
+
 
     virtual String getName() {
         return "fbuff";

@@ -175,6 +175,7 @@ public:
     _drivers.push_back(new sDOS_MPU9250(this->_debugger, this->_eventsManager));
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
+    /*
     this->_debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), this->_eventsManager->getName(), _cpuScaler->getName());
     _driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, _cpuScaler);
     this->_debugger->Debug(_component, "ENABLE DISPLAY B (%sx%s)", DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -182,6 +183,7 @@ public:
     this->_debugger->Debug(_component, "ENABLE DISPLAY C");
     _drivers.push_back(_driver_FrameBuffer);
     this->_debugger->Debug(_component, "ENABLE DISPLAY COMPLETE");
+     */
 #endif
 
 #if defined(ENABLE_WIFI)

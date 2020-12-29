@@ -78,7 +78,7 @@ protected:
 #ifdef DEBUG_CPU_SCALER_DECISIONS
         _debugger->Debug(
             _component,
-            "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s",
+            "Is Slow Possible? Wifi: %s%s%s. Wifi Requests: %s%d%s. BlueTooth: %s%s%s. Bluetooth Requests: %s%d%s",
             _wifi->canSleep() ? COL_GREEN : COL_RED,
             _wifi->canSleep() ? F("possible") : F("NOT POSSIBLE"),
             COL_RESET,
@@ -87,6 +87,9 @@ protected:
             COL_RESET,
             _bluetooth->canSleep() ? COL_GREEN : COL_RED,
             _bluetooth->canSleep() ? F("possible") : F("NOT POSSIBLE"),
+            COL_RESET,
+            _bluetooth->getRequestCount() > 0 ? COL_RED : COL_GREEN,
+            _bluetooth->getRequestCount(),
             COL_RESET
         );
 #endif

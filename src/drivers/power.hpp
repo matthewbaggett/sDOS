@@ -12,9 +12,12 @@ public:
         : sDOS_Abstract_Driver(debugger, eventsManager)
     {
         debugger->Debug(_component, "Construct");
+        sDOS_POWER::_chargingInterruptTriggered = false;
+        sDOS_POWER::_isCharging = false;
     };
 
     void setup() {
+        sDOS_Abstract_Driver::setup();
         esp_adc_cal_characteristics_t adc_chars;
         esp_adc_cal_value_t val_type = esp_adc_cal_characterize((adc_unit_t)ADC_UNIT_1, (adc_atten_t)ADC1_CHANNEL_6, (adc_bits_width_t)ADC_WIDTH_BIT_12, 1100, &adc_chars);
         //Check type of calibration value used to characterize ADC
@@ -43,10 +46,10 @@ public:
         _debugger->Debug(_component, "Enabled monitoring charging state on pin #%d", POWER_MONITOR_CHARGE_STATE);
         pinMode(POWER_MONITOR_CHARGE_STATE, INPUT_PULLUP);
         attachInterrupt(POWER_MONITOR_CHARGE_STATE, [] {
-            _chargingInterruptTriggered = true;
+            sDOS_POWER::_chargingInterruptTriggered = true;
         }, CHANGE);
         if(digitalRead(POWER_MONITOR_CHARGE_STATE) == LOW) {
-            _chargingInterruptTriggered = true;
+            sDOS_POWER::_chargingInterruptTriggered = true;
         }
 #endif
         _eventsManager->trigger(F("power_ready"));
@@ -62,15 +65,24 @@ public:
         return static_cast<int>((voltageRead(adcPin)*1000));
     };
 
-    void loop() override {
+    void loop() {
+        Serial.println("A");
+        sDOS_Abstract_Driver::loop();
+        Serial.println("B");
 #ifdef POWER_MONITOR_CHARGE_STATE
-        if (sDOS_POWER::_chargingInterruptTriggered) {
-            sDOS_POWER::_chargingInterruptTriggered = false;
+        Serial.println("C1");
+
+        if (this->_chargingInterruptTriggered) {
+            Serial.println("C2");
+            this->_chargingInterruptTriggered = false;
             sDOS_POWER::_isCharging = digitalRead(POWER_MONITOR_CHARGE_STATE) == LOW;
+            Serial.println("C3");
 
             _debugger->Debug(_component, "Charging status changed to %s",
                             sDOS_POWER::_isCharging ? "charging" : "discharging");
+            Serial.println("C4");
             _eventsManager->trigger(F("power_charging"), sDOS_POWER::_isCharging ? "yes" : "no");
+            Serial.println("C5");
         }
 #endif
 #ifdef POWER_MONITOR_VBATT
@@ -93,6 +105,7 @@ public:
             sDOS_POWER::_mon_mv_vbus_previous = sDOS_POWER::_mon_mv_vbus;
         }
 #endif
+        Serial.println("Exit");
     };
 
     static bool isCharging() {
@@ -112,7 +125,7 @@ public:
     String getName() {
         return _component;
     };
-private:
+protected:
 #ifdef POWER_MONITOR_VBATT
     static int _mon_mv_vbatt;
     static int _mon_mv_vbatt_previous;
@@ -129,8 +142,6 @@ private:
     int _vref = 1100;
 };
 
-bool sDOS_POWER::_isCharging = false;
-bool sDOS_POWER::_chargingInterruptTriggered = false;
 #ifdef POWER_MONITOR_VBATT
 int sDOS_POWER::_mon_mv_vbatt = 0;
 int sDOS_POWER::_mon_mv_vbatt_previous = 0;
