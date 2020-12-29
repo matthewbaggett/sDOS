@@ -17,10 +17,8 @@ enum WifiState {
 class WiFiManager : public sDOS_Abstract_Driver {
     const unsigned int MAX_WIFI_CREDENTIALS = 10;
 
-private:
-    Debugger * _debugger;
+protected:
     FileSystem *_fileSystem;
-    EventsManager *_events;
     const String _component = "WiFi";
     const String _fileWifiCredentials = "/wifi.json";
     enum WifiState _wifiClientState = WIFI_DISCONNECTED;
@@ -41,13 +39,13 @@ public:
 #ifdef ESP32
         esp_wifi_deinit();
 #endif
-        powerOff();
-        loadWifiConfigs();
+        this->powerOff();
+        this->loadWifiConfigs();
         WiFiManager::_requestsActive = 0;
     };
 
     void loop() override {
-        //_debugger->Debug(_component, "Active? %s", isActive() ? "yes" : "no");
+        //this->_debugger->Debug(_component, "Active? %s", isActive() ? "yes" : "no");
         updateState();
         _wifiSignalStrength = WiFi.isConnected() ? getSignalStrength() : 0;
         checkForStateChanges();
@@ -56,12 +54,12 @@ public:
 
     void addRequestActive() {
         if (WiFiManager::_numLoadedSSIDs == 0) return;
-        _debugger->Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
+        this->_debugger->Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
         WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 1 : WiFiManager::_requestsActive + 1;
     }
 
     void removeRequestActive() {
-        _debugger->Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
+        this->_debugger->Debug(_component, "Requests Active: %d", WiFiManager::_requestsActive);
         WiFiManager::_requestsActive = WiFiManager::_requestsActive <= 0 ? 0 : WiFiManager::_requestsActive - 1;
     }
 
@@ -87,11 +85,10 @@ public:
     };
 
 protected:
-
     void loadWifiConfigs() {
         delay(100);
         JsonConfigFile wifiCreds[MAX_WIFI_CREDENTIALS];
-        _fileSystem->loadJsonArray(wifiCreds, _fileWifiCredentials);
+        this->_fileSystem->loadJsonArray(wifiCreds, this->_fileWifiCredentials);
         delay(100);
         for (int i = 0; i < MAX_WIFI_CREDENTIALS; i++) {
             std::map<std::string, std::string> row = wifiCreds[i].data;
@@ -99,7 +96,7 @@ protected:
             if (!row["ssid"].empty()) {
                 WiFiManager::_numLoadedSSIDs++;
                 wifiMulti.addAP(row["ssid"].c_str(), row["psk"].c_str());
-                _debugger->Debug(
+                this->_debugger->Debug(
                     _component,
                     "Loaded Wifi Credential: %s",
                     row["ssid"].c_str());
@@ -111,14 +108,14 @@ protected:
     void checkForStateChanges() {
         if (_wifiClientStatePrevious != _wifiClientState) {
             if (_wifiClientState == WIFI_CONNECTED && _wifiClientStatePrevious == WIFI_DISCONNECTED) {
-                _debugger->Debug(_component, "Connected to %s as %s", WiFi.SSID().c_str(),
+                this->_debugger->Debug(_component, "Connected to %s as %s", WiFi.SSID().c_str(),
                                 WiFi.localIP().toString().c_str());
-                _eventsManager->trigger("wifi_connect", WiFi.SSID());
-                _eventsManager->trigger("wifi_ip_set", WiFi.localIP().toString());
+                this->_eventsManager->trigger("wifi_connect", WiFi.SSID());
+                this->_eventsManager->trigger("wifi_ip_set", WiFi.localIP().toString());
             } else if (_wifiClientState == WIFI_DISCONNECTED && _wifiClientStatePrevious == WIFI_CONNECTED) {
-                _debugger->Debug(_component, "Disconnected from Wifi.");
-                _eventsManager->trigger("wifi_disconnect");
-                _eventsManager->trigger("wifi_ip_unset");
+                this->_debugger->Debug(_component, "Disconnected from Wifi.");
+                this->_eventsManager->trigger("wifi_disconnect");
+                this->_eventsManager->trigger("wifi_ip_unset");
             }
             _wifiClientStatePrevious = _wifiClientState;
         }
@@ -127,8 +124,8 @@ protected:
         if (_wifiSignalStrength != _wifiSignalStrengthPrevious) {
             _wifiSignalStrengthPrevious = _wifiSignalStrength;
 
-            //_debugger->Debug(_component, "Signal Strength changed to %d%%", _wifiSignalStrength);
-            //_eventsManager->trigger("wifi_signal", _wifiSignalStrength);
+            //this->_debugger->Debug(_component, "Signal Strength changed to %d%%", _wifiSignalStrength);
+            //this->_eventsManager->trigger("wifi_signal", _wifiSignalStrength);
         }
     };
 
@@ -152,24 +149,24 @@ protected:
             return;
         }
         WiFiManager::_powerOnState = true;
-        _debugger->Debug(_component, "powerOn()");
+        this->_debugger->Debug(_component, "powerOn()");
 #ifdef ESP32
         WiFi.mode(WIFI_MODE_STA);
 #endif
         WiFi.persistent(false);
         WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(true);
-        _eventsManager->trigger("wifi_on");
+        this->_eventsManager->trigger("wifi_on");
         return;
 #if defined(ESP32) && defined(WIFI_POWER_SAVING)
         if (WIFI_POWER_SAVING == WIFI_PS_NONE) {
-            _debugger->Debug(_component, "WiFi power saving is disabled");
+            this->_debugger->Debug(_component, "WiFi power saving is disabled");
         } else if (esp_wifi_set_ps(WIFI_POWER_SAVING) == ESP_OK) {
-            _debugger->Debug(_component, "Enabled WiFi power saving successfully");
-            _eventsManager->trigger("wifi_powersave", F("okay"));
+            this->_debugger->Debug(_component, "Enabled WiFi power saving successfully");
+            this->_eventsManager->trigger("wifi_powersave", F("okay"));
         } else {
-            _debugger->Debug(_component, "Failed to enable WiFi power saving");
-            _eventsManager->trigger("wifi_powersave", F("fail"));
+            this->_debugger->Debug(_component, "Failed to enable WiFi power saving");
+            this->_eventsManager->trigger("wifi_powersave", F("fail"));
         }
 #endif
     };
@@ -178,15 +175,15 @@ protected:
         if (!WiFiManager::_powerOnState) {
             return;
         }
-        _debugger->Debug(_component, "powerOff()");
+        this->_debugger->Debug(_component, "powerOff()");
         WiFiManager::_powerOnState = false;
         WiFi.persistent(false);
         WiFi.setAutoConnect(false);
         WiFi.setAutoReconnect(false);
         if (!WiFi.disconnect()) {
-            _debugger->Debug(_component, "Failed calling WiFi.disconnect()");
+            this->_debugger->Debug(_component, "Failed calling WiFi.disconnect()");
         } else {
-            _eventsManager->trigger("wifi_off");
+            this->_eventsManager->trigger("wifi_off");
         }
 #ifdef ESP32
         WiFi.mode(WIFI_MODE_NULL);

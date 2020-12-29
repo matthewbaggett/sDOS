@@ -20,8 +20,7 @@ struct JsonConfigFile {
 
 class FileSystem : public sDOS_Abstract_Driver {
 private:
-    Debugger * _debugger;
-    const String _component = "FS";
+    const String _component = "SPIFFS";
     bool firstLoop = true;
 
 public:
@@ -29,7 +28,11 @@ public:
         //debugger->Debug(_component, "Construct");
     };
 
-    void setup() override {}
+    void setup() override {
+        this->_debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
+        SPIFFS.begin();
+        this->_debugger->Debug(_component, "Starting %sSPIFFS%s complete!", COL_RED, COL_RESET);
+    }
 
     bool isActive() override {
         return false;
@@ -39,28 +42,21 @@ public:
         return _component;
     };
 
-    void loop() override {
-        if (firstLoop) {
-            _debugger->Debug(_component, "Starting %sSPIFFS%s", COL_RED, COL_RESET);
-            SPIFFS.begin();
-            _debugger->Debug(_component, "Starting %sSPIFFS%s complete!", COL_RED, COL_RESET);
-            firstLoop = false;
-        }
-    }
+    void loop() override {}
 
     JsonConfigFile *loadJsonArray(JsonConfigFile *config, const String& fileName) {
-        _debugger->Debug(_component, "Reading %s%s%s from %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,
+        this->_debugger->Debug(_component, "Reading %s%s%s from %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,
                         COL_RESET);
-        _debugger->Debug(_component, "%sSPIFFS%s init OK", COL_RED, COL_RESET);
+        this->_debugger->Debug(_component, "%sSPIFFS%s init OK", COL_RED, COL_RESET);
         if (!SPIFFS.exists(fileName.c_str())) {
-            _debugger->Debug(_component, "File %s%s%s DOES NOT EXIST in %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET,
+            this->_debugger->Debug(_component, "File %s%s%s DOES NOT EXIST in %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET,
                             COL_RED, COL_RESET);
         }
-        _debugger->Debug(_component, "File %s%s%s exists in %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,
+        this->_debugger->Debug(_component, "File %s%s%s exists in %sSPIFFS%s", COL_GREEN, fileName.c_str(), COL_RESET, COL_RED,
                         COL_RESET);
         File f = SPIFFS.open(fileName.c_str(), "r");
         if (!f) {
-            _debugger->Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed", fileName.c_str());
+            this->_debugger->Debug(_component, "loadJsonArray _spiffs.open(\"%s\") failed", fileName.c_str());
         }
 
         // Read the file into buffer
@@ -74,7 +70,7 @@ public:
         DeserializationError error = deserializeJson(doc, temp);
         // Test if parsing succeeds.
         if (error) {
-            _debugger->Debug(F("deserializeJson() failed: %s"), error.c_str());
+            this->_debugger->Debug(F("deserializeJson() failed: %s"), error.c_str());
             return config;
         }
         int rowId = 0;

@@ -11,7 +11,6 @@ public:
         pinMode(_gpio, OUTPUT);
         ledcSetup(_pwmChannel, 5000, 8);
         ledcAttachPin(_gpio, _pwmChannel);
-        this->_debugger->Debug(_component, "setup() complete");
     };
 
     bool isActive() {

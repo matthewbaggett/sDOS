@@ -15,23 +15,12 @@ public:
     }
 
     void setup() override {
-
-        Serial.println("sDOS_NTP::setup() A");
-        Serial.flush();
         this->_timeClient = new NTPClient(_ntpUDP, NTP_POOL, NTP_OFFSET * 3600);
-        Serial.println("sDOS_NTP::setup() B");
-        Serial.flush();
         DateTime initialDateTime(1990, 6, 1);
-        Serial.println("sDOS_NTP::setup() C");
-        Serial.flush();
         this->_lastSuccessfulUpdateEpoch = initialDateTime.unixtime();
-        Serial.println("sDOS_NTP::setup() D");
-        Serial.flush();
     };
 
     void loop() override {
-        Serial.println("sDOS_NTP::loop()");
-
         if (!this->needsUpdate()) {
             return;
         }

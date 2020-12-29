@@ -8,11 +8,8 @@ public:
         : sDOS_Abstract_Driver(debugger, eventsManager) {}
 
     void setup() {
-        Serial.println("sDOS_I2C::setup() A");
         this->connect();
-        Serial.println("sDOS_I2C::setup() B");
         this->scan();
-        Serial.println("sDOS_I2C::setup() C");
     };
 
     void loop() override {};
@@ -26,29 +23,21 @@ public:
     };
 
     void connect() {
-        Serial.println("sDOS_I2C::connect() A");
 #ifdef ESP32
         if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
-            Serial.println("sDOS_I2C::connect() B");
-            this->_debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
-            Serial.println("sDOS_I2C::connect() C");
+            this->_debugger->Debug(this->_component, "I2C configured at %dkhz", I2C_CLOCK / 1000);
             this->_eventsManager->trigger("i2c_ready");
-            Serial.println("sDOS_I2C::connect() D");
             sDOS_I2C::_isConnected = true;
-            Serial.println("sDOS_I2C::connect() E");
         } else {
-            Serial.println("sDOS_I2C::connect() F");
             this->_eventsManager->trigger("i2c_fail");
-            Serial.println("sDOS_I2C::connect() G");
         }
 #endif
 #ifdef ESP8266
         Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
-        this->_debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
+        this->_debugger->Debug(this->_component, "I2C configured at %dkhz", (I2C_CLOCK/1000));
         this->_eventsManager->trigger("i2c_ready");
         sDOS_I2C::_isConnected = true;
 #endif
-        Serial.println("sDOS_I2C::connect() Z");
     };
 
     TwoWire getWire() {
@@ -59,7 +48,7 @@ public:
     };
 
     void scan() {
-        _eventsManager->trigger("i2c_scan_begin");
+        //_eventsManager->trigger("i2c_scan_begin");
 
         byte error, address;
         int nDevices;
@@ -75,7 +64,7 @@ public:
             }
         }
 
-        _eventsManager->trigger("i2c_scan_end");
+        //_eventsManager->trigger("i2c_scan_end");
     };
 
     static bool i2cDeviceExists(byte address) {
@@ -87,10 +76,8 @@ public:
         return _component;
     };
 
-private:
+protected:
     String _component = "i2c";
-    Debugger * _debugger;
-    EventsManager * _eventsManager;
     static bool _isConnected;
 };
 

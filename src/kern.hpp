@@ -273,25 +273,21 @@ void sDOS::setup() {
 #endif
 
     // Loop over Drivers
-    this->_debugger->Debug(_component, "calling drivers setup()");
 
     for (auto const &it : this->_drivers) {
-        this->_debugger->Debug(_component, "inside iterator %s", it->getName());
+        this->_debugger->Debug(_component, "calling driver %s->setup()", it->getName());
         it->setup();
         yield();
     }
-    this->_debugger->Debug(_component, "calling drivers setup() finished");
-
-    this->_debugger->Debug(_component, "calling services setup()");
 
     // Loop over Services
     for (auto const &it : this->_services) {
+        this->_debugger->Debug(_component, "calling service %s->setup()", it->getName());
         it->setup();
         yield();
     }
-    this->_debugger->Debug(_component, "calling services setup() finished");
 
-    this->_debugger->Debug(_component, "%s>>> Setup Complete %s", COL_GREEN, COL_RESET);
+    this->_debugger->Debug(_component, "%s*** Setup Complete, Runtime Begins ***%s", COL_GREEN, COL_RESET);
 };
 
 void sDOS::Loop() {
@@ -330,7 +326,6 @@ void sDOS::Loop() {
         }
         yield();
     }
-    this->_debugger->Debug(_component, "Completed drivers");
 
     // Loop over Services
     for (auto const &it : _services) {
@@ -351,7 +346,6 @@ void sDOS::Loop() {
         }
         yield();
     }
-    this->_debugger->Debug(_component, "Completed services");
 
     // Check the Events loop
 #ifdef DEBUG_LOOP_RUNNING
