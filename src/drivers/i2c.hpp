@@ -4,13 +4,15 @@
 
 class sDOS_I2C : public sDOS_Abstract_Driver {
 public:
-    sDOS_I2C(Debugger * debugger, EventsManager * eventsManager) : sDOS_Abstract_Driver(debugger, eventsManager) {
-        //debugger->Debug(_component, "Construct");
-    }
+    sDOS_I2C(Debugger * debugger, EventsManager * eventsManager)
+        : sDOS_Abstract_Driver(debugger, eventsManager) {}
 
     void setup() {
-        connect();
-        scan();
+        Serial.println("sDOS_I2C::setup() A");
+        this->connect();
+        Serial.println("sDOS_I2C::setup() B");
+        this->scan();
+        Serial.println("sDOS_I2C::setup() C");
     };
 
     void loop() override {};
@@ -24,26 +26,34 @@ public:
     };
 
     void connect() {
+        Serial.println("sDOS_I2C::connect() A");
 #ifdef ESP32
         if (Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK)) {
-            _debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
-            _eventsManager->trigger("i2c_ready");
+            Serial.println("sDOS_I2C::connect() B");
+            this->_debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK / 1000));
+            Serial.println("sDOS_I2C::connect() C");
+            this->_eventsManager->trigger("i2c_ready");
+            Serial.println("sDOS_I2C::connect() D");
             sDOS_I2C::_isConnected = true;
+            Serial.println("sDOS_I2C::connect() E");
         } else {
-            _eventsManager->trigger("i2c_fail");
+            Serial.println("sDOS_I2C::connect() F");
+            this->_eventsManager->trigger("i2c_fail");
+            Serial.println("sDOS_I2C::connect() G");
         }
 #endif
 #ifdef ESP8266
         Wire.begin(I2C_SDA, I2C_SCL, I2C_CLOCK);
-        _debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
-        _eventsManager->trigger("i2c_ready");
+        this->_debugger->Debug("i2c", "I2C configured at %dkhz", (I2C_CLOCK/1000));
+        this->_eventsManager->trigger("i2c_ready");
         sDOS_I2C::_isConnected = true;
 #endif
+        Serial.println("sDOS_I2C::connect() Z");
     };
 
     TwoWire getWire() {
         if (!sDOS_I2C::isConnected()) {
-            connect();
+            this->connect();
         }
         return Wire;
     };
