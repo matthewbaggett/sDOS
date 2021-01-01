@@ -47,9 +47,9 @@ public:
         _serial.printf("%s%04d ", COL_BLUE, _loopCount);
         _serial.printf("%s%-7.7s ", COL_YELLOW, component.c_str());
         _serial.printf("%s%3dMhz ", getCpuFrequencyMhz() > 20 ? COL_RED : COL_GREEN, getCpuFrequencyMhz());
-        _serial.printf("%s%s ",Debugger::isWifiPoweredOn() ? COL_RED : COL_GREEN, Debugger::isWifiPoweredOn() ? "W+" : "W-");
+        _serial.printf("%s%s ",Debugger::isWifiPoweredOn() ? COL_RED : COL_GREEN, Debugger::isWifiPoweredOn() ? F("W+") : F("W-"));
 #if defined(ENABLE_BLUETOOTH) && defined(ESP32)
-        _serial.printf("%s%s ", Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN, Debugger::isBluetoothPoweredOn() ? "B+" : "B-");
+        _serial.printf("%s%s ", Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN, Debugger::isBluetoothPoweredOn() ? F("B+") : F("B-"));
 #endif
 #if defined(ENABLE_POWER)
         _serial.printf("%s%.2fv ", Debugger::isPowerCharging() ? COL_BLUE : COL_PINK, Debugger::getBatteryVolts();

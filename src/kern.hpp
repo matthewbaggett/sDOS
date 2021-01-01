@@ -126,9 +126,8 @@ protected:
     sDOS_FAKE_RTC * _driver_RTC;
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
-    #pragma message "Enable display"
-    //AbstractDisplay * _display;
-    //sDOS_FrameBuffer * _driver_FrameBuffer;
+    AbstractDisplay * _display;
+    sDOS_FrameBuffer * _driver_FrameBuffer;
 #endif
 
 #if defined(ENABLE_BUTTON)
@@ -211,12 +210,12 @@ void sDOS::setup() {
     this->add(_driver_SPI);
 #endif
 #if defined(ENABLE_ST7735) && defined(ENABLE_SPI)
-    //_display = new sDOS_DISPLAY_ST7735(this->_debugger, this->_eventsManager, _driver_SPI);
-    //this->add(_display);
+    _display = new sDOS_DISPLAY_ST7735(this->_debugger, this->_eventsManager, _driver_SPI);
+    this->add(_display);
 #endif
 #if defined(ENABLE_ST7789) && defined(ENABLE_SPI)
-    //_display = new sDOS_DISPLAY_ST7789(this->_debugger, this->_eventsManager, _driver_SPI);
-    //this->add(_display);
+    _display = new sDOS_DISPLAY_ST7789(this->_debugger, this->_eventsManager, _driver_SPI);
+    this->add(_display);
 #endif
 #if defined(ENABLE_MONOCOLOUR_LED)
     this->add(_mono_led);
@@ -242,13 +241,9 @@ void sDOS::setup() {
     this->add(new sDOS_MPU9250(this->_debugger, this->_eventsManager));
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
-    //this->_debugger->Debug(_component, "ENABLE DISPLAY A on Display %s, Events %s, Cpu Scaler %s", _display->getName(), this->_eventsManager->getName(), _cpuScaler->getName());
-    //_driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, _cpuScaler);
-    //this->_debugger->Debug(_component, "ENABLE DISPLAY B (%sx%s)", DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    //_driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    //this->_debugger->Debug(_component, "ENABLE DISPLAY C");
-    //this->add(_driver_FrameBuffer);
-    //this->_debugger->Debug(_component, "ENABLE DISPLAY COMPLETE");
+    _driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, _cpuScaler);
+    _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    this->add(_driver_FrameBuffer);
 #endif
 
 #if defined(ENABLE_WIFI)
