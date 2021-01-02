@@ -241,7 +241,7 @@ void sDOS::setup() {
     this->add(new sDOS_MPU9250(this->_debugger, this->_eventsManager));
 #endif
 #if defined(ENABLE_DISPLAY) && defined(ESP32)
-    _driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, _cpuScaler);
+    _driver_FrameBuffer = new sDOS_FrameBuffer(this->_debugger, this->_eventsManager, _display, this->_cpuScaler);
     _driver_FrameBuffer->init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     this->add(_driver_FrameBuffer);
 #endif
@@ -253,7 +253,7 @@ void sDOS::setup() {
     this->add(_driver_BT);
 #endif
 #if defined(ENABLE_CPU_SCALER) && defined(ESP32)
-    this->add(_cpuScaler);
+    this->add(this->_cpuScaler);
 #endif
 #if defined(ENABLE_SERVICE_SLEEPTUNE) && defined(ESP32)
     this->add(new sDOS_SLEEPTUNE(this->_debugger, this->_eventsManager, this->_driver_WiFi, this->_driver_BT));
