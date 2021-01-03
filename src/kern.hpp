@@ -25,6 +25,9 @@ unsigned int _loopCount = 0;
 #ifdef ENABLE_SPI
 #include "drivers/spi.hpp"
 #endif
+#ifdef ENABLE_AXP192
+#include "drivers/pwrmgmt/axp192.hpp"
+#endif
 #ifdef ENABLE_MONOCOLOUR_LED
 #include "drivers/led/monocolour.hpp"
 #endif
@@ -129,6 +132,9 @@ protected:
     AbstractDisplay * _display;
     sDOS_FrameBuffer * _driver_FrameBuffer;
 #endif
+#ifdef ENABLE_AXP192
+    sDOS_AXP192 * _axp192;
+#endif
 
 #if defined(ENABLE_BUTTON)
     sDOS_BUTTON * _button;
@@ -217,6 +223,10 @@ void sDOS::setup() {
     _display = new sDOS_DISPLAY_ST7789(this->_debugger, this->_eventsManager, _driver_SPI);
     this->add(_display);
 #endif
+#ifdef ENABLE_AXP192
+    _axp192 = new sDOS_AXP192(this->_debugger, this->_eventsManager, _driver_I2C);
+    this->add(_axp192);
+#endif
 #if defined(ENABLE_MONOCOLOUR_LED)
     this->add(_mono_led);
 #endif
@@ -228,9 +238,8 @@ void sDOS::setup() {
     this->add(_button_ttp223);
 #endif
 #if defined(ENABLE_PCF8563) && defined(ENABLE_RTC) && defined(ENABLE_I2C)
-    this->_debugger->Debug(_component, "ENABLE PCF8563");
-    //_driver_RTC = new sDOS_PCF8563(this->_debugger, this->_eventsManager, _driver_I2C);
-    //this->add(_driver_RTC);
+    _driver_RTC = new sDOS_PCF8563(this->_debugger, this->_eventsManager, _driver_I2C);
+    this->add(_driver_RTC);
 #endif
 #if defined(ENABLE_FAKE_RTC) && defined(ENABLE_RTC)
     _driver_RTC = new sDOS_FAKE_RTC(this->_debugger, this->_eventsManager);

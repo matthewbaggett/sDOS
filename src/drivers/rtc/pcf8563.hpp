@@ -11,6 +11,7 @@ public:
     }
 
     void setup() {
+        Serial.println("sDOS_PCF8563::setup()");
         sDOS_RTC::setup();
         _eventsManager->trigger(F("rtc_enable"));
         pinMode(PIN_INTERRUPT_PCF8563, INPUT);
@@ -66,7 +67,7 @@ public:
     };
 
 protected:
-    String _component = "rtc";
+    String _component = "rtc8563";
 
     static void interrupt() {
         _interruptTriggered = true;

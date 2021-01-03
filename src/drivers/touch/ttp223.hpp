@@ -1,5 +1,4 @@
-#ifndef SDOS_DRIVERS_TOUCH_TTP223_HPP
-#define SDOS_DRIVERS_TOUCH_TTP223_HPP
+#pragma once
 #include "button.hpp"
 
 class sDOS_TTP223 : public sDOS_BUTTON {
@@ -85,5 +84,3 @@ private:
 bool sDOS_TTP223::_interruptTriggeredButtonDown = false;
 bool sDOS_TTP223::_interruptTriggeredButtonUp = false;
 uint64_t sDOS_TTP223::_interruptDownOccurred = 0;
-
-#endif

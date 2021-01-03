@@ -1,6 +1,4 @@
-#ifndef SDOS_DRIVERS_TOUCH_BUTTON_HPP
-#define SDOS_DRIVERS_TOUCH_BUTTON_HPP
-
+#pragma once
 #include "kern_inc.h"
 #include "abstracts/driver.hpp"
 
@@ -25,4 +23,3 @@ protected:
 
 };
 
-#endif
