@@ -50,10 +50,14 @@ public:
         return true;
     }
 
+    bool within(double a, double b, double marginOfError = 0.01){
+        return a - b < marginOfError;
+    }
+
     void loop() {
 
         double newBatteryVoltage = this->getBatteryVoltage();
-        if(this->previousBatteryVoltage != newBatteryVoltage){
+        if(!this->within(this->previousBatteryVoltage, newBatteryVoltage,0.02)){
             Serial.printf("Previous: %f\nCurrent: %f\n", this->previousBatteryVoltage, newBatteryVoltage);
             this->_debugger->Debug(_component, "Battery Voltage            : %7.2f => %7.2f delta %7.2f", this->previousBatteryVoltage, newBatteryVoltage, newBatteryVoltage - this->previousBatteryVoltage);
             this->previousBatteryVoltage = newBatteryVoltage;
@@ -61,57 +65,57 @@ public:
         }
 
         double newBatteryCurrent = this->getBatteryCurrent();
-        if(this->previousBatteryCurrent != newBatteryCurrent){
+        if(!this->within(this->previousBatteryCurrent, newBatteryCurrent)){
             this->_debugger->Debug(_component, "Battery Current            : %7.2f => %7.2f delta %7.2f", this->previousBatteryCurrent, newBatteryCurrent, newBatteryCurrent - this->previousBatteryCurrent);
             this->previousBatteryCurrent = newBatteryCurrent;
             //this->_eventsManager->trigger("axp192_battery_current", newBatteryCurrent);
         }
 
         float newBatteryDischargeCurrent = this->getBatteryDischargeCurrent();
-        if(this->previousBatteryDischargeCurrent != newBatteryDischargeCurrent){
+        if(!this->within(this->previousBatteryDischargeCurrent, newBatteryDischargeCurrent)){
             this->_debugger->Debug(_component, "Battery Current Draw       : %7.2f => %7.2f", this->previousBatteryDischargeCurrent, newBatteryDischargeCurrent);
             this->previousBatteryDischargeCurrent = newBatteryDischargeCurrent;
             //this->_eventsManager->trigger("axp192_battery_discharge_current", newBatteryDischargeCurrent);
         }
 
         float newBatteryChargeCurrent = this->getBatteryChargeCurrent();
-        if(this->previousBatteryChargeCurrent != newBatteryChargeCurrent){
+        if(!this->within(this->previousBatteryChargeCurrent, newBatteryChargeCurrent)){
             this->_debugger->Debug(_component, "Battery Current (Charging) : %7.2f => %7.2f", this->previousBatteryChargeCurrent, newBatteryChargeCurrent);
             this->previousBatteryChargeCurrent = newBatteryChargeCurrent;
             //this->_eventsManager->trigger("axp192_battery_charge_current", newBatteryChargeCurrent);
         }
 
         float newAcInVoltage = this->getAcInVoltage();
-        if(this->previousAcInVoltage != newAcInVoltage){
-            //this->_debugger->Debug(_component, "Supplied Voltage           : %7.2f => %7.2f", this->previousAcInVoltage, newAcInVoltage);
+        if(!this->within(this->previousAcInVoltage, newAcInVoltage)){
+            this->_debugger->Debug(_component, "Supplied Voltage           : %7.2f => %7.2f", this->previousAcInVoltage, newAcInVoltage);
             this->previousAcInVoltage = newAcInVoltage;
             //this->_eventsManager->trigger("axp192_supplied_voltage", newAcInVoltage);
         }
 
         float newAcInCurrent = this->getAcInCurrent();
-        if(this->previousAcInCurrent != newAcInCurrent){
-            //this->_debugger->Debug(_component, "Supplied Current           : %7.2f => %7.2f", this->previousAcInCurrent, newAcInCurrent);
+        if(!this->within(this->previousAcInCurrent, newAcInCurrent)){
+            this->_debugger->Debug(_component, "Supplied Current           : %7.2f => %7.2f", this->previousAcInCurrent, newAcInCurrent);
             this->previousAcInCurrent = newAcInCurrent;
             //this->_eventsManager->trigger("axp192_supplied_current", newAcInCurrent);
         }
 
         float newVbusVoltage = this->getVbusVoltage();
-        if(this->previousVbusVoltage != newVbusVoltage){
-            //this->_debugger->Debug(_component, "VBUS Voltage               : %7.2f => %7.2f delta %7.2f", this->previousVbusVoltage, newVbusVoltage, newVbusVoltage - this->previousVbusVoltage);
+        if(!this->within(this->previousVbusVoltage, newVbusVoltage)){
+            this->_debugger->Debug(_component, "VBUS Voltage               : %7.2f => %7.2f delta %7.2f", this->previousVbusVoltage, newVbusVoltage, newVbusVoltage - this->previousVbusVoltage);
             this->previousVbusVoltage = newVbusVoltage;
             //this->_eventsManager->trigger("axp192_vbus_voltage", newVbusVoltage);
         }
 
         float newVbusCurrent = this->getVbusCurrent();
-        if(this->previousVbusCurrent != newVbusCurrent){
-            //this->_debugger->Debug(_component, "VBUS Current               : %7.2f => %7.2f delta %7.2f", this->previousVbusCurrent, newVbusCurrent, newVbusCurrent - this->previousVbusCurrent);
+        if(!this->within(this->previousVbusCurrent, newVbusCurrent)){
+            this->_debugger->Debug(_component, "VBUS Current               : %7.2f => %7.2f delta %7.2f", this->previousVbusCurrent, newVbusCurrent, newVbusCurrent - this->previousVbusCurrent);
             this->previousVbusCurrent = newVbusCurrent;
             //this->_eventsManager->trigger("axp192_vbus_current", newVbusCurrent);
         }
 
         float newInternalTemperature = this->getInternalTemperature();
-        if(this->previousInternalTemperature != newInternalTemperature){
-            //this->_debugger->Debug(_component, "Internal Temperature       : %7.2f => %7.2f", this->previousInternalTemperature, newInternalTemperature);
+        if(!this->within(this->previousInternalTemperature, newInternalTemperature)){
+            this->_debugger->Debug(_component, "Internal Temperature       : %7.2f => %7.2f", this->previousInternalTemperature, newInternalTemperature);
             this->previousInternalTemperature = newInternalTemperature;
             //this->_eventsManager->trigger("axp192_temperature", newInternalTemperature);
         }
@@ -302,7 +306,7 @@ public:
     double getBatteryVoltage() {
         double ADCLSB = 1.0 / 1000.0;
         uint16_t vbat = this->_i2c->read12bit(0x34, 0x78);
-        Serial.print("VBAT from i2c: ");Serial.println(vbat);
+        //Serial.print("VBAT from i2c: ");Serial.println(vbat);
         return vbat * ADCLSB;
     };
 
