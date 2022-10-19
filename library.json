@@ -48,13 +48,6 @@
     {
       "name": "RTCLib",
       "version": "https://github.com/NeiroNx/RTCLib#v1.5.8"
-    },
-    {
-      "name": "SparkFun MPU-9250 Digital Motion Processing (DMP) Arduino Library",
-      "version": "https://github.com/UT2UH/SparkFun_MPU-9250-DMP_Arduino_Library"
-    },
-    {
-      "name": ""
     }
   ]
 }

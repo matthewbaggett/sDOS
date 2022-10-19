@@ -191,7 +191,7 @@ void sDOS::setup() {
     this->add(_fileSystem);
 
 #if defined(ENABLE_POWER)
-    this->add(new sDOS_POWER(this->_debugger, this->_eventsManager))
+    this->add(new sDOS_POWER(this->_debugger, this->_eventsManager));
 #endif
 
     this->_debugger->Debug(_component, F("Started %sSmol Device Operating System%s Kernel"), COL_GREEN, COL_RESET);

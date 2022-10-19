@@ -1,6 +1,7 @@
 #pragma once
 #include "kern_inc.h"
 #include "abstracts/service.hpp"
+#include <numeric>
 
 #ifndef SLEEPTUNE_LOOPS_PER_SECOND
 #define SLEEPTUNE_LOOPS_PER_SECOND 5

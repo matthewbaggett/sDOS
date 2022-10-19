@@ -5,7 +5,7 @@
 
 #ifdef ESP32
 
-#include "integer.h"
+//#include "integer.h"
 
 #endif
 #ifdef ESP8266

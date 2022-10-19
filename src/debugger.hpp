@@ -52,7 +52,7 @@ public:
         _serial.printf("%s%s ", Debugger::isBluetoothPoweredOn() ? COL_RED : COL_GREEN, Debugger::isBluetoothPoweredOn() ? F("B+") : F("B-"));
 #endif
 #if defined(ENABLE_POWER)
-        _serial.printf("%s%.2fv ", Debugger::isPowerCharging() ? COL_BLUE : COL_PINK, Debugger::getBatteryVolts();
+        _serial.printf("%s%.2fv ", Debugger::isPowerCharging() ? COL_BLUE : COL_PINK, Debugger::getBatteryVolts());
 #endif
         _serial.printf("%s%3dK", ESP.getFreeHeap() < 50000 ? COL_RED : COL_BLUE, ESP.getFreeHeap() / 1024);
         _serial.printf("%s] ", COL_RESET);

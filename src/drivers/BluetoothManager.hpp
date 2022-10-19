@@ -87,12 +87,6 @@ public:
     static void sendMessage(String message) {
         if (bluetoothState == BluetoothState::BT_CONNECTED) {
             while (message.length() > 0) {
-                if (esp_bt_controller_is_sleeping()) {
-                    esp_bt_controller_wakeup_request();
-                    while (esp_bt_controller_is_sleeping()) {
-                        delay(1);
-                    }
-                }
                 pTxCharacteristic->setValue(message.substring(0, BluetoothManager::MAX_BLE_PACKET).c_str());
                 pTxCharacteristic->notify();
                 message = message.substring(BluetoothManager::MAX_BLE_PACKET);
